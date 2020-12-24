@@ -58,16 +58,39 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Support
+### Docker
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+* Установить docker:
+    https://docs.docker.com/engine/install/ubuntu/
 
-## Stay in touch
+* Установить docker-compose:
+    https://docs.docker.com/compose/install/
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+* Запускам контейнеры:
 
-## License
+    * В конфиге nginx nginx.conf.template закоментировать строку
+    * `ssl_trusted_certificate   /etc/letsencrypt/live/${DOMAIN_NAME}/chain.pem;`
 
-Nest is [MIT licensed](LICENSE).
+    * Запустить init-letsencrypt.sh
+    * `source .env && chmod +x nginx/init-letsencrypt.sh && sudo nginx/init-letsencrypt.sh $DOMAIN_NAME`
+
+    * Собираем docker image (лучше выполнить команду несколько раз, с первого раза почему-то не подхватыет .env): 
+    * `docker build .`
+
+    * Создаем базу и мигруруем: 
+    * `docker-compose run web python /app/manage.py migrate --noinput`
+
+    * Создаем таблицу для кешей
+    * `docker-compose run web python /app/manage.py createcachetable`
+
+    * Создаем админа: 
+    * `docker-compose run web python /app/manage.py createsuperuser`
+
+    * Запускаем сервис:
+    * `docker-compose up -d --build`
+
+    * Для остановки сервиса 
+    * `docker-compose down`
+
+    * Очистка всего докера
+    * `docker system prune`
