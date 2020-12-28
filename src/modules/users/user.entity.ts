@@ -32,4 +32,7 @@ export class User extends Model<User> {
     allowNull: false,
   })
   password: Role;
+
+  @Column
+  profileId: number
 }

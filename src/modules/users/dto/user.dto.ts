@@ -1,7 +1,5 @@
-import { IsNotEmpty, MinLength, IsEmail, IsEnum, IsMobilePhone } from 'class-validator';
+import { IsNotEmpty, MinLength, IsEmail } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-
-// type Role = 'user' | 'trainer' | 'admin';
 
 export enum Role {
   admin = 'admin',
@@ -27,7 +25,7 @@ export class UserDto {
   @IsNotEmpty()
   readonly phone: number;
 
-  @ApiProperty({minLength: 6})
+  @ApiProperty({ minLength: 6 })
   @IsNotEmpty()
   @MinLength(6)
   readonly password: string;
