@@ -7,6 +7,7 @@ import {
   NotFoundException,
   UseGuards,
   Request,
+  Post,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -14,16 +15,16 @@ import { ProfileDto } from './dto/profile.dto';
 import { Profile } from './profile.entity';
 import { ProfilesService } from './profiles.service';
 
-@ApiTags("Profile")
+@ApiTags('Profile')
 @Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profileServise: ProfilesService) {}
 
-  @ApiResponse({status: 200})
-  @Get(':id')
-  async findOne(@Param('id') id: number): Promise<Profile> {
+  @ApiResponse({ status: 200 })
+  @Get(':userId')
+  async findOne(@Param('userId') userId: number): Promise<Profile> {
     // find the profile with this id
-    const profile = await this.profileServise.findOne(id);
+    const profile = await this.profileServise.findOne(userId);
 
     // if the profile doesn't exit in the db, throw a 404 error
     if (!profile) {
@@ -34,14 +35,20 @@ export class ProfilesController {
     return profile;
   }
 
-  // @UseGuards(AuthGuard('jwt'))
-  // @Post()
-  // async create(@Body() post: PostDto, @Request() req): Promise<PostEntity> {
-  //     // create a new post and return the newly created post
-  //     return await this.profileServise.create(post, req.user.id);
-  // }
+  @UseGuards(AuthGuard('jwt'))
+  @Post()
+  async create(@Body() profile: ProfileDto, @Request() req): Promise<Profile> {
+    // check if user already has a profile
+    const isProfile = await this.profileServise.findOne(req.user.id);
+    if (isProfile) {
+      throw new NotFoundException('This User already has a profile');
+    }
 
-  @ApiResponse({status: 200})
+    // create a new profile and return the newly created profile
+    return await this.profileServise.create(profile, req.user.id);
+  }
+
+  @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   async update(
@@ -53,7 +60,7 @@ export class ProfilesController {
     const {
       numberOfAffectedRows,
       updatedProfile,
-    } = await this.profileServise.update(id, profile);
+    } = await this.profileServise.update(id, profile, req.user.id);
 
     // if the number of row affected is zero,
     // it means the profile doesn't exist in our db

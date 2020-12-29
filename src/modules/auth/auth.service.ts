@@ -2,13 +2,11 @@ import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
-import { ProfilesService } from '../profiles/profiles.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UsersService,
-    private readonly profileService: ProfilesService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -36,13 +34,6 @@ export class AuthService {
   }
 
   public async create(user) {
-    const newProfile = await this.profileService.create({
-      height: 0,
-      weight: 0,
-      age: 0,
-      gender: 'male',
-    });
-
     // hash the password
     const pass = await this.hashPassword(user.password);
 
@@ -50,7 +41,6 @@ export class AuthService {
     const newUser = await this.userService.create({
       ...user,
       password: pass,
-      profileId: newProfile.id,
     });
 
     // tslint:disable-next-line: no-string-literal

@@ -6,13 +6,11 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy';
-import { ProfilesModule } from '../profiles/profiles.module';
 
 @Module({
     imports: [
         PassportModule,
         UsersModule,
-        ProfilesModule,
         JwtModule.register({
             secret: process.env.JWTSECRET,
             signOptions: { expiresIn: '30d' },

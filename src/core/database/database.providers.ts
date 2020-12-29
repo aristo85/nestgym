@@ -3,6 +3,7 @@ import { databaseConfig } from './database.config';
 import { User } from '../../modules/users/user.entity';
 import { Sequelize } from 'sequelize-typescript';
 import { Profile } from 'src/modules/profiles/profile.entity';
+import { Userapp } from 'src/modules/userapps/userapp.entity';
 // import { Sequelize } from 'sequelize';
 
 export const databaseProviders = [{
@@ -23,7 +24,7 @@ export const databaseProviders = [{
                 config = databaseConfig.development;
         }
         const sequelize = new Sequelize(config);
-        sequelize.addModels([User, Profile]);
+        sequelize.addModels([User, Profile, Userapp]);
         await sequelize.sync();
         return sequelize;
     },
