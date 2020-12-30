@@ -16,7 +16,7 @@ import { UserappDto } from './userapp.dto';
 import { Userapp } from './userapp.entity';
 import { UserappsService } from './userapps.service';
 
-@ApiTags('Applicatin')
+@ApiTags('Application')
 @Controller('userapps')
 export class UserappsController {
   constructor(private readonly userappService: UserappsService) {}

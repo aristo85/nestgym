@@ -24,9 +24,10 @@ export class User extends Model<User> {
   role: string;
 
   @Column({
+    type: DataType.STRING,
     allowNull: false,
   })
-  phone: number;
+  phone: string;
 
   @Column({
     type: DataType.STRING,

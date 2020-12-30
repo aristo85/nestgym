@@ -23,7 +23,7 @@ export class UserDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  readonly phone: number;
+  readonly phone: string;
 
   @ApiProperty({ minLength: 6 })
   @IsNotEmpty()

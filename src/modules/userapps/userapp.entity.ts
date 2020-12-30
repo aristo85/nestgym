@@ -1,5 +1,14 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  ForeignKey,
+  BelongsTo,
+  HasMany,
+} from 'sequelize-typescript';
 import { User } from '../users/user.entity';
+import { Photo } from '../photos/photo.entity';
 
 @Table
 export class Userapp extends Model<Userapp> {
