@@ -47,7 +47,7 @@ export class UserappsController {
       throw new NotFoundException("This app doesn't exist");
     }
 
-    // if apps exist, return the apps
+    // if apps exist, return apps
     return apps;
   }
 
