@@ -30,7 +30,7 @@ import { UsersService } from './users.service';
       // get all apps in the db
       const list = await this.userService.findAll();
       const count = list.length;
-      req.res.set('x-total-count', `${count}`)
+      req.res.set('Content-Range', `0-${count}/${count}`)
       return list;
     }
   
