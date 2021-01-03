@@ -39,4 +39,10 @@ export class UsersService {
 
     return { numberOfAffectedRows, updatedApplication };
   }
+
+  async findOne(id): Promise<User> {
+    return await this.userRepository.findOne({
+      where: { id },
+    });
+  }
 }

@@ -37,10 +37,24 @@ import { UsersService } from './users.service';
       return list;
     }
   
+    @ApiResponse({ status: 200 })
+  @Get(':id')
+  async findOne(@Param('id') id: number): Promise<User> {
+    // find the users with this id
+    const user = await this.userService.findOne(id);
+
+    // if the users doesn't exit in the db, throw a 404 error
+    if (!user) {
+      throw new NotFoundException("This app doesn't exist");
+    }
+
+    // if users exist, return users
+    return user;
+  }
     // @UseGuards(AuthGuard('jwt'))
     // @Post()
     // async create(@Body() user: UserDto): Promise<User> {
-    //   // create a new apps and return the newly created apps
+    //   // create a new users and return the newly created users
     //   return await this.userService.create(user);
     // }
   
