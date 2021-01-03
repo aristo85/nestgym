@@ -59,7 +59,7 @@ import { UsersService } from './users.service';
     // }
   
     @ApiResponse({ status: 200 })
-    // @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('jwt'))
     @Put(':id')
     async update(
       @Param('id') id: number,
