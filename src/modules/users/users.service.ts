@@ -27,4 +27,16 @@ export class UsersService {
     // console.log(count);
     return list;
   }
+
+  async update(id, data) {
+    const [
+      numberOfAffectedRows,
+      [updatedApplication],
+    ] = await this.userRepository.update(
+      { ...data },
+      { where: { id }, returning: true },
+    );
+
+    return { numberOfAffectedRows, updatedApplication };
+  }
 }

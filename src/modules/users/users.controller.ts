@@ -37,36 +37,36 @@ import { UsersService } from './users.service';
       return list;
     }
   
-    @UseGuards(AuthGuard('jwt'))
-    @Post()
-    async create(@Body() user: UserDto): Promise<User> {
-      // create a new apps and return the newly created apps
-      return await this.userService.create(user);
-    }
-  
-    // @ApiResponse({ status: 200 })
-    // // @UseGuards(AuthGuard('jwt'))
-    // @Put(':id')
-    // async update(
-    //   @Param('id') id: number,
-    //   @Body() userapp: UserappDto,
-    //   @Request() req,
-    // ): Promise<Userapp> {
-    //   // get the number of row affected and the updated userapp
-    //   const {
-    //     numberOfAffectedRows,
-    //     updatedApplication,
-    //   } = await this.userappService.update(id, userapp, req.user.id);
-  
-    //   // if the number of row affected is zero,
-    //   // it means the app doesn't exist in our db
-    //   if (numberOfAffectedRows === 0) {
-    //     throw new NotFoundException("This app doesn't exist");
-    //   }
-  
-    //   // return the updated app
-    //   return updatedApplication;
+    // @UseGuards(AuthGuard('jwt'))
+    // @Post()
+    // async create(@Body() user: UserDto): Promise<User> {
+    //   // create a new apps and return the newly created apps
+    //   return await this.userService.create(user);
     // }
+  
+    @ApiResponse({ status: 200 })
+    // @UseGuards(AuthGuard('jwt'))
+    @Put(':id')
+    async update(
+      @Param('id') id: number,
+      @Body() user,
+      @Request() req,
+    ): Promise<User> {
+      // get the number of row affected and the updated user
+      const {
+        numberOfAffectedRows,
+        updatedApplication,
+      } = await this.userService.update(id, user);
+  
+      // if the number of row affected is zero,
+      // it means the app doesn't exist in our db
+      if (numberOfAffectedRows === 0) {
+        throw new NotFoundException("This app doesn't exist");
+      }
+  
+      // return the updated app
+      return updatedApplication;
+    }
   
     // // @UseGuards(AuthGuard('jwt'))
     // @Delete(':id')
