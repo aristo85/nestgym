@@ -17,6 +17,8 @@ import {
   import { AuthGuard } from '@nestjs/passport';
   import { ApiResponse, ApiTags } from '@nestjs/swagger';
   import { Response } from 'express';
+import { UserDto } from './dto/user.dto';
+import { User } from './user.entity';
 import { UsersService } from './users.service';
   
   @ApiTags('Application')
@@ -35,27 +37,12 @@ import { UsersService } from './users.service';
       return list;
     }
   
-    // @ApiResponse({ status: 200 })
-    // @Get(':id')
-    // async findOne(@Param('id') id: number): Promise<Userapp> {
-    //   // find the apps with this id
-    //   const apps = await this.userappService.findOne(id);
-  
-    //   // if the apps doesn't exit in the db, throw a 404 error
-    //   if (!apps) {
-    //     throw new NotFoundException("This app doesn't exist");
-    //   }
-  
-    //   // if apps exist, return apps
-    //   return apps;
-    // }
-  
-    // @UseGuards(AuthGuard('jwt'))
-    // @Post()
-    // async create(@Body() userapp: UserappDto, @Request() req): Promise<Userapp> {
-    //   // create a new apps and return the newly created apps
-    //   return await this.userappService.create(userapp, req.user.id);
-    // }
+    @UseGuards(AuthGuard('jwt'))
+    @Post()
+    async create(@Body() user: UserDto): Promise<User> {
+      // create a new apps and return the newly created apps
+      return await this.userService.create(user);
+    }
   
     // @ApiResponse({ status: 200 })
     // // @UseGuards(AuthGuard('jwt'))

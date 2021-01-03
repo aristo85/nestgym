@@ -23,8 +23,8 @@ export class UsersService {
 
   async findAll(): Promise<User[]> {
     const list = await this.userRepository.findAll<User>({});
-    const count = await this.userRepository.count();
-    console.log(count);
+    // const count = await this.userRepository.count();
+    // console.log(count);
     return list;
   }
 }
