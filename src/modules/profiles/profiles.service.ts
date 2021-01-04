@@ -11,23 +11,23 @@ export class ProfilesService {
     private readonly profileRepository: typeof Profile,
   ) {}
 
-  async create(profile: ProfileDto): Promise<Profile> {
-    return await this.profileRepository.create<Profile>({ ...profile });
+  async create(profile: ProfileDto, userId): Promise<Profile> {
+    return await this.profileRepository.create<Profile>({ ...profile, userId });
   }
 
-  async findOne(id): Promise<Profile> {
+  async findOne(userId): Promise<Profile> {
     return await this.profileRepository.findOne({
-      where: { id },
+      where: { userId },
     });
   }
 
-  async update(id, data) {
+  async update(id, data, userId) {
     const [
       numberOfAffectedRows,
       [updatedProfile],
     ] = await this.profileRepository.update(
       { ...data },
-      { where: { id }, returning: true },
+      { where: { id, userId }, returning: true },
     );
 
     return { numberOfAffectedRows, updatedProfile };

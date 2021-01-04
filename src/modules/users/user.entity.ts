@@ -1,4 +1,5 @@
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
+import { Userapp } from '../userapps/userapp.entity';
 import {Role} from './dto/user.dto'
 @Table
 export class User extends Model<User> {
@@ -23,9 +24,10 @@ export class User extends Model<User> {
   role: string;
 
   @Column({
+    type: DataType.STRING,
     allowNull: false,
   })
-  phone: number;
+  phone: string;
 
   @Column({
     type: DataType.STRING,
@@ -33,6 +35,6 @@ export class User extends Model<User> {
   })
   password: Role;
 
-  @Column
-  profileId: number
+  @HasMany(() => Userapp)
+  userapps: Userapp[];
 }
