@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
 import { UserappsModule } from './modules/userapps/userapps.module';
 import { PhotosModule } from './modules/photos/photos.module';
+import { CoachProfilesModule } from './modules/coach-modules/coach-profiles/coach-profiles.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { PhotosModule } from './modules/photos/photos.module';
     AuthModule,
     ProfilesModule,
     UserappsModule,
-    PhotosModule
+    PhotosModule,
+    CoachProfilesModule
   ],
   controllers: [AppController],
   providers: [AppService],
