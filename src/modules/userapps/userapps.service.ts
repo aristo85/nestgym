@@ -16,7 +16,10 @@ export class UserappsService {
   }
 
   async findAll(): Promise<Userapp[]> {
-    return await this.userappRepository.findAll<Userapp>({});
+    const list = await this.userappRepository.findAll<Userapp>({});
+    const count = await this.userappRepository.count();
+    console.log(count)
+    return list;
   }
 
   async findOne(id): Promise<Userapp> {

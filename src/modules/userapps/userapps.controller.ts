@@ -9,9 +9,14 @@ import {
   NotFoundException,
   UseGuards,
   Request,
+  Header,
+  Headers,
+  Res,
+  Req,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 import { UserappDto } from './userapp.dto';
 import { Userapp } from './userapp.entity';
 import { UserappsService } from './userapps.service';
@@ -23,9 +28,13 @@ export class UserappsController {
 
   @ApiResponse({ status: 200 })
   @Get()
-  async findAll() {
+  async findAll(@Req() req) {
     // get all apps in the db
-    return await this.userappService.findAll();
+    const list = await this.userappService.findAll();
+    const count = list.length;
+      req.res.set('Access-Control-Expose-Headers', 'Content-Range')
+      req.res.set('Content-Range', `0-${count}/${count}`)
+    return list;
   }
 
   @ApiResponse({ status: 200 })
@@ -39,7 +48,7 @@ export class UserappsController {
       throw new NotFoundException("This app doesn't exist");
     }
 
-    // if apps exist, return the apps
+    // if apps exist, return apps
     return apps;
   }
 
@@ -57,7 +66,7 @@ export class UserappsController {
     @Param('id') id: number,
     @Body() userapp: UserappDto,
     @Request() req,
-    ): Promise<Userapp> {
+  ): Promise<Userapp> {
     // get the number of row affected and the updated userapp
     const {
       numberOfAffectedRows,
