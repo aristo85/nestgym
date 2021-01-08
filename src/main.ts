@@ -20,6 +20,7 @@ async function bootstrap() {
     .setDescription('A documentation for Gym app')
     .setVersion('1.0')
     .addTag('Coaches')
+    .addBearerAuth({ in: 'header', type: 'http' })
     .build();
 
   const document = SwaggerModule.createDocument(app, options, {
