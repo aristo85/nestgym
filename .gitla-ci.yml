@@ -10,7 +10,7 @@ before_script:
 deploy_dev:
   type: deploy
   environment:
-    name: staging
+    name: dev
   script:
     - ssh $USER@$HOST "cd ~/getcoachapi && git pull && chmod +x deploy.sh && ./deploy.sh && exit"
   only:
