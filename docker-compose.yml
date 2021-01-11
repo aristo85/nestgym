@@ -52,6 +52,7 @@ services:
       - 443:443
     depends_on:
       - getcoachapi
+      - getcoachadmin
     env_file:
       - .env
     command: /bin/sh -c "envsubst '$$DOMAIN_NAME $$PRERENDER_IO_TOKEN' < /etc/nginx/nginx.conf.template > /etc/nginx/conf.d/nginx.conf; while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\""
