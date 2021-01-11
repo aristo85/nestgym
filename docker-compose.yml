@@ -26,10 +26,23 @@ services:
     depends_on:
       - db
 
+  getcoachadmin:
+    container_name: getcoachadmin
+    build: ./getcoachadmin
+    command: npm run start
+    volumes:
+      - ./getcoachadmin:/app
+      - /app/node_modules
+      - adminbuild:/app/build
+    ports:
+      - 6000:6000
+    restart: always
+
   nginx:
     build: ./nginx
     container_name: nginx
     volumes:
+      - adminbuild:/app/adminbuild
       - static_volume:/app/static/
       - uploads_volume:/app/uploads/
       - ./data/certbot/conf:/etc/letsencrypt
@@ -39,6 +52,7 @@ services:
       - 443:443
     depends_on:
       - getcoachapi
+      - getcoachadmin
     env_file:
       - .env
     command: /bin/sh -c "envsubst '$$DOMAIN_NAME $$PRERENDER_IO_TOKEN' < /etc/nginx/nginx.conf.template > /etc/nginx/conf.d/nginx.conf; while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\""
@@ -56,3 +70,4 @@ volumes:
   postgres_data:
   static_volume:
   uploads_volume:
+  adminbuild:

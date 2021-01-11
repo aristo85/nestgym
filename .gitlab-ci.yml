@@ -1,0 +1,18 @@
+before_script:
+  - apt-get update -qq
+  - apt-get install -qq git
+  - 'which ssh-agent || ( apt-get install -qq openssh-client )'
+  - eval $(ssh-agent -s)
+  - ssh-add <(echo "$SSH_PRIVATE_KEY")
+  - mkdir -p ~/.ssh
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    
+deploy_dev:
+  type: 
+    deploy
+  environment:
+    name: dev
+  script:
+    - ssh $USER@$HOST "cd ~/getcoachapi && git pull && chmod +x deploy.sh && ./deploy.sh dev && exit"
+  only:
+    - dev

@@ -1,0 +1,3 @@
+[submodule "getcoachadmin"]
+	path = getcoachadmin
+	url = https://gitlab.com/itfox-web/getcoach/getcoachadmin.git
