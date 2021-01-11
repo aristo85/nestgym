@@ -18,7 +18,7 @@ export class UserappDto {
   @IsNotEmpty()
   readonly serviceTypes: string[];
 
-  @ApiProperty({ enum: ['female', 'male'] })
+  @ApiProperty({ enum: ['female', 'male', 'any'] })
   @IsNotEmpty()
   readonly coachGender: string;
 
