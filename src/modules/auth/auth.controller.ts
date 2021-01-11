@@ -1,7 +1,7 @@
 import { Controller, Body, Post, UseGuards, Request } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { UserDto } from '../users/dto/user.dto';
+import { UserDto, Credential } from '../users/dto/user.dto';
 import { DoesUserExist } from 'src/core/guards/doesUserExist.guard';
 import { ApiResponse, ApiTags } from "@nestjs/swagger";
 
@@ -13,7 +13,7 @@ export class AuthController {
     @ApiResponse({ status: 200})
     @UseGuards(AuthGuard('local'))
     @Post('login')
-    async login(@Request() req) {
+    async login(@Body() credential: Credential, @Request() req) {
         return await this.authService.login(req.user);
     }
 

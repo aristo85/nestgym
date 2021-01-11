@@ -30,3 +30,14 @@ export class UserDto {
   @MinLength(6)
   readonly password: string;
 }
+export class Credential {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsEmail()
+  readonly email: string;
+
+  @ApiProperty({ minLength: 6 })
+  @IsNotEmpty()
+  @MinLength(6)
+  readonly password: string;
+}

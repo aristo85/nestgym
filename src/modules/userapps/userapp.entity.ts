@@ -38,7 +38,7 @@ export class Userapp extends Model<Userapp> {
 
   @Column({
     type: DataType.ENUM,
-    values: ['male', 'female'],
+    values: ['male', 'female', 'any'],
     allowNull: false,
   })
   coachGender: string;

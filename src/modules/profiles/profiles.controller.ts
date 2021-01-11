@@ -10,19 +10,26 @@ import {
   Post,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProfileDto } from './dto/profile.dto';
 import { Profile } from './profile.entity';
 import { ProfilesService } from './profiles.service';
 
 @ApiTags('Profile')
+@ApiBearerAuth()
 @Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profileServise: ProfilesService) {}
 
   @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
   @Get(':userId')
-  async findOne(@Param('userId') userId: number): Promise<Profile> {
+  async findOne(@Param('userId') userId: number, @Request() req): Promise<Profile> {
+    // if userId is not correct
+    if (req.user.id !== +userId) {
+      throw new NotFoundException("wrong userId");
+    }
+
     // find the profile with this id
     const profile = await this.profileServise.findOne(userId);
 

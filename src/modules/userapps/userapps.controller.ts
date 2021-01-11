@@ -15,13 +15,14 @@ import {
   Req,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { UserappDto } from './userapp.dto';
 import { Userapp } from './userapp.entity';
 import { UserappsService } from './userapps.service';
 
 @ApiTags('Application')
+@ApiBearerAuth()
 @Controller('userapps')
 export class UserappsController {
   constructor(private readonly userappService: UserappsService) {}
@@ -32,8 +33,8 @@ export class UserappsController {
     // get all apps in the db
     const list = await this.userappService.findAll();
     const count = list.length;
-      req.res.set('Access-Control-Expose-Headers', 'Content-Range')
-      req.res.set('Content-Range', `0-${count}/${count}`)
+    req.res.set('Access-Control-Expose-Headers', 'Content-Range');
+    req.res.set('Content-Range', `0-${count}/${count}`);
     return list;
   }
 
