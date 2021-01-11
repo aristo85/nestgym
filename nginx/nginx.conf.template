@@ -43,4 +43,12 @@ server {
         proxy_set_header Host $host;
         proxy_redirect off;
     }
+
+    location /admin/ {
+        root /app/adminbuild;
+        index index.html;  
+        include /etc/nginx/mime.types;
+        try_files $uri =404;
+    }
+
 }

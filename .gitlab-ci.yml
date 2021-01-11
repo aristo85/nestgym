@@ -13,6 +13,6 @@ deploy_dev:
   environment:
     name: dev
   script:
-    - ssh $USER@$HOST "cd ~/getcoachapi && git pull && chmod +x deploy.sh && ./deploy.sh && exit"
+    - ssh $USER@$HOST "cd ~/getcoachapi && git pull && chmod +x deploy.sh && ./deploy.sh dev && exit"
   only:
     - dev
