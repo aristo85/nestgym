@@ -40,6 +40,10 @@ COPY --chown=node:node . ./
 
 # Display directory structure
 RUN ls -l
+RUN npm run build
+
+# Display directory structure
+RUN ls -l
 
 # Expose API port
 EXPOSE 3000
