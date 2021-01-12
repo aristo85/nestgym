@@ -15,25 +15,27 @@ export class UserappsService {
     return await this.userappRepository.create<Userapp>({ ...userapp, userId });
   }
 
-  async findAll(): Promise<Userapp[]> {
-    const list = await this.userappRepository.findAll<Userapp>({});
+  async findAll(userId): Promise<Userapp[]> {
+    const list = await this.userappRepository.findAll<Userapp>({
+      where: { userId },
+    });
     const count = await this.userappRepository.count();
-    console.log(count)
+    console.log(count);
     return list;
   }
 
-  async findOne(id): Promise<Userapp> {
+  async findOne(id, userId): Promise<Userapp> {
     // this is based on sequelize association which is
     //  a right way for fetching Userapp data, from User
     // const test = await User.findOne({include: [Userapp]})
     // test.userapps.forEach(userapp => console.log(`userapp ${userapp.aim}`));
     return await this.userappRepository.findOne({
-      where: { id },
+      where: { id, userId },
     });
   }
 
-  async delete(id) {
-    return await this.userappRepository.destroy({ where: { id } });
+  async delete(id, userId) {
+    return await this.userappRepository.destroy({ where: { id, userId } });
   }
 
   async update(id, data, userId) {

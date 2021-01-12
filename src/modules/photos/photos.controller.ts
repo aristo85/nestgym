@@ -9,6 +9,7 @@ import {
   NotFoundException,
   UseGuards,
   Request,
+  Req,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -23,17 +24,19 @@ export class PhotosController {
   constructor(private readonly photoService: PhotosService) {}
 
   @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
   @Get()
-  async findAll() {
+  async findAll(@Req() req) {
     // get all photo in the db
-    return await this.photoService.findAll();
+    return await this.photoService.findAll(req.user.id);
   }
 
   @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  async findOne(@Param('id') id: number): Promise<Photo> {
+  async findOne(@Param('id') id: number,  @Req() req): Promise<Photo> {
     // find the photo with this id
-    const photo = await this.photoService.findOne(id);
+    const photo = await this.photoService.findOne(id, req.user.id);
 
     // if the photo doesn't exit in the db, throw a 404 error
     if (!photo) {
@@ -53,9 +56,9 @@ export class PhotosController {
 
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async remove(@Param('id') id: number) {
+  async remove(@Param('id') id: number, @Req() req) {
     // delete the app with this id
-    const deleted = await this.photoService.delete(id);
+    const deleted = await this.photoService.delete(id, req.user.id);
 
     // if the number of row affected is zero,
     // then the app doesn't exist in our db

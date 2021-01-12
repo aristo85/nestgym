@@ -28,10 +28,11 @@ export class UserappsController {
   constructor(private readonly userappService: UserappsService) {}
 
   @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@Req() req) {
     // get all apps in the db
-    const list = await this.userappService.findAll();
+    const list = await this.userappService.findAll(req.user.id);
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -39,10 +40,11 @@ export class UserappsController {
   }
 
   @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  async findOne(@Param('id') id: number): Promise<Userapp> {
+  async findOne(@Param('id') id: number, @Req() req): Promise<Userapp> {
     // find the apps with this id
-    const apps = await this.userappService.findOne(id);
+    const apps = await this.userappService.findOne(id, req.user.id);
 
     // if the apps doesn't exit in the db, throw a 404 error
     if (!apps) {
@@ -86,9 +88,9 @@ export class UserappsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async remove(@Param('id') id: number) {
+  async remove(@Param('id') id: number, @Req() req) {
     // delete the app with this id
-    const deleted = await this.userappService.delete(id);
+    const deleted = await this.userappService.delete(id, req.user.id);
 
     // if the number of row affected is zero,
     // then the app doesn't exist in our db
