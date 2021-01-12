@@ -23,27 +23,27 @@ import { UserappsService } from './userapps.service';
 export class UserappsController {
   constructor(private readonly userappService: UserappsService) {}
 
-  @ApiResponse({ status: 200 })
-  @UseGuards(AuthGuard('jwt'))
-  @Get('allapps')
-  async findAllForAdmin(@Req() req) {
-    if (req.user.role !== 'admin') {
-      throw new NotFoundException('You are not an admin');
-    }
-    // get all apps in the db
-    const list = await this.userappService.findAllForAdmin();
-    const count = list.length;
-    req.res.set('Access-Control-Expose-Headers', 'Content-Range');
-    req.res.set('Content-Range', `0-${count}/${count}`);
-    return list;
-  }
+  // @ApiResponse({ status: 200 })
+  // @UseGuards(AuthGuard('jwt'))
+  // @Get('allapps')
+  // async findAllForAdmin(@Req() req) {
+  //   if (req.user.role !== 'admin') {
+  //     throw new NotFoundException('You are not an admin');
+  //   }
+  //   // get all apps in the db
+  //   const list = await this.userappService.findAllForAdmin();
+  //   const count = list.length;
+  //   req.res.set('Access-Control-Expose-Headers', 'Content-Range');
+  //   req.res.set('Content-Range', `0-${count}/${count}`);
+  //   return list;
+  // }
 
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@Req() req) {
     // get all apps in the db
-    const list = await this.userappService.findAll(req.user.id);
+    const list = await this.userappService.findAll(req.user);
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -55,7 +55,7 @@ export class UserappsController {
   @Get(':id')
   async findOne(@Param('id') id: number, @Req() req): Promise<Userapp> {
     // find the apps with this id
-    const apps = await this.userappService.findOne(id, req.user.id);
+    const apps = await this.userappService.findOne(id, req.user);
 
     // if the apps doesn't exit in the db, throw a 404 error
     if (!apps) {
@@ -85,7 +85,7 @@ export class UserappsController {
     const {
       numberOfAffectedRows,
       updatedApplication,
-    } = await this.userappService.update(id, userapp, req.user.id);
+    } = await this.userappService.update(id, userapp, req.user);
 
     // if the number of row affected is zero,
     // it means the app doesn't exist in our db

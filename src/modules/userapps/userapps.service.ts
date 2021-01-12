@@ -11,29 +11,35 @@ export class UserappsService {
     private readonly userappRepository: typeof Userapp,
   ) {}
 
-  async findAllForAdmin(): Promise<Userapp[]> {
-    const list = await this.userappRepository.findAll<Userapp>({});
-    return list;
-  }
+  // async findAllForAdmin(): Promise<Userapp[]> {
+  //   const list = await this.userappRepository.findAll<Userapp>({});
+  //   return list;
+  // }
 
   async create(userapp: UserappDto, userId): Promise<Userapp> {
     return await this.userappRepository.create<Userapp>({ ...userapp, userId });
   }
 
-  async findAll(userId): Promise<Userapp[]> {
+  async findAll(user): Promise<Userapp[]> {
+    // check if from admin
+    let updateOPtion = user.role === 'admin' ? {} : { userId: user.id };
+
     const list = await this.userappRepository.findAll<Userapp>({
-      where: { userId },
+      where: updateOPtion,
     });
     return list;
   }
 
-  async findOne(id, userId): Promise<Userapp> {
+  async findOne(id, user): Promise<Userapp> {
     // this is based on sequelize association which is
     //  a right way for fetching Userapp data, from User
     // const test = await User.findOne({include: [Userapp]})
     // test.userapps.forEach(userapp => console.log(`userapp ${userapp.aim}`));
+
+    // check if from admin
+    let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
     return await this.userappRepository.findOne({
-      where: { id, userId },
+      where: updateOPtion,
     });
   }
 
@@ -41,13 +47,16 @@ export class UserappsService {
     return await this.userappRepository.destroy({ where: { id, userId } });
   }
 
-  async update(id, data, userId) {
+  async update(id, data, user) {
+    // check if from admin
+    let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
+
     const [
       numberOfAffectedRows,
       [updatedApplication],
     ] = await this.userappRepository.update(
       { ...data },
-      { where: { id, userId }, returning: true },
+      { where: updateOPtion, returning: true },
     );
 
     return { numberOfAffectedRows, updatedApplication };
