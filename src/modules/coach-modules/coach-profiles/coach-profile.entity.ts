@@ -1,4 +1,5 @@
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { User } from 'src/modules/users/user.entity';
 
 @Table
 export class CoachProfile extends Model<CoachProfile> {
@@ -43,17 +44,45 @@ export class CoachProfile extends Model<CoachProfile> {
     allowNull: false,
   })
   age: number;
+  
+  @Column({
+    type: DataType.ARRAY(DataType.STRING),
+    allowNull: false,
+  })
+  aim: string[];
+  
+  @Column({
+    type: DataType.ARRAY(DataType.STRING),
+    allowNull: false,
+  })
+  place: string[];
+  
+  @Column({
+    type: DataType.ARRAY(DataType.STRING),
+    allowNull: false,
+  })
+  serviceTypes: string[];
 
   @Column({
     type: DataType.ENUM,
     values: ['male', 'female'],
     allowNull: false,
   })
-  gender: string;
+  coachGender: string;
 
   @Column({
     type: DataType.ARRAY(DataType.STRING),
     allowNull: false,
   })
   submitList: string[];
+
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  userId: number;
+
+  @BelongsTo(() => User)
+  user: User;
 }

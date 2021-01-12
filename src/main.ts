@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CoachProfilesModule } from './modules/coach-modules/coach-profiles/coach-profiles.module';
 import { PhotosModule } from './modules/photos/photos.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
 import { UserappsModule } from './modules/userapps/userapps.module';
@@ -24,7 +25,13 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, options, {
-    include: [AuthModule, ProfilesModule, UserappsModule, PhotosModule],
+    include: [
+      AuthModule,
+      ProfilesModule,
+      UserappsModule,
+      PhotosModule,
+      CoachProfilesModule,
+    ],
   });
   SwaggerModule.setup('api', app, document);
 
