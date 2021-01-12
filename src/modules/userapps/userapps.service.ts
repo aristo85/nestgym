@@ -11,6 +11,11 @@ export class UserappsService {
     private readonly userappRepository: typeof Userapp,
   ) {}
 
+  async findAllForAdmin(): Promise<Userapp[]> {
+    const list = await this.userappRepository.findAll<Userapp>({});
+    return list;
+  }
+
   async create(userapp: UserappDto, userId): Promise<Userapp> {
     return await this.userappRepository.create<Userapp>({ ...userapp, userId });
   }
@@ -19,8 +24,6 @@ export class UserappsService {
     const list = await this.userappRepository.findAll<Userapp>({
       where: { userId },
     });
-    const count = await this.userappRepository.count();
-    console.log(count);
     return list;
   }
 
