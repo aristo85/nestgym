@@ -8,8 +8,10 @@ export class RequestedappsService {
     private readonly coachProfileRepository: CoachProfilesService,
   ) {}
 
-  async findAllCoachProfiles() {
+  async findAllCoachProfiles(userapp) {
     const list = await this.coachProfileRepository.findAll();
+    // filtering with the application parametters
+console.log(userapp.priceMax)
     return list;
   }
 

@@ -1,6 +1,5 @@
 import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
 import { Userapp } from '../userapps/userapp.entity';
-import {Role} from './dto/user.dto'
 @Table
 export class User extends Model<User> {
   @Column({
@@ -33,7 +32,7 @@ export class User extends Model<User> {
     type: DataType.STRING,
     allowNull: false,
   })
-  password: Role;
+  password: string;
 
   @HasMany(() => Userapp)
   userapps: Userapp[];

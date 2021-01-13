@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UserappDto } from '../userapps/userapp.dto';
 import { RequestedappsService } from './requestedapps.service';
 
 @ApiTags('Request-Matching')
@@ -23,10 +24,10 @@ export class RequestedappsController {
 
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
-  @Get('matches')
-  async findAllCoachProfiles(@Req() req) {
+  @Post('matches')
+  async findAllCoachProfiles(@Body() userapp:UserappDto, @Req() req) {
     // get all apps in the db
-    const list = await this.requstedappService.findAllCoachProfiles();
+    const list = await this.requstedappService.findAllCoachProfiles(userapp);
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
