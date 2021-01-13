@@ -15,7 +15,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RequestedappsService } from './requestedapps.service';
 
-@ApiTags('Application')
+@ApiTags('Request-Matching')
 @ApiBearerAuth()
 @Controller('requestedapps')
 export class RequestedappsController {
