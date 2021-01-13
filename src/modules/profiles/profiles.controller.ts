@@ -24,14 +24,17 @@ export class ProfilesController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':userId')
-  async findOne(@Param('userId') userId: number, @Request() req): Promise<Profile> {
+  async findOne(
+    @Param('userId') userId: number,
+    @Request() req,
+  ): Promise<Profile> {
     // if userId is not correct
-    if (req.user.id !== +userId) {
-      throw new NotFoundException("wrong userId");
-    }
+    // if (req.user.id !== +userId) {
+    //   throw new NotFoundException("wrong userId");
+    // }
 
     // find the profile with this id
-    const profile = await this.profileServise.findOne(userId);
+    const profile = await this.profileServise.findOne(req.user.id);
 
     // if the profile doesn't exit in the db, throw a 404 error
     if (!profile) {

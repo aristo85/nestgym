@@ -15,18 +15,17 @@ export class PhotosService {
     return await this.photoRepository.create<Photo>({ ...photo, userId });
   }
 
-  async findOne(id): Promise<Photo> {
+  async findOne(id, userId): Promise<Photo> {
     return await this.photoRepository.findOne({
-      where: { id },
+      where: { id, userId },
     });
   }
 
-  async findAll(): Promise<Photo[]> {
-    return await this.photoRepository.findAll<Photo>({});
+  async findAll(userId): Promise<Photo[]> {
+    return await this.photoRepository.findAll<Photo>({ where: { userId } });
   }
 
-  async delete(id) {
-    return await this.photoRepository.destroy({ where: { id } });
+  async delete(id, userId) {
+    return await this.photoRepository.destroy({ where: { id, userId } });
   }
-
 }

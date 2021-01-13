@@ -9,6 +9,7 @@ import { ProfilesModule } from './modules/profiles/profiles.module';
 import { UserappsModule } from './modules/userapps/userapps.module';
 import { PhotosModule } from './modules/photos/photos.module';
 import { CoachProfilesModule } from './modules/coach-modules/coach-profiles/coach-profiles.module';
+import { RequestedappsModule } from './modules/requestedapps/requestedapps.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { CoachProfilesModule } from './modules/coach-modules/coach-profiles/coac
     ProfilesModule,
     UserappsModule,
     PhotosModule,
-    CoachProfilesModule
+    CoachProfilesModule,
+    RequestedappsModule
   ],
   controllers: [AppController],
   providers: [AppService],
