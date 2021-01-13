@@ -17,15 +17,6 @@ export class CoachProfilesService {
     });
   }
 
-//   async findAll(userId): Promise<CoachProfile[]> {
-//     const list = await this.coachProfileRepository.findAll<CoachProfile>({
-//       where: { userId },
-//     });
-//     const count = await this.coachProfileRepository.count();
-//     console.log(count);
-//     return list;
-//   }
-
   async findOne(userId): Promise<CoachProfile> {
     return await this.coachProfileRepository.findOne({
       where: { userId },
@@ -46,5 +37,13 @@ export class CoachProfilesService {
     );
 
     return { numberOfAffectedRows, updatedprofile };
+  }
+
+  // exported
+  async findAll(): Promise<CoachProfile[]> {
+    const list = await this.coachProfileRepository.findAll<CoachProfile>({});
+    // const count = await this.coachProfileRepository.count();
+    // console.log(count);
+    return list;
   }
 }

@@ -5,6 +5,7 @@ import { coachProfilesProviders } from './coach-profiles.providers';
 
 @Module({
   providers: [CoachProfilesService, ...coachProfilesProviders],
+  exports: [CoachProfilesService],
   controllers: [CoachProfilesController]
 })
 export class CoachProfilesModule {}
