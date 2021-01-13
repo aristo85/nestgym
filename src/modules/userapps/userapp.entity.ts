@@ -37,7 +37,7 @@ export class Userapp extends Model<Userapp> {
   serviceTypes: string[];
 
   @Column({
-    type: DataType.ENUM,
+    type: DataType.STRING,
     values: ['male', 'female', 'any'],
     allowNull: false,
   })

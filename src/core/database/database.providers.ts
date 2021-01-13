@@ -28,7 +28,7 @@ export const databaseProviders = [
       }
       const sequelize = new Sequelize(config);
       sequelize.addModels([User, Profile, Userapp, Photo, CoachProfile]);
-      await sequelize.sync();
+      await sequelize.sync({alter: true});
       return sequelize;
     },
   },

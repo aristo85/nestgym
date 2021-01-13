@@ -64,7 +64,7 @@ export class CoachProfile extends Model<CoachProfile> {
   serviceTypes: string[];
 
   @Column({
-    type: DataType.ENUM,
+    type: DataType.STRING,
     values: ['male', 'female'],
     allowNull: false,
   })

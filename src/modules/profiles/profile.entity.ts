@@ -29,7 +29,7 @@ export class Profile extends Model<Profile> {
   age: number;
 
   @Column({
-    type: DataType.ENUM,
+    type: DataType.STRING,
     values: ['male', 'female'],
     allowNull: false,
   })

@@ -17,7 +17,7 @@ export class User extends Model<User> {
   email: string;
 
   @Column({
-    type: DataType.ENUM,
+    type: DataType.STRING,
     values: ['admin', 'user', 'trainer'],
     allowNull: false,
   })
