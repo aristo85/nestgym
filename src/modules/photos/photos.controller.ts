@@ -27,7 +27,7 @@ export class PhotosController {
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@Req() req) {
-    // get all photo in the db
+    // get all photos of one user in the db
     return await this.photoService.findAll(req.user.id);
   }
 
@@ -50,6 +50,10 @@ export class PhotosController {
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(@Body() photo: PhotoDto, @Request() req): Promise<Photo> {
+    // check the role
+    if(req.user.role !== "user"){
+      throw new NotFoundException('Your role is not a user');
+    }
     // create a new photo and return the newly created photo
     return await this.photoService.create(photo, req.user.id);
   }

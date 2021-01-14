@@ -1,8 +1,14 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { APPLICATION_REPOSITORY } from 'src/core/constants';
+import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
 import { User } from '../users/user.entity';
 import { UserappDto } from './userapp.dto';
 import { Userapp } from './userapp.entity';
+
+export interface createPromise {
+  createdUserapp: UserappDto;
+  matches: CoachProfile[];
+}
 
 @Injectable()
 export class UserappsService {
@@ -16,8 +22,13 @@ export class UserappsService {
   //   return list;
   // }
 
-  async create(userapp: UserappDto, userId): Promise<Userapp> {
-    return await this.userappRepository.create<Userapp>({ ...userapp, userId });
+  async create(userapp: UserappDto, userId): Promise<createPromise> {
+    const createdUserapp = await this.userappRepository.create<Userapp>({
+      ...userapp,
+      userId,
+    });
+    let matches: CoachProfile[] = await this.coachMatches(createdUserapp);
+    return { createdUserapp, matches };
   }
 
   async findAll(user): Promise<Userapp[]> {
@@ -31,11 +42,6 @@ export class UserappsService {
   }
 
   async findOne(id, user): Promise<Userapp> {
-    // this is based on sequelize association which is
-    //  a right way for fetching Userapp data, from User
-    // const test = await User.findOne({include: [Userapp]})
-    // test.userapps.forEach(userapp => console.log(`userapp ${userapp.aim}`));
-
     // check if from admin
     let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
     return await this.userappRepository.findOne({
@@ -59,6 +65,44 @@ export class UserappsService {
       { where: updateOPtion, returning: true },
     );
 
-    return { numberOfAffectedRows, updatedApplication };
+    let matches: CoachProfile[] = await this.coachMatches({...data});
+
+    return { numberOfAffectedRows, updatedApplication, matches };
   }
+
+  async findMatches(userappId) {
+    // const list = await this.coachProfileRepository.findAll();
+    const application: any = await Userapp.findOne({where: {id: userappId}})
+    // filtering with application parametters
+    const list = this.coachMatches(application)
+    return list;
+  }
+  //////////////////////////////////////////////////////////////////////////
+  // matching function
+  coachMatches = async (userapp: UserappDto): Promise<CoachProfile[]> => {
+    const coachProfiles: any = await CoachProfile.findAll<CoachProfile>();
+    let newList = [];
+    coachProfiles.forEach((coachProfile) => {
+      // const test = this.arrFilter(coachProfile.aim, ['fixing', '6']);
+      if (this.arrFilter(coachProfile.aim, userapp.aim).length > 0) {
+        newList.push(coachProfile);
+      } else if (
+        this.arrFilter(coachProfile.sportTypes, userapp.sportTypes).length > 0
+      ) {
+        newList.push(coachProfile);
+      } else if (this.arrFilter(coachProfile.place, userapp.place).length > 0) {
+        newList.push(coachProfile);
+      } else if (
+        this.arrFilter(coachProfile.serviceTypes, userapp.serviceTypes).length >
+        0
+      ) {
+        newList.push(coachProfile);
+      }
+    });
+    return newList;
+  };
+  // filter array function
+  arrFilter = (arr1: string[], arr2: string[]) => {
+    return arr1.filter((el) => arr2.includes(el));
+  };
 }

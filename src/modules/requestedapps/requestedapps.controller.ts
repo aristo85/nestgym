@@ -14,6 +14,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserappDto } from '../userapps/userapp.dto';
+import { Requsetedapp } from './requestedapp.entity';
 import { RequestedappsService } from './requestedapps.service';
 
 @ApiTags('Request-Matching')
@@ -22,22 +23,16 @@ import { RequestedappsService } from './requestedapps.service';
 export class RequestedappsController {
   constructor(private readonly requstedappService: RequestedappsService) {}
 
-  @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
-  @Post('matches')
-  async findAllCoachProfiles(@Body() userapp:UserappDto, @Req() req) {
-    // get all apps in the db
-    const list = await this.requstedappService.findAllCoachProfiles(userapp);
-    const count = list.length;
-    req.res.set('Access-Control-Expose-Headers', 'Content-Range');
-    req.res.set('Content-Range', `0-${count}/${count}`);
-    return list;
+  @Post()
+  async create(@Body() data, @Request() req): Promise<Requsetedapp> {
+    // create a new apps and return the newly created apps
+    return await this.requstedappService.create(
+      req.user.id,
+      data.coachId,
+      data.userappId,
+    );
   }
-
-
-
-
-
 
   // @ApiResponse({ status: 200 })
   // @UseGuards(AuthGuard('jwt'))
@@ -65,13 +60,6 @@ export class RequestedappsController {
 
   //   // if apps exist, return apps
   //   return apps;
-  // }
-
-  // @UseGuards(AuthGuard('jwt'))
-  // @Post()
-  // async create(@Body() userapp: UserappDto, @Request() req): Promise<Userapp> {
-  //   // create a new apps and return the newly created apps
-  //   return await this.userappService.create(userapp, req.user.id);
   // }
 
   // @ApiResponse({ status: 200 })

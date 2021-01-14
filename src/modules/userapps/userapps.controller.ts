@@ -15,28 +15,13 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserappDto } from './userapp.dto';
 import { Userapp } from './userapp.entity';
-import { UserappsService } from './userapps.service';
+import { createPromise, UserappsService } from './userapps.service';
 
-@ApiTags('Application')
+@ApiTags('Clietnt-Application')
 @ApiBearerAuth()
 @Controller('userapps')
 export class UserappsController {
   constructor(private readonly userappService: UserappsService) {}
-
-  // @ApiResponse({ status: 200 })
-  // @UseGuards(AuthGuard('jwt'))
-  // @Get('allapps')
-  // async findAllForAdmin(@Req() req) {
-  //   if (req.user.role !== 'admin') {
-  //     throw new NotFoundException('You are not an admin');
-  //   }
-  //   // get all apps in the db
-  //   const list = await this.userappService.findAllForAdmin();
-  //   const count = list.length;
-  //   req.res.set('Access-Control-Expose-Headers', 'Content-Range');
-  //   req.res.set('Content-Range', `0-${count}/${count}`);
-  //   return list;
-  // }
 
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
@@ -68,7 +53,14 @@ export class UserappsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  async create(@Body() userapp: UserappDto, @Request() req): Promise<Userapp> {
+  async create(
+    @Body() userapp: UserappDto,
+    @Request() req,
+  ): Promise<createPromise> {
+    // check the role
+    if (req.user.role !== 'user') {
+      throw new NotFoundException('Your role is not a user');
+    }
     // create a new apps and return the newly created apps
     return await this.userappService.create(userapp, req.user.id);
   }
@@ -80,11 +72,12 @@ export class UserappsController {
     @Param('id') id: number,
     @Body() userapp: UserappDto,
     @Request() req,
-  ): Promise<Userapp> {
+  ): Promise<createPromise> {
     // get the number of row affected and the updated userapp
     const {
       numberOfAffectedRows,
       updatedApplication,
+      matches,
     } = await this.userappService.update(id, userapp, req.user);
 
     // if the number of row affected is zero,
@@ -94,7 +87,7 @@ export class UserappsController {
     }
 
     // return the updated app
-    return updatedApplication;
+    return { createdUserapp: updatedApplication, matches };
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -112,4 +105,31 @@ export class UserappsController {
     // return success message
     return 'Successfully deleted';
   }
+
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Get('matches/:userappId')
+  async findMatches(@Param('userappId') userappId: number, @Req() req) {
+    // get all apps in the db
+    const list = await this.userappService.findMatches(userappId);
+    const count = list.length;
+    req.res.set('Access-Control-Expose-Headers', 'Content-Range');
+    req.res.set('Content-Range', `0-${count}/${count}`);
+    return list;
+  }
+
+  // @ApiResponse({ status: 200 })
+  // @UseGuards(AuthGuard('jwt'))
+  // @Get('allapps')
+  // async findAllForAdmin(@Req() req) {
+  //   if (req.user.role !== 'admin') {
+  //     throw new NotFoundException('You are not an admin');
+  //   }
+  //   // get all apps in the db
+  //   const list = await this.userappService.findAllForAdmin();
+  //   const count = list.length;
+  //   req.res.set('Access-Control-Expose-Headers', 'Content-Range');
+  //   req.res.set('Content-Range', `0-${count}/${count}`);
+  //   return list;
+  // }
 }
