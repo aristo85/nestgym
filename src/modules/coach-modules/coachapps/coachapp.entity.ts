@@ -11,12 +11,7 @@ import { User } from 'src/modules/users/user.entity';
 
 @Table
 export class Requestedapp extends Model<Requestedapp> {
-  @Column({
-    type: DataType.STRING,
-    // allowNull: false,
-  })
-  status: string;
-  //
+  
   @Column({
     type: DataType.DATE,
     // allowNull: false,

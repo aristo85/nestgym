@@ -73,6 +73,12 @@ export class Userapp extends Model<Userapp> {
   })
   coment: string;
 
+  @Column({
+    type: DataType.STRING,
+    // allowNull: false,
+  })
+  status: string;
+
   @ForeignKey(() => User)
   @Column
   userId: number;
