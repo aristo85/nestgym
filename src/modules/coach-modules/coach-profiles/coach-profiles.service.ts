@@ -18,6 +18,10 @@ export class CoachProfilesService {
   }
 
   async findOne(userId): Promise<CoachProfile> {
+    // const test = await Requsetedapp.findOne({include: [Userapp]})
+    // console.log(test)
+    // test.userapps.forEach(userapp => console.log(`userapp ${userapp.aim}`));
+
     return await this.coachProfileRepository.findOne({
       where: { userId },
     });

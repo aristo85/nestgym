@@ -41,4 +41,7 @@ export class UserappDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly coment: string;
+
+  @ApiProperty()
+  readonly status: string;
 }

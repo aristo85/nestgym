@@ -4,9 +4,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CoachProfilesModule } from './modules/coach-modules/coach-profiles/coach-profiles.module';
+import { CoachappsModule } from './modules/coach-modules/coachapps/coachapps.module';
 import { PhotosModule } from './modules/photos/photos.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
-import { RequestedappsModule } from './modules/requestedapps/requestedapps.module';
 import { UserappsModule } from './modules/userapps/userapps.module';
 
 async function bootstrap() {
@@ -32,7 +32,7 @@ async function bootstrap() {
       UserappsModule,
       PhotosModule,
       CoachProfilesModule,
-      RequestedappsModule
+      CoachappsModule
     ],
   });
   SwaggerModule.setup('api', app, document);

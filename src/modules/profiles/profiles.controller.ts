@@ -15,11 +15,28 @@ import { ProfileDto } from './dto/profile.dto';
 import { Profile } from './profile.entity';
 import { ProfilesService } from './profiles.service';
 
-@ApiTags('Profile')
+@ApiTags('Client-Profile')
 @ApiBearerAuth()
 @Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profileServise: ProfilesService) {}
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post()
+  async create(@Body() profile: ProfileDto, @Request() req): Promise<Profile> {
+    // check the role
+    if(req.user.role !== "user"){
+      throw new NotFoundException('Your role is not a user');
+    }
+    // check if user already has a profile
+    const isProfile = await this.profileServise.findOne(req.user.id);
+    if (isProfile) {
+      throw new NotFoundException('This User already has a profile');
+    }
+
+    // create a new profile and return the newly created profile
+    return await this.profileServise.create(profile, req.user.id);
+  }
 
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
@@ -28,11 +45,6 @@ export class ProfilesController {
     @Param('userId') userId: number,
     @Request() req,
   ): Promise<Profile> {
-    // if userId is not correct
-    // if (req.user.id !== +userId) {
-    //   throw new NotFoundException("wrong userId");
-    // }
-
     // find the profile with this id
     const profile = await this.profileServise.findOne(req.user.id);
 
@@ -43,19 +55,6 @@ export class ProfilesController {
 
     // if profile exist, return the profile
     return profile;
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Post()
-  async create(@Body() profile: ProfileDto, @Request() req): Promise<Profile> {
-    // check if user already has a profile
-    const isProfile = await this.profileServise.findOne(req.user.id);
-    if (isProfile) {
-      throw new NotFoundException('This User already has a profile');
-    }
-
-    // create a new profile and return the newly created profile
-    return await this.profileServise.create(profile, req.user.id);
   }
 
   @ApiResponse({ status: 200 })

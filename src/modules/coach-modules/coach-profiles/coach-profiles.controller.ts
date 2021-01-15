@@ -23,17 +23,17 @@ import { CoachProfileDto } from './dto/coach-profile.dto';
 export class CoachProfilesController {
   constructor(private readonly coachProfileService: CoachProfilesService) {}
 
-//   @ApiResponse({ status: 200 })
-//   @UseGuards(AuthGuard('jwt'))
-//   @Get()
-//   async findAll(@Req() req) {
-//     // get all profiles in the db
-//     const list = await this.coachProfileService.findAll(req.user.id);
-//     const count = list.length;
-//     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
-//     req.res.set('Content-Range', `0-${count}/${count}`);
-//     return list;
-//   }
+  //   @ApiResponse({ status: 200 })
+  //   @UseGuards(AuthGuard('jwt'))
+  //   @Get()
+  //   async findAll(@Req() req) {
+  //     // get all profiles in the db
+  //     const list = await this.coachProfileService.findAll(req.user.id);
+  //     const count = list.length;
+  //     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
+  //     req.res.set('Content-Range', `0-${count}/${count}`);
+  //     return list;
+  //   }
 
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
@@ -53,7 +53,19 @@ export class CoachProfilesController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  async create(@Body() profile: CoachProfileDto, @Request() req): Promise<CoachProfile> {
+  async create(
+    @Body() profile: CoachProfileDto,
+    @Request() req,
+  ): Promise<CoachProfile> {
+    // check the role
+    if (req.user.role !== 'trainer') {
+      throw new NotFoundException('Your role is not a trainer');
+    }
+    // check if user already has a profile
+    const isProfile = await this.coachProfileService.findOne(req.user.id);
+    if (isProfile) {
+      throw new NotFoundException('This User already has a profile');
+    }
     // create a new profiles and return the newly created profiles
     return await this.coachProfileService.create(profile, req.user.id);
   }
@@ -82,19 +94,19 @@ export class CoachProfilesController {
     return updatedprofile;
   }
 
-//   @UseGuards(AuthGuard('jwt'))
-//   @Delete(':id')
-//   async remove(@Param('id') id: number, @Req() req) {
-//     // delete the profile with this id
-//     const deleted = await this.coachProfileService.delete(id, req.user.id);
+  //   @UseGuards(AuthGuard('jwt'))
+  //   @Delete(':id')
+  //   async remove(@Param('id') id: number, @Req() req) {
+  //     // delete the profile with this id
+  //     const deleted = await this.coachProfileService.delete(id, req.user.id);
 
-//     // if the number of row affected is zero,
-//     // then the profile doesn't exist in our db
-//     if (deleted === 0) {
-//       throw new NotFoundException("This profile doesn't exist");
-//     }
+  //     // if the number of row affected is zero,
+  //     // then the profile doesn't exist in our db
+  //     if (deleted === 0) {
+  //       throw new NotFoundException("This profile doesn't exist");
+  //     }
 
-//     // return success message
-//     return 'Successfully deleted';
-//   }
+  //     // return success message
+  //     return 'Successfully deleted';
+  //   }
 }
