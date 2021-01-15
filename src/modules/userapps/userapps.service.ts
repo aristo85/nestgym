@@ -42,8 +42,8 @@ export class UserappsService {
   }
 
   async findOne(id, user): Promise<Userapp> {
-    // check if from admin
-    let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
+    // check the role
+    let updateOPtion = user.role === 'user' ? { id, userId: user.id }: { id };
     return await this.userappRepository.findOne({
       where: updateOPtion,
     });

@@ -6,3 +6,8 @@ export class RequestedappDto {
   // @IsNotEmpty()
   readonly lastViewed: Date;
 }
+export class CoachAnswerDto {
+  @ApiProperty({ enum: ['accept', 'reject', 'any coment']})
+  @IsNotEmpty()
+  readonly status: string;
+}
