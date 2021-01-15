@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { APPLICATION_REPOSITORY } from 'src/core/constants';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
 import { User } from '../users/user.entity';
@@ -65,21 +65,26 @@ export class UserappsService {
       { where: updateOPtion, returning: true },
     );
 
-    let matches: CoachProfile[] = await this.coachMatches({...data});
+    let matches: CoachProfile[] = await this.coachMatches({ ...data });
 
     return { numberOfAffectedRows, updatedApplication, matches };
   }
 
   async findMatches(userappId) {
     // const list = await this.coachProfileRepository.findAll();
-    const application: any = await Userapp.findOne({where: {id: userappId}})
+    const application: any = await Userapp.findOne({
+      where: { id: userappId },
+    });
     // filtering with application parametters
-    const list = this.coachMatches(application)
+    const list = this.coachMatches(application);
     return list;
   }
   //////////////////////////////////////////////////////////////////////////
   // matching function
   coachMatches = async (userapp: UserappDto): Promise<CoachProfile[]> => {
+    if(!userapp ) {
+      throw new NotFoundException('this profile is not exist')
+    }
     const coachProfiles: any = await CoachProfile.findAll<CoachProfile>();
     let newList = [];
     coachProfiles.forEach((coachProfile) => {
@@ -99,7 +104,7 @@ export class UserappsService {
         newList.push(coachProfile);
       }
     });
-    return newList;
+    return newList.length > 0 ? newList : coachProfiles;
   };
   // filter array function
   arrFilter = (arr1: string[], arr2: string[]) => {

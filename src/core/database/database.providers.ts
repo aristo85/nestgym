@@ -6,7 +6,7 @@ import { Profile } from 'src/modules/profiles/profile.entity';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { Photo } from 'src/modules/photos/photo.entity';
 import { CoachProfile } from 'src/modules/coach-modules/coach-profiles/coach-profile.entity';
-import { Requsetedapp } from 'src/modules/requestedapps/requestedapp.entity';
+import { Requestedapp } from 'src/modules/coach-modules/coachapps/coachapp.entity';
 // import { Sequelize } from 'sequelize';
 
 export const databaseProviders = [
@@ -34,9 +34,9 @@ export const databaseProviders = [
         Userapp,
         Photo,
         CoachProfile,
-        Requsetedapp,
+        Requestedapp,
       ]);
-      await sequelize.sync({alter: true});
+      await sequelize.sync({ alter: true });
       return sequelize;
     },
   },

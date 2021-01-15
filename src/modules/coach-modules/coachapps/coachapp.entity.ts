@@ -6,13 +6,11 @@ import {
   BelongsTo,
   ForeignKey,
 } from 'sequelize-typescript';
-import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
-import { Profile } from '../profiles/profile.entity';
-import { Userapp } from '../userapps/userapp.entity';
-import { User } from '../users/user.entity';
+import { Userapp } from 'src/modules/userapps/userapp.entity';
+import { User } from 'src/modules/users/user.entity';
 
 @Table
-export class Requsetedapp extends Model<Requsetedapp> {
+export class Requestedapp extends Model<Requestedapp> {
   @Column({
     type: DataType.STRING,
     // allowNull: false,

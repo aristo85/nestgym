@@ -1,7 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { COATCH_PROFILE_REPOSITORY } from 'src/core/constants';
-import { Requsetedapp } from 'src/modules/requestedapps/requestedapp.entity';
-import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { CoachProfile } from './coach-profile.entity';
 import { CoachProfileDto } from './dto/coach-profile.dto';
 
@@ -22,7 +20,7 @@ export class CoachProfilesService {
   async findOne(userId): Promise<CoachProfile> {
     // const test = await Requsetedapp.findOne({include: [Userapp]})
     // console.log(test)
-      // test.userapps.forEach(userapp => console.log(`userapp ${userapp.aim}`));
+    // test.userapps.forEach(userapp => console.log(`userapp ${userapp.aim}`));
 
     return await this.coachProfileRepository.findOne({
       where: { userId },

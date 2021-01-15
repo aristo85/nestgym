@@ -9,7 +9,7 @@ import { ProfilesModule } from './modules/profiles/profiles.module';
 import { UserappsModule } from './modules/userapps/userapps.module';
 import { PhotosModule } from './modules/photos/photos.module';
 import { CoachProfilesModule } from './modules/coach-modules/coach-profiles/coach-profiles.module';
-import { RequestedappsModule } from './modules/requestedapps/requestedapps.module';
+import { CoachappsModule } from './modules/coach-modules/coachapps/coachapps.module';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { RequestedappsModule } from './modules/requestedapps/requestedapps.modul
     UserappsModule,
     PhotosModule,
     CoachProfilesModule,
-    RequestedappsModule
+    CoachappsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
