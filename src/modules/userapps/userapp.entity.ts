@@ -78,11 +78,4 @@ export class Userapp extends Model<Userapp> {
     // allowNull: false,
   })
   status: string;
-
-  @ForeignKey(() => User)
-  @Column
-  userId: number;
-
-  @BelongsTo(() => User)
-  user: User;
 }

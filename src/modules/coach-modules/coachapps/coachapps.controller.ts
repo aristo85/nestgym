@@ -12,8 +12,6 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { type } from 'os';
-import { UserappDto } from 'src/modules/userapps/userapp.dto';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { Requestedapp } from './coachapp.entity';
 import { CoachappsService } from './coachapps.service';
@@ -52,7 +50,7 @@ export class CoachappsController {
   }
 
   // get all requestedapps(offers) of a triner
-  @ApiTags('Coach-Applications/Offers')
+  @ApiTags('Coach-response')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
@@ -72,7 +70,7 @@ export class CoachappsController {
   }
 
   //
-  @ApiTags('Coach-Applications/Offers')
+  @ApiTags('Coach-Accept/Reject/Coment-app')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Put(':userappId')

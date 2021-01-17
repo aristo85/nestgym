@@ -22,7 +22,7 @@ import { createPromise, UserappsService } from './userapps.service';
 export class UserappsController {
   constructor(private readonly userappService: UserappsService) {}
 
-@ApiTags('Clietnt-Application')
+@ApiTags('Client-Application')
 @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()

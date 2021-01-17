@@ -17,13 +17,12 @@ export class CoachProfilesService {
     });
   }
 
-  async findOne(userId): Promise<CoachProfile> {
-    // const test = await Requsetedapp.findOne({include: [Userapp]})
-    // console.log(test)
-    // test.userapps.forEach(userapp => console.log(`userapp ${userapp.aim}`));
+  async findOne(user, id): Promise<CoachProfile> {
+    // check role
+    let whereOptions = user.role === 'trainer' ? { id, userId: user.id } : { id };
 
     return await this.coachProfileRepository.findOne({
-      where: { userId },
+      where: whereOptions,
     });
   }
 
@@ -44,8 +43,12 @@ export class CoachProfilesService {
   }
 
   // exported
-  async findAll(): Promise<CoachProfile[]> {
-    const list = await this.coachProfileRepository.findAll<CoachProfile>({});
+  async findAll(user): Promise<CoachProfile[]> {
+    let updateOPtion = user.role === 'admin' ? {} : { userId: user.id };
+
+    const list = await this.coachProfileRepository.findAll<CoachProfile>({
+      where: updateOPtion,
+    });
     // const count = await this.coachProfileRepository.count();
     // console.log(count);
     return list;
