@@ -29,10 +29,10 @@ async function bootstrap() {
     include: [
       AuthModule,
       ProfilesModule,
-      UserappsModule,
       PhotosModule,
+      UserappsModule,
+      CoachappsModule,
       CoachProfilesModule,
-      CoachappsModule
     ],
   });
   SwaggerModule.setup('api', app, document);
