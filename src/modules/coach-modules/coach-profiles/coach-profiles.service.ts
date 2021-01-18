@@ -50,7 +50,6 @@ export class CoachProfilesService {
       where: updateOPtion,
     });
     // const count = await this.coachProfileRepository.count();
-    // console.log(count);
     return list;
   }
 }

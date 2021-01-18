@@ -35,7 +35,7 @@ export class UserappsController {
     return list;
   }
 
-@ApiTags('Clietnt-Application')
+@ApiTags('Client-Application')
 @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
@@ -52,7 +52,7 @@ export class UserappsController {
     return apps;
   }
 
-@ApiTags('Clietnt-Application')
+@ApiTags('Client-Application')
 @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
@@ -67,7 +67,7 @@ export class UserappsController {
     return await this.userappService.create(userapp, req.user.id);
   }
 
-@ApiTags('Clietnt-Application')
+@ApiTags('Client-Application')
 @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
@@ -93,7 +93,7 @@ export class UserappsController {
     return { createdUserapp: updatedApplication, matches };
   }
 
-@ApiTags('Clietnt-Application')
+@ApiTags('Client-Application')
 @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(@Param('id') id: number, @Req() req) {

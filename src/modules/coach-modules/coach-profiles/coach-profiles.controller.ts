@@ -46,7 +46,10 @@ export class CoachProfilesController {
     @Req() req,
   ): Promise<CoachProfile> {
     // find the profiles with this id
-    const profiles = await this.coachProfileService.findOne(req.user, profileId);
+    const profiles = await this.coachProfileService.findOne(
+      req.user,
+      profileId,
+    );
 
     // if the profiles doesn't exit in the db, throw a 404 error
     if (!profiles) {
@@ -68,7 +71,9 @@ export class CoachProfilesController {
       throw new NotFoundException('Your role is not a trainer');
     }
     // check if user already has a profile
-    const isProfile = await this.coachProfileService.findOne(req.user, '');
+    const isProfile = await CoachProfile.findOne({
+      where: { userId: req.user.id },
+    });
     if (isProfile) {
       throw new NotFoundException('This User already has a profile');
     }
