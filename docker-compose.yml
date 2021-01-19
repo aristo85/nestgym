@@ -10,6 +10,8 @@ services:
       POSTGRES_PASSWORD: getcoach_api
       POSTGRES_USER: getcoach_api
       POSTGRES_DB: getcoach_api
+    ports:
+      - 5432:5432
     restart: always
 
   getcoachapi:
