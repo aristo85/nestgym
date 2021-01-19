@@ -12,8 +12,6 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { type } from 'os';
-import { UserappDto } from 'src/modules/userapps/userapp.dto';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { Requestedapp } from './coachapp.entity';
 import { CoachappsService } from './coachapps.service';
@@ -30,7 +28,7 @@ export class CoachappsController {
   constructor(private readonly coachappappService: CoachappsService) {}
 
   // request to hire a Trainer
-  @ApiTags('Request-Chosen-Coach')
+  @ApiTags('ClientRequest-ChosenCoach')
   @UseGuards(AuthGuard('jwt'))
   @Get(':coachId/:userappId')
   async create(
@@ -39,7 +37,7 @@ export class CoachappsController {
     @Param('userappId') userappId,
   ): Promise<Requestedapp> {
     // check if the the application been used
-    let userapp = (await Userapp.findOne({ where: { id: userappId } })).get();
+    let userapp = (await Requestedapp.findOne({ where: { userappId } }))
     if (userapp) {
       throw new NotFoundException('this application already active');
     }
@@ -52,7 +50,7 @@ export class CoachappsController {
   }
 
   // get all requestedapps(offers) of a triner
-  @ApiTags('Coach-Applications/Offers')
+  @ApiTags('CoachApps')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
@@ -72,7 +70,7 @@ export class CoachappsController {
   }
 
   //
-  @ApiTags('Coach-Applications/Offers')
+  @ApiTags('CoachResponse-Accept/Reject/Coment-app')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Put(':userappId')

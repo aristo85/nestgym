@@ -23,24 +23,33 @@ import { CoachProfileDto } from './dto/coach-profile.dto';
 export class CoachProfilesController {
   constructor(private readonly coachProfileService: CoachProfilesService) {}
 
-  //   @ApiResponse({ status: 200 })
-  //   @UseGuards(AuthGuard('jwt'))
-  //   @Get()
-  //   async findAll(@Req() req) {
-  //     // get all profiles in the db
-  //     const list = await this.coachProfileService.findAll(req.user.id);
-  //     const count = list.length;
-  //     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
-  //     req.res.set('Content-Range', `0-${count}/${count}`);
-  //     return list;
-  //   }
-
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async findOne(@Req() req): Promise<CoachProfile> {
+  async findAll(@Req() req) {
+    if (req.user.role === 'user') {
+      throw new NotFoundException('your role is "user"');
+    }
+    // get all profiles in the db
+    const list = await this.coachProfileService.findAll(req.user);
+    const count = list.length;
+    req.res.set('Access-Control-Expose-Headers', 'Content-Range');
+    req.res.set('Content-Range', `0-${count}/${count}`);
+    return list;
+  }
+
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Get(':profileId')
+  async findOne(
+    @Param('profileId') profileId: number,
+    @Req() req,
+  ): Promise<CoachProfile> {
     // find the profiles with this id
-    const profiles = await this.coachProfileService.findOne(req.user.id);
+    const profiles = await this.coachProfileService.findOne(
+      req.user,
+      profileId,
+    );
 
     // if the profiles doesn't exit in the db, throw a 404 error
     if (!profiles) {
@@ -62,7 +71,9 @@ export class CoachProfilesController {
       throw new NotFoundException('Your role is not a trainer');
     }
     // check if user already has a profile
-    const isProfile = await this.coachProfileService.findOne(req.user.id);
+    const isProfile = await CoachProfile.findOne({
+      where: { userId: req.user.id },
+    });
     if (isProfile) {
       throw new NotFoundException('This User already has a profile');
     }

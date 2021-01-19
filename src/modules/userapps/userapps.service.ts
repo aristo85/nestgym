@@ -43,7 +43,7 @@ export class UserappsService {
 
   async findOne(id, user): Promise<Userapp> {
     // check the role
-    let updateOPtion = user.role === 'user' ? { id, userId: user.id }: { id };
+    let updateOPtion = user.role === 'user' ? { id, userId: user.id } : { id };
     return await this.userappRepository.findOne({
       where: updateOPtion,
     });
@@ -82,8 +82,8 @@ export class UserappsService {
   //////////////////////////////////////////////////////////////////////////
   // matching function
   coachMatches = async (userapp: UserappDto): Promise<CoachProfile[]> => {
-    if(!userapp ) {
-      throw new NotFoundException('this profile is not exist')
+    if (!userapp) {
+      throw new NotFoundException('this profile is not exist');
     }
     const coachProfiles: any = await CoachProfile.findAll<CoachProfile>();
     let newList = [];

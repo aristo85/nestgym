@@ -1,4 +1,14 @@
-import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  HasMany,
+  ForeignKey,
+  HasOne,
+} from 'sequelize-typescript';
+import { Photo } from '../photos/photo.entity';
+import { Profile } from '../profiles/profile.entity';
 import { Userapp } from '../userapps/userapp.entity';
 @Table
 export class User extends Model<User> {
@@ -34,6 +44,9 @@ export class User extends Model<User> {
   })
   password: string;
 
-  @HasMany(() => Userapp)
+  @HasMany(() => Userapp, 'userId')
   userapps: Userapp[];
+
+  @HasMany(() => Photo, 'userId')
+  photos: Photo[];
 }
