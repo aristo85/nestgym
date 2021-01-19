@@ -37,7 +37,7 @@ services:
       - /app/node_modules
       - adminbuild:/app/build
     ports:
-      - 6000:6000
+      - 9999:9999
     restart: always
 
   nginx:
