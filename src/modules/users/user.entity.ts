@@ -7,8 +7,8 @@ import {
   ForeignKey,
   HasOne,
 } from 'sequelize-typescript';
+import { CoachService } from '../coach-modules/coach-services/coach-service.entity';
 import { Photo } from '../photos/photo.entity';
-import { Profile } from '../profiles/profile.entity';
 import { Userapp } from '../userapps/userapp.entity';
 @Table
 export class User extends Model<User> {
@@ -49,4 +49,7 @@ export class User extends Model<User> {
 
   @HasMany(() => Photo, 'userId')
   photos: Photo[];
+
+  @HasMany(() => CoachService, 'userId')
+  coachServices: CoachService[];
 }

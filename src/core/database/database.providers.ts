@@ -18,6 +18,8 @@ import { WorkoutOnDiet } from './DB/recomendations/workoutOnDiet.entity';
 import { AppPayment } from './DB/transaction/appPaymetn.entity';
 import { CoachPayment } from './DB/transaction/coachPayment.entity';
 import { UserTransaction } from './DB/transaction/userTransaction.entity';
+import { CoachService } from 'src/modules/coach-modules/coach-services/coach-service.entity';
+import { DayBook } from './DB/dayBook.entity';
 // import { Sequelize } from 'sequelize';
 
 export const databaseProviders = [
@@ -57,6 +59,8 @@ export const databaseProviders = [
         AppPayment,
         CoachPayment,
         UserTransaction,
+        CoachService,
+        DayBook
       ]);
       await sequelize.sync({ alter: true });
       return sequelize;

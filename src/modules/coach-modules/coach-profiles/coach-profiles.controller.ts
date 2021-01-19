@@ -12,18 +12,22 @@ import {
   Req,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Omit } from 'sequelize-typescript/dist/shared/types';
+import { CoachServiceDto } from '../coach-services/dto/coach-service.dto';
 import { CoachProfile } from './coach-profile.entity';
 import { CoachProfilesService } from './coach-profiles.service';
-import { CoachProfileDto } from './dto/coach-profile.dto';
+import { CoachProfileDto, CoachProfileUpdateDto } from './dto/coach-profile.dto';
+
+
 @Controller('coach-profiles')
-@ApiTags('Coach Profile')
 @ApiBearerAuth()
 @Controller('coachprofiles')
 export class CoachProfilesController {
   constructor(private readonly coachProfileService: CoachProfilesService) {}
 
-  @ApiResponse({ status: 200 })
+@ApiTags('Coach Profile')
+@ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@Req() req) {
@@ -38,7 +42,8 @@ export class CoachProfilesController {
     return list;
   }
 
-  @ApiResponse({ status: 200 })
+@ApiTags('Coach Profile with services')
+@ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':profileId')
   async findOne(
@@ -60,7 +65,8 @@ export class CoachProfilesController {
     return profiles;
   }
 
-  @UseGuards(AuthGuard('jwt'))
+@ApiTags('Coach Profile')
+@UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
     @Body() profile: CoachProfileDto,
@@ -81,12 +87,13 @@ export class CoachProfilesController {
     return await this.coachProfileService.create(profile, req.user.id);
   }
 
-  @ApiResponse({ status: 200 })
+@ApiTags('Coach Profile')
+@ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   async update(
     @Param('id') id: number,
-    @Body() profile: CoachProfileDto,
+    @Body() profile: CoachProfileUpdateDto,
     @Request() req,
   ): Promise<CoachProfile> {
     // get the number of row affected and the updated profile

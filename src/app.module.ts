@@ -10,6 +10,7 @@ import { UserappsModule } from './modules/userapps/userapps.module';
 import { PhotosModule } from './modules/photos/photos.module';
 import { CoachProfilesModule } from './modules/coach-modules/coach-profiles/coach-profiles.module';
 import { CoachappsModule } from './modules/coach-modules/coachapps/coachapps.module';
+import { CoachServicesModule } from './modules/coach-modules/coach-services/coach-services.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CoachappsModule } from './modules/coach-modules/coachapps/coachapps.mod
     PhotosModule,
     CoachProfilesModule,
     CoachappsModule,
+    CoachServicesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
