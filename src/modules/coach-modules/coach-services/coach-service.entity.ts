@@ -1,4 +1,5 @@
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { CoachProfile } from '../coach-profiles/coach-profile.entity';
 
 @Table
 export class CoachService extends Model<CoachService> {
@@ -26,4 +27,12 @@ export class CoachService extends Model<CoachService> {
   })
   valute: string;
   //
+
+
+  @ForeignKey(() => CoachProfile)
+  @Column
+  coachprofileId: number;
+
+  @BelongsTo(() => CoachProfile)
+  coachprofile: CoachProfile;
 }

@@ -13,17 +13,19 @@ export class CoachServicesService {
   async create(
     servicelist: CoachServiceDto[],
     userId,
+    coachprofileId
   ): Promise<CoachService[]> {
     let newList = [];
-    servicelist.map(async (service) => {
+    for (const serv of servicelist) {
       const newService = await this.coachServiceRepository.create<CoachService>(
         {
-          ...service,
+          ...serv,
           userId,
+          coachprofileId
         },
       );
       newList.push(newService);
-    });
+    }
 
     return newList;
   }

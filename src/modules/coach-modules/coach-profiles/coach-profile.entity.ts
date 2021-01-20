@@ -5,8 +5,10 @@ import {
   DataType,
   ForeignKey,
   BelongsTo,
+  HasMany,
 } from 'sequelize-typescript';
 import { User } from 'src/modules/users/user.entity';
+import { CoachService } from '../coach-services/coach-service.entity';
 
 // creating two tables (Coach profiles and coach services)
 @Table
@@ -93,4 +95,7 @@ export class CoachProfile extends Model<CoachProfile> {
 
   @BelongsTo(() => User)
   user: User;
+
+  @HasMany(() => CoachService, 'coachprofileId')
+  coachservices: CoachService[]
 }

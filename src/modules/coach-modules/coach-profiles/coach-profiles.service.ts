@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { COATCH_PROFILE_REPOSITORY } from 'src/core/constants';
+import { User } from 'src/modules/users/user.entity';
 import { CoachService } from '../coach-services/coach-service.entity';
 import { CoachServicesService } from '../coach-services/coach-services.service';
 import { CoachProfile } from './coach-profile.entity';
@@ -12,24 +13,27 @@ export class CoachProfilesService {
     private readonly coachProfileRepository: typeof CoachProfile,
     private readonly coachServiceService: CoachServicesService,
   ) {}
-
+  /////////////////////////////////////////////
   async create(data: CoachProfileDto, userId): Promise<any> {
-    // create coach services DB
-    const services = await this.coachServiceService.create(
-      data.coachServices,
-      userId,
-    );
+   
     // omit the coachservices prop and create profile
     const { coachServices, ...other } = data;
     const profile = await this.coachProfileRepository.create<CoachProfile>({
       ...other,
       userId,
     });
+    // create coach services DB
+     const services = await this.coachServiceService.create(
+      coachServices,
+      userId,
+      profile.id
+    );
 
     return { profile, services };
   }
+  /////////////////////////////////////////////
 
-  async findOne(user, id): Promise<any> {
+  async findOne(user, id): Promise<CoachProfile> {
     // check role
     let whereOptions =
       user.role === 'trainer' ? { id, userId: user.id } : { id };
@@ -38,19 +42,21 @@ export class CoachProfilesService {
       where: { userId: user.id },
     });
 
-    const profile = await this.coachProfileRepository.findOne({
+    return await this.coachProfileRepository.findOne({
       where: whereOptions,
+      include: [CoachService],
     });
 
-    return { profile, serviceList };
+    // return { profile, serviceList };
   }
+  /////////////////////////////////////////////
 
   async delete(id, userId) {
     // delete also the coach services
     await CoachService.destroy({ where: { userId } });
     return await this.coachProfileRepository.destroy({ where: { id, userId } });
   }
-
+  /////////////////////////////////////////////
 
   async update(id, data, userId) {
     const [
@@ -63,15 +69,20 @@ export class CoachProfilesService {
 
     return { numberOfAffectedRows, updatedprofile };
   }
+  /////////////////////////////////////////////
 
   // exported
   async findAll(user): Promise<CoachProfile[]> {
     let updateOPtion = user.role === 'admin' ? {} : { userId: user.id };
 
+    // CoachProfile.findOne({})
+
     const list = await this.coachProfileRepository.findAll<CoachProfile>({
       where: updateOPtion,
+      include: [CoachService],
     });
     // const count = await this.coachProfileRepository.count();
     return list;
   }
+  /////////////////////////////////////////////
 }
