@@ -11,6 +11,8 @@ import { PhotosModule } from './modules/photos/photos.module';
 import { CoachProfilesModule } from './modules/coach-modules/coach-profiles/coach-profiles.module';
 import { CoachappsModule } from './modules/coach-modules/coachapps/coachapps.module';
 import { CoachServicesModule } from './modules/coach-modules/coach-services/coach-services.module';
+import { WorkoutProgramsModule } from './modules/coach-modules/workout-programs/workout-programs.module';
+import { FullProgworkoutsModule } from './modules/coach-modules/full-progworkouts/full-progworkouts.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { CoachServicesModule } from './modules/coach-modules/coach-services/coac
     CoachProfilesModule,
     CoachappsModule,
     CoachServicesModule,
+    WorkoutProgramsModule,
+    FullProgworkoutsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
