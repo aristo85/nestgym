@@ -9,6 +9,7 @@ import {
 } from 'sequelize-typescript';
 import { User } from '../users/user.entity';
 import { Photo } from '../photos/photo.entity';
+import { json } from 'sequelize';
 
 @Table
 export class Userapp extends Model<Userapp> {
@@ -78,4 +79,10 @@ export class Userapp extends Model<Userapp> {
     // allowNull: false,
   })
   status: string;
+
+  @Column({
+    type: DataType.JSON,
+    // allowNull: false,
+  })
+  coachProfile: any;
 }

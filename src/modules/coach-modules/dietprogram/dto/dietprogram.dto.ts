@@ -1,16 +1,14 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export interface WorkoutProg {
-  workout: string;
-  sets: number;
-  reps: number;
-  weight: number;
+export interface DietProd {
+  product: string;
+  amount: number;
   dayNumber: number;
-  coment: string;
+  measure: string;
 }
 
-export class FullProgWorkoutDto {
+export class DietProgramDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly title: string;
@@ -18,12 +16,10 @@ export class FullProgWorkoutDto {
   @ApiProperty({
     description: ` example: [
     {
-        workout: string,
-        sets: number,
-        reps: number,
-        weight: number,
+        product: string,
+        amount: number,
         dayNumber: number,
-        coment: string,
+        measure: string,
     }, ...
   ]`,
 
@@ -33,7 +29,23 @@ export class FullProgWorkoutDto {
     },
   })
   @IsNotEmpty()
-  readonly programs: WorkoutProg[];
+  readonly programs: DietProd[];
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly dailyRate: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly protein: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly fats: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly carbs: number;
 
   @ApiProperty({
     type: 'array',

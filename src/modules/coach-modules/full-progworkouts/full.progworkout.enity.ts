@@ -13,7 +13,7 @@ export class FullProgWorkout extends Model<FullProgWorkout> {
     type: DataType.ARRAY(DataType.INTEGER),
     allowNull: false,
   })
-  userappIds: number[];
+  clientIds: number[];
 
   //
   @HasMany(() => WorkoutProgram, 'fullprogworkoutId')

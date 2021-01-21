@@ -13,6 +13,9 @@ import { CoachappsModule } from './modules/coach-modules/coachapps/coachapps.mod
 import { CoachServicesModule } from './modules/coach-modules/coach-services/coach-services.module';
 import { WorkoutProgramsModule } from './modules/coach-modules/workout-programs/workout-programs.module';
 import { FullProgworkoutsModule } from './modules/coach-modules/full-progworkouts/full-progworkouts.module';
+import { UserWorkoutsModule } from './modules/user-workouts/user-workouts.module';
+import { DietproductsModule } from './modules/coach-modules/dietproducts/dietproducts.module';
+import { DietprogramModule } from './modules/coach-modules/dietprogram/dietprogram.module';
 
 @Module({
   imports: [
@@ -28,6 +31,9 @@ import { FullProgworkoutsModule } from './modules/coach-modules/full-progworkout
     CoachServicesModule,
     WorkoutProgramsModule,
     FullProgworkoutsModule,
+    UserWorkoutsModule,
+    DietproductsModule,
+    DietprogramModule,
   ],
   controllers: [AppController],
   providers: [AppService],

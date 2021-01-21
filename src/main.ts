@@ -6,10 +6,12 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CoachProfilesModule } from './modules/coach-modules/coach-profiles/coach-profiles.module';
 import { CoachServicesModule } from './modules/coach-modules/coach-services/coach-services.module';
 import { CoachappsModule } from './modules/coach-modules/coachapps/coachapps.module';
+import { DietprogramModule } from './modules/coach-modules/dietprogram/dietprogram.module';
 import { FullProgworkoutsModule } from './modules/coach-modules/full-progworkouts/full-progworkouts.module';
 import { WorkoutProgramsModule } from './modules/coach-modules/workout-programs/workout-programs.module';
 import { PhotosModule } from './modules/photos/photos.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
+import { UserWorkoutsModule } from './modules/user-workouts/user-workouts.module';
 import { UserappsModule } from './modules/userapps/userapps.module';
 
 async function bootstrap() {
@@ -38,7 +40,9 @@ async function bootstrap() {
       CoachProfilesModule,
       CoachServicesModule,
       WorkoutProgramsModule,
-      FullProgworkoutsModule
+      FullProgworkoutsModule,
+      UserWorkoutsModule,
+      DietprogramModule
     ],
   });
   SwaggerModule.setup('api', app, document);

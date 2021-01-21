@@ -1,7 +1,7 @@
 import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
 @Table
-export class WorkoutProgram extends Model<WorkoutProgram> {
+export class DietProduct extends Model<DietProduct> {
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
@@ -12,31 +12,19 @@ export class WorkoutProgram extends Model<WorkoutProgram> {
     type: DataType.STRING,
     allowNull: false,
   })
-  workout: string;
+  product: string;
   //
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
-  sets: number;
-  //
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
-  reps: number;
-  //
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
-  weight: number;
+  amount: number;
   //
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  coment: string;
+  measure: string;
   //
   // @ForeignKey(() => Userapp)
   // @Column({
@@ -48,5 +36,5 @@ export class WorkoutProgram extends Model<WorkoutProgram> {
 
   // @BelongsTo(() => Userapp)
   // userapp: Userapp;
-  //
+  // //
 }
