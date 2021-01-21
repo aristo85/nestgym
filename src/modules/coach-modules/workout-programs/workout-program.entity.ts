@@ -46,16 +46,16 @@ import {
     })
     coment: string;
     //
-    @ForeignKey(() => Userapp)
-    @Column({
-      type: DataType.INTEGER,
-      allowNull: false,
-    })
-    userappId: number;
-    //
+    // @ForeignKey(() => Userapp)
+    // @Column({
+    //   type: DataType.INTEGER,
+    //   allowNull: false,
+    // })
+    // userappId: number;
+    // //
   
-    @BelongsTo(() => Userapp)
-    userapp: Userapp;
+    // @BelongsTo(() => Userapp)
+    // userapp: Userapp;
     //
   }
   
