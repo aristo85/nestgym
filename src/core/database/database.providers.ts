@@ -20,6 +20,8 @@ import { CoachPayment } from './DB/transaction/coachPayment.entity';
 import { UserTransaction } from './DB/transaction/userTransaction.entity';
 import { CoachService } from 'src/modules/coach-modules/coach-services/coach-service.entity';
 import { DayBook } from './DB/dayBook.entity';
+import { WorkoutProgram } from 'src/modules/coach-modules/workout-programs/workout-program.entity';
+import { FullProgWorkout } from 'src/modules/coach-modules/full-progworkouts/full.progworkout.enity';
 // import { Sequelize } from 'sequelize';
 
 export const databaseProviders = [
@@ -60,7 +62,9 @@ export const databaseProviders = [
         CoachPayment,
         UserTransaction,
         CoachService,
-        DayBook
+        DayBook,
+        WorkoutProgram,
+        FullProgWorkout
       ]);
       await sequelize.sync({ alter: true });
       return sequelize;

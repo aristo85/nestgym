@@ -6,6 +6,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CoachProfilesModule } from './modules/coach-modules/coach-profiles/coach-profiles.module';
 import { CoachServicesModule } from './modules/coach-modules/coach-services/coach-services.module';
 import { CoachappsModule } from './modules/coach-modules/coachapps/coachapps.module';
+import { FullProgworkoutsModule } from './modules/coach-modules/full-progworkouts/full-progworkouts.module';
+import { WorkoutProgramsModule } from './modules/coach-modules/workout-programs/workout-programs.module';
 import { PhotosModule } from './modules/photos/photos.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
 import { UserappsModule } from './modules/userapps/userapps.module';
@@ -34,7 +36,9 @@ async function bootstrap() {
       UserappsModule,
       CoachappsModule,
       CoachProfilesModule,
-      CoachServicesModule
+      CoachServicesModule,
+      WorkoutProgramsModule,
+      FullProgworkoutsModule
     ],
   });
   SwaggerModule.setup('api', app, document);
