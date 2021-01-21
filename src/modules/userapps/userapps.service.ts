@@ -1,6 +1,7 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { APPLICATION_REPOSITORY } from 'src/core/constants';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
+import { CoachService } from '../coach-modules/coach-services/coach-service.entity';
 import { User } from '../users/user.entity';
 import { UserappDto } from './userapp.dto';
 import { Userapp } from './userapp.entity';
@@ -85,7 +86,9 @@ export class UserappsService {
     if (!userapp) {
       throw new NotFoundException('this profile is not exist');
     }
-    const coachProfiles: any = await CoachProfile.findAll<CoachProfile>();
+    const coachProfiles: any = await CoachProfile.findAll<CoachProfile>({
+      include: [CoachService],
+    });
     let newList = [];
     coachProfiles.forEach((coachProfile) => {
       // const test = this.arrFilter(coachProfile.aim, ['fixing', '6']);
