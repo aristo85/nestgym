@@ -8,6 +8,7 @@ import {
   HasOne,
 } from 'sequelize-typescript';
 import { CoachService } from '../coach-modules/coach-services/coach-service.entity';
+import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
 import { Photo } from '../photos/photo.entity';
 import { Userapp } from '../userapps/userapp.entity';
@@ -56,4 +57,7 @@ export class User extends Model<User> {
 
   @HasMany(() => FullProgWorkout, 'coachId')
   fullprogworkouts: FullProgWorkout[];
+
+  @HasMany(() => DietProgram, 'coachId')
+  dietprograms: DietProgram[];
 }

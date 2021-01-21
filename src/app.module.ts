@@ -14,6 +14,8 @@ import { CoachServicesModule } from './modules/coach-modules/coach-services/coac
 import { WorkoutProgramsModule } from './modules/coach-modules/workout-programs/workout-programs.module';
 import { FullProgworkoutsModule } from './modules/coach-modules/full-progworkouts/full-progworkouts.module';
 import { UserWorkoutsModule } from './modules/user-workouts/user-workouts.module';
+import { DietproductsModule } from './modules/coach-modules/dietproducts/dietproducts.module';
+import { DietprogramModule } from './modules/coach-modules/dietprogram/dietprogram.module';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { UserWorkoutsModule } from './modules/user-workouts/user-workouts.module
     WorkoutProgramsModule,
     FullProgworkoutsModule,
     UserWorkoutsModule,
+    DietproductsModule,
+    DietprogramModule,
   ],
   controllers: [AppController],
   providers: [AppService],
