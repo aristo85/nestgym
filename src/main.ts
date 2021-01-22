@@ -14,6 +14,7 @@ import { PhotosModule } from './modules/photos/photos.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
 import { SportsModule } from './modules/sports/sports.module';
 import { UserDietsModule } from './modules/user-diets/user-diets.module';
+import { UserProgressModule } from './modules/user-progress/user-progress.module';
 import { UserWorkoutsModule } from './modules/user-workouts/user-workouts.module';
 import { UserappsModule } from './modules/userapps/userapps.module';
 
@@ -48,7 +49,8 @@ async function bootstrap() {
       DietprogramModule,
       AimsModule,
       SportsModule,
-      UserDietsModule
+      UserDietsModule,
+      UserProgressModule
     ],
   });
   SwaggerModule.setup('api', app, document);
