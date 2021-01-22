@@ -18,6 +18,9 @@ import { DietproductsModule } from './modules/coach-modules/dietproducts/dietpro
 import { DietprogramModule } from './modules/coach-modules/dietprogram/dietprogram.module';
 import { SportsModule } from './modules/sports/sports.module';
 import { AimsModule } from './modules/aims/aims.module';
+import { UserDietsModule } from './modules/user-diets/user-diets.module';
+import { UserProgressModule } from './modules/user-progress/user-progress.module';
+import { CoachProgressModule } from './modules/coach-modules/coach-progress/coach-progress.module';
 
 @Module({
   imports: [
@@ -38,6 +41,9 @@ import { AimsModule } from './modules/aims/aims.module';
     DietprogramModule,
     SportsModule,
     AimsModule,
+    UserDietsModule,
+    UserProgressModule,
+    CoachProgressModule,
   ],
   controllers: [AppController],
   providers: [AppService],
