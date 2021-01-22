@@ -8,7 +8,7 @@ import { Photo } from 'src/modules/photos/photo.entity';
 import { CoachProfile } from 'src/modules/coach-modules/coach-profiles/coach-profile.entity';
 import { Requestedapp } from 'src/modules/coach-modules/coachapps/coachapp.entity';
 import { PhotoProgress } from './DB/dynamics/photoProgress.entity';
-import { UserProgress } from './DB/dynamics/userProgress.entity';
+import { UserProgress } from '../../modules/user-progress/user-progress.entity';
 import { Feedback } from './DB/feedbacks/feedback.entity';
 import { PhotoFeedback } from './DB/feedbacks/photoFeedback.entity';
 import { Article } from './DB/publication/article.entity';

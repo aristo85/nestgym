@@ -19,6 +19,7 @@ import { DietprogramModule } from './modules/coach-modules/dietprogram/dietprogr
 import { SportsModule } from './modules/sports/sports.module';
 import { AimsModule } from './modules/aims/aims.module';
 import { UserDietsModule } from './modules/user-diets/user-diets.module';
+import { UserProgressModule } from './modules/user-progress/user-progress.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { UserDietsModule } from './modules/user-diets/user-diets.module';
     SportsModule,
     AimsModule,
     UserDietsModule,
+    UserProgressModule,
   ],
   controllers: [AppController],
   providers: [AppService],
