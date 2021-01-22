@@ -18,6 +18,7 @@ import { DietproductsModule } from './modules/coach-modules/dietproducts/dietpro
 import { DietprogramModule } from './modules/coach-modules/dietprogram/dietprogram.module';
 import { SportsModule } from './modules/sports/sports.module';
 import { AimsModule } from './modules/aims/aims.module';
+import { UserDietsModule } from './modules/user-diets/user-diets.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { AimsModule } from './modules/aims/aims.module';
     DietprogramModule,
     SportsModule,
     AimsModule,
+    UserDietsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
