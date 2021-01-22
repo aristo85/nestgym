@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { COACH_APP_REPOSITORY } from 'src/core/constants';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { CoachProfile } from '../coach-profiles/coach-profile.entity';
+import { CoachService } from '../coach-services/coach-service.entity';
 import { Requestedapp } from './coachapp.entity';
 
 @Injectable()
@@ -18,14 +19,17 @@ export class CoachappsService {
       userappId,
     });
 
-     // update the staus of the userapp and add the coach profile to it
-     let coach = await CoachProfile.findOne({ where: { userId: coachId } });
+    // update the staus of the userapp and add the coach profile to it
+    let coach = await CoachProfile.findOne({
+      where: { userId: coachId },
+      include: [CoachService],
+    });
     //  const coachStr = JSON.stringify(coach)
     //  console.log(coachStr)
-     await Userapp.update(
-       { status: 'pending', coachProfile: coach },
-       { where: { id: userappId }, returning: true },
-     );
+    await Userapp.update(
+      { status: 'pending', coachProfile: coach },
+      { where: { id: userappId }, returning: true },
+    );
 
     return requestedapp;
   }
