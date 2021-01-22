@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { AimsModule } from './modules/aims/aims.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CoachProfilesModule } from './modules/coach-modules/coach-profiles/coach-profiles.module';
 import { CoachServicesModule } from './modules/coach-modules/coach-services/coach-services.module';
@@ -11,6 +12,7 @@ import { FullProgworkoutsModule } from './modules/coach-modules/full-progworkout
 import { WorkoutProgramsModule } from './modules/coach-modules/workout-programs/workout-programs.module';
 import { PhotosModule } from './modules/photos/photos.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
+import { SportsModule } from './modules/sports/sports.module';
 import { UserWorkoutsModule } from './modules/user-workouts/user-workouts.module';
 import { UserappsModule } from './modules/userapps/userapps.module';
 
@@ -42,7 +44,9 @@ async function bootstrap() {
       WorkoutProgramsModule,
       FullProgworkoutsModule,
       UserWorkoutsModule,
-      DietprogramModule
+      DietprogramModule,
+      AimsModule,
+      SportsModule
     ],
   });
   SwaggerModule.setup('api', app, document);

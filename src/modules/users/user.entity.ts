@@ -7,10 +7,12 @@ import {
   ForeignKey,
   HasOne,
 } from 'sequelize-typescript';
+import { Aim } from '../aims/aim.entity';
 import { CoachService } from '../coach-modules/coach-services/coach-service.entity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
 import { Photo } from '../photos/photo.entity';
+import { Sport } from '../sports/sport.entity';
 import { Userapp } from '../userapps/userapp.entity';
 @Table
 export class User extends Model<User> {
@@ -60,4 +62,10 @@ export class User extends Model<User> {
 
   @HasMany(() => DietProgram, 'coachId')
   dietprograms: DietProgram[];
+
+  @HasMany(() => Aim, 'adminId')
+  aims: Aim[];
+
+  @HasMany(() => Sport, 'adminId')
+  sports: Sport[];
 }

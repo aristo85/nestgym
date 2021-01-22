@@ -16,6 +16,8 @@ import { FullProgworkoutsModule } from './modules/coach-modules/full-progworkout
 import { UserWorkoutsModule } from './modules/user-workouts/user-workouts.module';
 import { DietproductsModule } from './modules/coach-modules/dietproducts/dietproducts.module';
 import { DietprogramModule } from './modules/coach-modules/dietprogram/dietprogram.module';
+import { SportsModule } from './modules/sports/sports.module';
+import { AimsModule } from './modules/aims/aims.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { DietprogramModule } from './modules/coach-modules/dietprogram/dietprogr
     UserWorkoutsModule,
     DietproductsModule,
     DietprogramModule,
+    SportsModule,
+    AimsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
