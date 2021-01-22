@@ -24,6 +24,8 @@ import { WorkoutProgram } from 'src/modules/coach-modules/workout-programs/worko
 import { FullProgWorkout } from 'src/modules/coach-modules/full-progworkouts/full.progworkout.enity';
 import { DietProduct } from 'src/modules/coach-modules/dietproducts/dietproduct.entity';
 import { DietProgram } from 'src/modules/coach-modules/dietprogram/dietprogram.entity';
+import { Aim } from 'src/modules/aims/aim.entity';
+import { Sport } from 'src/modules/sports/sport.entity';
 // import { Sequelize } from 'sequelize';
 
 export const databaseProviders = [
@@ -68,7 +70,9 @@ export const databaseProviders = [
         WorkoutProgram,
         FullProgWorkout,
         DietProduct,
-        DietProgram
+        DietProgram,
+        Aim,
+        Sport,
       ]);
       await sequelize.sync({ alter: true });
       return sequelize;
