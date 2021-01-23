@@ -14,6 +14,12 @@ import { CoachService } from '../coach-services/coach-service.entity';
 @Table
 export class CoachProfile extends Model<CoachProfile> {
   @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  fullName: string;
+
+  @Column({
     type: DataType.ARRAY(DataType.STRING),
     allowNull: false,
   })
@@ -97,5 +103,5 @@ export class CoachProfile extends Model<CoachProfile> {
   user: User;
 
   @HasMany(() => CoachService, 'coachprofileId')
-  coachservices: CoachService[]
+  coachservices: CoachService[];
 }

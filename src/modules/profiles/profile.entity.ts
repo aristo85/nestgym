@@ -11,6 +11,12 @@ import { User } from '../users/user.entity';
 @Table
 export class Profile extends Model<Profile> {
   @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  fullName: string;
+
+  @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })

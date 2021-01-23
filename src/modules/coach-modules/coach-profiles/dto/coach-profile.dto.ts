@@ -10,6 +10,10 @@ export interface Service {
 export class CoachProfileDto {
   @ApiProperty()
   @IsNotEmpty()
+  readonly fullName: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
   readonly sportTypes: string[];
 
   @ApiProperty()
