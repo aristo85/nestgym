@@ -18,11 +18,6 @@ export class UserappsService {
     private readonly userappRepository: typeof Userapp,
   ) {}
 
-  // async findAllForAdmin(): Promise<Userapp[]> {
-  //   const list = await this.userappRepository.findAll<Userapp>({});
-  //   return list;
-  // }
-
   async create(userapp: UserappDto, userId): Promise<createPromise> {
     const createdUserapp = await this.userappRepository.create<Userapp>({
       ...userapp,
@@ -80,6 +75,13 @@ export class UserappsService {
     const list = this.coachMatches(application);
     return list;
   }
+
+  
+  // async findAllForAdmin(): Promise<Userapp[]> {
+  //   const list = await this.userappRepository.findAll<Userapp>({});
+  //   return list;
+  // }
+
   //////////////////////////////////////////////////////////////////////////
   // matching function
   coachMatches = async (userapp: UserappDto): Promise<CoachProfile[]> => {
