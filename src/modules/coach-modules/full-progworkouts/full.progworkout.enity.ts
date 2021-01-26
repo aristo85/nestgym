@@ -1,4 +1,5 @@
 import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
+import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
 import { WorkoutProgram } from '../workout-programs/workout-program.entity';
 
 @Table
@@ -18,4 +19,8 @@ export class FullProgWorkout extends Model<FullProgWorkout> {
   //
   @HasMany(() => WorkoutProgram, 'fullprogworkoutId')
   workoutprograms: WorkoutProgram[];
+
+  //
+  @HasMany(() => UserWorkout, 'fullprogworkoutId')
+  userworkouts: UserWorkout[];
 }
