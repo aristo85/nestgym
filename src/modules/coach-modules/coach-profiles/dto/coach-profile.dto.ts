@@ -81,6 +81,10 @@ export class CoachProfileDto {
 export class CoachProfileUpdateDto {
   @ApiProperty()
   @IsNotEmpty()
+  readonly fullName: string;
+  
+  @ApiProperty()
+  @IsNotEmpty()
   readonly sportTypes: string[];
 
   @ApiProperty()
