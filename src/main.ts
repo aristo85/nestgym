@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import { AimsModule } from './modules/aims/aims.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CoachProfilesModule } from './modules/coach-modules/coach-profiles/coach-profiles.module';
+import { CoachProgressModule } from './modules/coach-modules/coach-progress/coach-progress.module';
 import { CoachServicesModule } from './modules/coach-modules/coach-services/coach-services.module';
 import { CoachappsModule } from './modules/coach-modules/coachapps/coachapps.module';
 import { DietprogramModule } from './modules/coach-modules/dietprogram/dietprogram.module';
@@ -50,7 +51,8 @@ async function bootstrap() {
       AimsModule,
       SportsModule,
       UserDietsModule,
-      UserProgressModule
+      UserProgressModule,
+      CoachProgressModule
     ],
   });
   SwaggerModule.setup('api', app, document);

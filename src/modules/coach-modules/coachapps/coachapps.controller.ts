@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { Requestedapp } from './coachapp.entity';
 import { CoachappsService } from './coachapps.service';
@@ -35,18 +35,38 @@ export class CoachappsController {
     @Request() req,
     @Param('coachId') coachId,
     @Param('userappId') userappId,
-  ): Promise<Requestedapp> {
-    // check if the the application been used
-    let userapp = (await Requestedapp.findOne({ where: { userappId } }))
+  ): Promise<any> {
+    // check if the application been used
+    let userapp = await Requestedapp.findOne({ where: { userappId } });
     if (userapp) {
       throw new NotFoundException('this application already active');
     }
+    // check if client requested this coach before
+    const myCoaches = await Requestedapp.findOne({
+      where: { userId: req.user.id, coachId },
+    });
+    if (myCoaches) {
+      throw new NotFoundException('you have requested this coach already!');
+    }
+    // check if number of requested applications exseeded maximum
+    const myRequests = await Requestedapp.findAll({
+      where: { userId: req.user.id },
+    });
+    if (myRequests.length >= 3) {
+      throw new NotFoundException(
+        'number of app requests are exseeded, 3 maximum',
+      );
+    }
     // create a new apps and return the newly created apps
-    return await this.coachappappService.create(
-      req.user.id,
-      coachId,
-      userappId,
-    );
+    let createdRequest = (
+      await this.coachappappService.create(req.user.id, coachId, userappId)
+    ).get();
+
+    const returnedData = {
+      ...createdRequest,
+      requestLeft: 3 - myRequests.length,
+    };
+    return returnedData;
   }
 
   // get all requestedapps(offers) of a triner
@@ -77,7 +97,7 @@ export class CoachappsController {
   async update(
     @Param('userappId') userappId: number,
 
-@Body() data: CoachAnswerDto,
+    @Body() data: CoachAnswerDto,
     @Request() req,
   ): Promise<updData> {
     // get the number of row affected and the updated userapp

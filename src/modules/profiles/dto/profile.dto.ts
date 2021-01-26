@@ -4,6 +4,10 @@ import { ApiProperty } from '@nestjs/swagger';
 export class ProfileDto {
   @ApiProperty()
   @IsNotEmpty()
+  readonly fullName: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
   readonly weight: number;
 
   @ApiProperty()
