@@ -11,31 +11,30 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { WorkoutProgramDto } from '../workout-programs/dto/workout-progiam.dto';
-import { FullProgWorkoutDto } from './dto/full-progworkout.dto';
-import { FullProgworkoutsService } from './full-progworkouts.service';
-import { FullProgWorkout } from './full.progworkout.enity';
+import { TemplateWorkoutDto } from './dto/template-workout.dto';
+import { TemplateWorkout } from './template-workout.entity';
+import { TemplateWorkoutsService } from './template-workouts.service';
 
-@ApiTags('workout full programs')
+@ApiTags('Template Workout Programs')
 @ApiBearerAuth()
-@Controller('full-progworkouts')
-export class FullProgworkoutsController {
+@Controller('template-workouts')
+export class TemplateWorkoutsController {
   constructor(
-    private readonly fullProgworkoutService: FullProgworkoutsService,
+    private readonly templateworkoutService: TemplateWorkoutsService,
   ) {}
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
-    @Body() fullprog: FullProgWorkoutDto,
+    @Body() template: TemplateWorkoutDto,
     @Request() req,
-  ): Promise<FullProgWorkout> {
+  ): Promise<TemplateWorkout> {
     // check the role
     if (req.user.role !== 'trainer') {
       throw new NotFoundException('Your role is not a trainer');
     }
     // create a new progs and return the newly created progs
-    return await this.fullProgworkoutService.create(fullprog, req.user.id);
+    return await this.templateworkoutService.create(template, req.user.id);
   }
 
   @ApiResponse({ status: 200 })
@@ -43,7 +42,7 @@ export class FullProgworkoutsController {
   @Get()
   async findAll(@Request() req) {
     // get all progs in the db
-    const list = await this.fullProgworkoutService.findAll(req.user);
+    const list = await this.templateworkoutService.findAll(req.user);
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -56,9 +55,9 @@ export class FullProgworkoutsController {
   async findOne(
     @Param('id') id: number,
     @Request() req,
-  ): Promise<FullProgWorkout> {
+  ): Promise<TemplateWorkout> {
     // find the progs with this id
-    const progs = await this.fullProgworkoutService.findOne(id, req.user);
+    const progs = await this.templateworkoutService.findOne(id, req.user);
 
     // if the progs doesn't exit in the db, throw a 404 error
     if (!progs) {
@@ -73,7 +72,7 @@ export class FullProgworkoutsController {
   @Delete(':id')
   async remove(@Param('id') id: number, @Request() req) {
     // delete the app with this id
-    const deleted = await this.fullProgworkoutService.delete(id, req.user.id);
+    const deleted = await this.templateworkoutService.delete(id, req.user.id);
 
     // if the number of row affected is zero,
     // then the app doesn't exist in our db

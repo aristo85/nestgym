@@ -18,18 +18,6 @@ export class UserWorkout extends Model<UserWorkout> {
   lastWeight: number;
   //
 
-  @ForeignKey(() => WorkoutProgram)
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
-  workoutprogramId: number;
-  //
-
-  @BelongsTo(() => WorkoutProgram)
-  workoutprogram: WorkoutProgram;
-  //
-
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,

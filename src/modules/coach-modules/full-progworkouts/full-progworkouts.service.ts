@@ -14,25 +14,34 @@ export class FullProgworkoutsService {
   ) {}
 
   async create(data: FullProgWorkoutDto, userId): Promise<any> {
-    // creating the template program(full program) in fullprogworkout table
-    const { programs, ...other } = data;
-    const fullProg = await this.fullProgworkoutRepository.create<FullProgWorkout>(
-      {
-        ...other,
-        coachId: userId,
-      },
-    );
-    // creating workouts in workoutprogram table
-    let listProgs = [];
-    for (const workout of data.programs) {
-      const newProg = await this.workoutProgramService.create(
-        workout,
-        fullProg.id,
+    // creating the  program(full program) in fullprogworkout table
+    const { programs, clientIds, ...other } = data;
+    for (const client of clientIds) {
+      const fullProg = await this.fullProgworkoutRepository.create<FullProgWorkout>(
+        {
+          ...other,
+          coachId: userId,
+          userId: client,
+        },
       );
-      listProgs.push(newProg);
+      // creating workouts in workoutprogram table
+      let listProgs = [];
+      for (const workout of data.programs) {
+        const newProg = await this.workoutProgramService.create(
+          workout,
+          fullProg.id,
+        );
+        listProgs.push(newProg);
+      }
     }
 
-    return { fullProg, programs: listProgs };
+    return await this.fullProgworkoutRepository.findAll({
+      where: {
+        userId: [...clientIds],
+      },
+      include: [WorkoutProgram],
+    });
+    // return { fullProg, programs: listProgs };
   }
 
   async findAll(user): Promise<FullProgWorkout[]> {
@@ -52,7 +61,11 @@ export class FullProgworkoutsService {
       user.role === 'trainer' ? { id, coachId: user.id } : { id };
     return await this.fullProgworkoutRepository.findOne({
       where: updateOPtion,
-      include: [WorkoutProgram]
+      include: [WorkoutProgram],
     });
+  }
+
+  async delete(id, coachId) {
+    return await this.fullProgworkoutRepository.destroy({ where: { id, coachId } });
   }
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   NotFoundException,
   Param,
   Post,
@@ -8,12 +9,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { WorkoutProgramDto } from './dto/workout-progiam.dto';
 import { WorkoutProgram } from './workout-program.entity';
 import { WorkoutProgramsService } from './workout-programs.service';
 
-@ApiTags('workout programs')
+// @ApiTags('workout programs')
 @ApiBearerAuth()
 @Controller('workout-programs')
 export class WorkoutProgramsController {
@@ -36,4 +37,16 @@ export class WorkoutProgramsController {
 //       userappId,
 //     );
 //   }
+
+@ApiResponse({ status: 200 })
+@UseGuards(AuthGuard('jwt'))
+@Get()
+async findAll(@Request() req) {
+  // get all progs in the db
+  const list = await this.workoutProgramService.findAll(req.user);
+  const count = list.length;
+  req.res.set('Access-Control-Expose-Headers', 'Content-Range');
+  req.res.set('Content-Range', `0-${count}/${count}`);
+  return list;
+}
 }

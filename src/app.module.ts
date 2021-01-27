@@ -21,6 +21,8 @@ import { AimsModule } from './modules/aims/aims.module';
 import { UserDietsModule } from './modules/user-diets/user-diets.module';
 import { UserProgressModule } from './modules/user-progress/user-progress.module';
 import { CoachProgressModule } from './modules/coach-modules/coach-progress/coach-progress.module';
+import { TemplateWorkoutsModule } from './modules/coach-modules/template-workouts/template-workouts.module';
+import { TemplateDietsModule } from './modules/coach-modules/template-diets/template-diets.module';
 
 @Module({
   imports: [
@@ -44,6 +46,8 @@ import { CoachProgressModule } from './modules/coach-modules/coach-progress/coac
     UserDietsModule,
     UserProgressModule,
     CoachProgressModule,
+    TemplateWorkoutsModule,
+    TemplateDietsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

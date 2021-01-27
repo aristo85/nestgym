@@ -14,25 +14,32 @@ export class DietprogramService {
   ) {}
 
   async create(data: DietProgramDto, userId): Promise<any> {
-    // creating the template program(full program) in DietProgram table
-    const { programs, ...other } = data;
-    const fullProg = await this.dietProgramRepository.create<DietProgram>(
-      {
+    // creating the diet program
+    const { programs, clientIds, ...other } = data;
+    for (const client of clientIds) {
+      const fullProg = await this.dietProgramRepository.create<DietProgram>({
         ...other,
         coachId: userId,
-      },
-    );
-    // creating product in dietProduct table
-    let listProgs = [];
-    for (const product of data.programs) {
-      const newProg = await this.dietProductService.create(
-        product,
-        fullProg.id,
-      );
-      listProgs.push(newProg);
+        userId: client,
+      });
+      // creating product in dietProduct table
+      let listProgs = [];
+      for (const product of data.programs) {
+        const newProg = await this.dietProductService.create(
+          product,
+          fullProg.id,
+        );
+        listProgs.push(newProg);
+      }
     }
 
-    return { fullProg, programs: listProgs };
+    return await this.dietProgramRepository.findAll({
+      where: {
+        userId: [...clientIds],
+      },
+      include: [DietProduct],
+    });
+    // return { fullProg, programs: listProgs };
   }
 
   async findAll(user): Promise<DietProgram[]> {
@@ -54,5 +61,9 @@ export class DietprogramService {
       where: updateOPtion,
       include: [DietProduct],
     });
+  }
+
+  async delete(id, coachId) {
+    return await this.dietProgramRepository.destroy({ where: { id, coachId } });
   }
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -25,7 +26,7 @@ export class DietprogramController {
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
-    @Body() templateData: DietProgramDto,
+    @Body() program: DietProgramDto,
     @Request() req,
   ): Promise<DietProgram> {
     // check the role
@@ -33,7 +34,7 @@ export class DietprogramController {
       throw new NotFoundException('Your role is not a trainer');
     }
     // create a new progs and return the newly created progs
-    return await this.dietProgramService.create(templateData, req.user.id);
+    return await this.dietProgramService.create(program, req.user.id);
   }
 
   @ApiResponse({ status: 200 })
@@ -65,5 +66,21 @@ export class DietprogramController {
 
     // if progs exist, return progs
     return progs;
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete(':id')
+  async remove(@Param('id') id: number, @Request() req) {
+    // delete the app with this id
+    const deleted = await this.dietProgramService.delete(id, req.user.id);
+
+    // if the number of row affected is zero,
+    // then the app doesn't exist in our db
+    if (deleted === 0) {
+      throw new NotFoundException("This app doesn't exist");
+    }
+
+    // return success message
+    return 'Successfully deleted';
   }
 }

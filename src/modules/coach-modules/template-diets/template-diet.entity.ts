@@ -3,7 +3,7 @@ import { User } from 'src/modules/users/user.entity';
 import { DietProduct } from '../dietproducts/dietproduct.entity';
 
 @Table
-export class DietProgram extends Model<DietProgram> {
+export class TemplateDiet extends Model<TemplateDiet> {
   @Column({
     type: DataType.STRING,
     allowNull: false,
@@ -34,19 +34,9 @@ export class DietProgram extends Model<DietProgram> {
   })
   carbs: number;
   //
-  @ForeignKey(() => User)
-  @Column({
-    type: DataType.INTEGER,
-    // allowNull: false,
-  })
-  userId: number;
-
-  @BelongsTo(() => User)
-  user: User;
-
-
+ 
   @HasMany(() => DietProduct, {
-    foreignKey: 'dietProgramId',
+    foreignKey: 'templateDietId',
     onDelete: 'CASCADE',
   })
   dietproducts: DietProduct[];

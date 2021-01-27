@@ -1,5 +1,14 @@
-import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  HasMany,
+  ForeignKey,
+  BelongsTo,
+} from 'sequelize-typescript';
 import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
+import { User } from 'src/modules/users/user.entity';
 import { WorkoutProgram } from '../workout-programs/workout-program.entity';
 
 @Table
@@ -11,16 +20,25 @@ export class FullProgWorkout extends Model<FullProgWorkout> {
   title: string;
 
   @Column({
-    type: DataType.ARRAY(DataType.INTEGER),
-    allowNull: false,
+    type: DataType.INTEGER,
+    // allowNull: false,
   })
-  clientIds: number[];
+  dayDone: number;
+
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.INTEGER,
+    // allowNull: false,
+  })
+  userId: number;
+
+  @BelongsTo(() => User)
+  user: User;
 
   //
-  @HasMany(() => WorkoutProgram, 'fullprogworkoutId')
+  @HasMany(() => WorkoutProgram, {
+    foreignKey: 'fullprogworkoutId',
+    onDelete: 'CASCADE',
+  })
   workoutprograms: WorkoutProgram[];
-
-  //
-  @HasMany(() => UserWorkout, 'fullprogworkoutId')
-  userworkouts: UserWorkout[];
 }

@@ -10,44 +10,44 @@ export class UserWorkoutsService {
     private readonly userWorkoutRepository: typeof UserWorkout,
   ) {}
 
-  async create(
-    lastWeight: UserWorkoutDto,
-    workoutprogramId,
-    fullprogworkoutId,
-    userId,
-  ): Promise<any> {
-    const myWorkout = await this.userWorkoutRepository.create<UserWorkout>({
-      ...lastWeight,
-      workoutprogramId,
-      fullprogworkoutId,
-      userId,
-    });
+  // async create(
+  //   lastWeight: UserWorkoutDto,
+  //   workoutprogramId,
+  //   fullprogworkoutId,
+  //   userId,
+  // ): Promise<any> {
+  //   const myWorkout = await this.userWorkoutRepository.create<UserWorkout>({
+  //     ...lastWeight,
+  //     workoutprogramId,
+  //     fullprogworkoutId,
+  //     userId,
+  //   });
 
-    return myWorkout;
-  }
+  //   return myWorkout;
+  // }
 
-    async findAll(user, fullprogworkoutId): Promise<UserWorkout[]> {
-      // check if from admin
-      let updateOPtion =
-        user.role === 'admin' ? {} : { userId: user.id, fullprogworkoutId };
+  //   async findAll(user, fullprogworkoutId): Promise<UserWorkout[]> {
+  //     // check if from admin
+  //     let updateOPtion =
+  //       user.role === 'admin' ? {} : { userId: user.id, fullprogworkoutId };
 
-      const list = await this.userWorkoutRepository.findAll<UserWorkout>({
-        where: updateOPtion,
-      });
-      return list;
-    }
+  //     const list = await this.userWorkoutRepository.findAll<UserWorkout>({
+  //       where: updateOPtion,
+  //     });
+  //     return list;
+  //   }
 
-  async update(id, data) {
-    const [
-      numberOfAffectedRows,
-      [updatedworkout],
-    ] = await this.userWorkoutRepository.update(
-      { ...data },
-      { where: { id }, returning: true },
-    );
+  // async update(id, data) {
+  //   const [
+  //     numberOfAffectedRows,
+  //     [updatedworkout],
+  //   ] = await this.userWorkoutRepository.update(
+  //     { ...data },
+  //     { where: { id }, returning: true },
+  //   );
 
-    return { numberOfAffectedRows, updatedworkout };
-  }
+  //   return { numberOfAffectedRows, updatedworkout };
+  // }
 
   //   async findOne(id, user): Promise<Userapp> {
   //     // check the role
