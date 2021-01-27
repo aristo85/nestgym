@@ -31,7 +31,7 @@ services:
   getcoachadmin:
     container_name: getcoachadmin
     build: ./getcoachadmin
-    command: npm run start
+    command: npm run start-server
     volumes:
       - ./getcoachadmin:/app
       - /app/node_modules
