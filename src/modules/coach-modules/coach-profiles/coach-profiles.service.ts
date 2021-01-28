@@ -58,13 +58,14 @@ export class CoachProfilesService {
   }
   /////////////////////////////////////////////
 
-  async update(id, data, userId) {
+  async update(id, data, user) {
+    let updateOPtion = user.role === 'admin' ? {id} : { id, userId: user.id };
     const [
       numberOfAffectedRows,
       [updatedprofile],
     ] = await this.coachProfileRepository.update(
       { ...data },
-      { where: { id, userId }, returning: true },
+      { where: updateOPtion, returning: true },
     );
 
     return { numberOfAffectedRows, updatedprofile };
