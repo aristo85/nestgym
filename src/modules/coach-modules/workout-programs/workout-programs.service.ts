@@ -12,11 +12,35 @@ export class WorkoutProgramsService {
 
   async create(
     prog: WorkoutProgramDto,
-    fullprogworkoutId,
+    templateOrFullprog,
+    template = '',
   ): Promise<WorkoutProgram> {
+    // if creation from full program or template
+    let options =
+      template === 'template'
+        ? { ...prog, templateworkoutId: templateOrFullprog }
+        : { ...prog, fullprogworkoutId: templateOrFullprog };
     return await this.workoutProgramRepository.create<WorkoutProgram>({
-      ...prog,
-      fullprogworkoutId,
+      ...options,
     });
+  }
+
+  // async delete(id) {
+  //   return await this.workoutProgramRepository.destroy({ where: { id } });
+  // }
+
+  async findAll(user): Promise<WorkoutProgram[]> {
+    // check if from admin
+    // let updateOPtion = user.role === 'admin' ? {} : { coachId: user.id };
+    // // if call from full program or template
+    // let options =
+    //   template === 'template'
+    //     ? { ...prog, templateworkoutId: templateOrFullprog }
+    //     : { ...prog, fullprogworkoutId: templateOrFullprog };
+
+    const list = await this.workoutProgramRepository.findAll<WorkoutProgram>(
+      {},
+    );
+    return list;
   }
 }

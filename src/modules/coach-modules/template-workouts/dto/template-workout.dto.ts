@@ -10,14 +10,10 @@ export interface WorkoutProg {
   coment: string;
 }
 
-export class FullProgWorkoutDto {
+export class TemplateWorkoutDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly title: string;
-
-  @ApiProperty()
-  // @IsNotEmpty()
-  readonly dayDone: number;
 
   @ApiProperty({
     description: ` example: [
@@ -38,26 +34,12 @@ export class FullProgWorkoutDto {
   })
   @IsNotEmpty()
   readonly programs: WorkoutProg[];
-
-  @ApiProperty({
-    type: 'array',
-    items: {
-      type: 'number',
-    },
-  })
-  @IsNotEmpty()
-  readonly clientIds: number[];
 }
-
-// //////
-export class FullProgWorkoutUpdateDto {
+// ///////
+export class TemplateWorkoutUpdateDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly title: string;
-
-  @ApiProperty()
-  // @IsNotEmpty()
-  readonly dayDone: number;
 
   @ApiProperty({
     description: ` example: [

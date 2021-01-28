@@ -8,7 +8,7 @@ export interface DietProd {
   measure: string;
 }
 
-export class DietProgramDto {
+export class TemplateDietDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly title: string;
@@ -46,19 +46,9 @@ export class DietProgramDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly carbs: number;
-
-  @ApiProperty({
-    type: 'array',
-    items: {
-      type: 'number',
-    },
-  })
-  @IsNotEmpty()
-  readonly clientIds: number[];
 }
-
-// ///
-export class DietProgramUpdateDto {
+// //////
+export class TemplateDietUpdateDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly title: string;

@@ -27,6 +27,8 @@ import { DietProgram } from 'src/modules/coach-modules/dietprogram/dietprogram.e
 import { Aim } from 'src/modules/aims/aim.entity';
 import { Sport } from 'src/modules/sports/sport.entity';
 import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
+import { TemplateWorkout } from 'src/modules/coach-modules/template-workouts/template-workout.entity';
+import { TemplateDiet } from 'src/modules/coach-modules/template-diets/template-diet.entity';
 // import { Sequelize } from 'sequelize';
 
 export const databaseProviders = [
@@ -74,7 +76,9 @@ export const databaseProviders = [
         DietProgram,
         Aim,
         Sport,
-        UserWorkout
+        UserWorkout,
+        TemplateWorkout,
+        TemplateDiet
       ]);
       await sequelize.sync({ alter: true });
       return sequelize;

@@ -12,41 +12,31 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { DietProgram } from './dietprogram.entity';
-import { DietprogramService } from './dietprogram.service';
-import { DietProgramDto, DietProgramUpdateDto } from './dto/dietprogram.dto';
+import {
+  TemplateDietDto,
+  TemplateDietUpdateDto,
+} from './dto/template-diet.dto';
+import { TemplateDiet } from './template-diet.entity';
+import { TemplateDietsService } from './template-diets.service';
 
-@ApiTags('diet programs')
+@ApiTags('Template Diet Programs')
 @ApiBearerAuth()
-@Controller('dietprogram')
-export class DietprogramController {
-  constructor(private readonly dietProgramService: DietprogramService) {}
+@Controller('template-diets')
+export class TemplateDietsController {
+  constructor(private readonly templateDietService: TemplateDietsService) {}
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
-    @Body() data: DietProgramDto,
+    @Body() template: TemplateDietDto,
     @Request() req,
-  ): Promise<DietProgram> {
+  ): Promise<TemplateDiet> {
     // check the role
     if (req.user.role !== 'trainer') {
       throw new NotFoundException('Your role is not a trainer');
     }
-    // check if the cliet list is empty
-    if (data.clientIds.length < 1) {
-      throw new NotFoundException('You havent chosen any client');
-    }
-    // check if the client have this program already
-    let prg = await DietProgram.findAll({
-      where: { userId: [...data.clientIds], coachId: req.user.id },
-    });
-    if (prg.length > 0) {
-      throw new NotFoundException(
-        'Some or all of the clients are have program already!',
-      );
-    }
     // create a new progs and return the newly created progs
-    return await this.dietProgramService.create(data, req.user.id);
+    return await this.templateDietService.create(template, req.user.id);
   }
 
   @ApiResponse({ status: 200 })
@@ -54,7 +44,7 @@ export class DietprogramController {
   @Get()
   async findAll(@Request() req) {
     // get all progs in the db
-    const list = await this.dietProgramService.findAll(req.user);
+    const list = await this.templateDietService.findAll(req.user);
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -64,9 +54,12 @@ export class DietprogramController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  async findOne(@Param('id') id: number, @Request() req): Promise<DietProgram> {
+  async findOne(
+    @Param('id') id: number,
+    @Request() req,
+  ): Promise<TemplateDiet> {
     // find the progs with this id
-    const progs = await this.dietProgramService.findOne(id, req.user);
+    const progs = await this.templateDietService.findOne(id, req.user);
 
     // if the progs doesn't exit in the db, throw a 404 error
     if (!progs) {
@@ -81,7 +74,7 @@ export class DietprogramController {
   @Delete(':id')
   async remove(@Param('id') id: number, @Request() req) {
     // delete the app with this id
-    const deleted = await this.dietProgramService.delete(id, req.user.id);
+    const deleted = await this.templateDietService.delete(id, req.user.id);
 
     // if the number of row affected is zero,
     // then the app doesn't exist in our db
@@ -98,10 +91,10 @@ export class DietprogramController {
   @Put(':id')
   async update(
     @Param('id') id: number,
-    @Body() data: DietProgramUpdateDto,
+    @Body() data: TemplateDietUpdateDto,
     @Request() req,
-  ): Promise<DietProgram> {
+  ): Promise<TemplateDiet> {
     // get the number of row affected and the updated Prog
-    return await this.dietProgramService.update(id, data, req.user.id);
+    return await this.templateDietService.update(id, data, req.user.id);
   }
 }

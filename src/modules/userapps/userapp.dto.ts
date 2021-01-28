@@ -23,23 +23,23 @@ export class UserappDto {
   readonly coachGender: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly equipments: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly priceMax: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly priceMin: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly healthIssue: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly coment: string;
 
   @ApiProperty()

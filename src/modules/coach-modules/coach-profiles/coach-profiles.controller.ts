@@ -100,7 +100,7 @@ export class CoachProfilesController {
     const {
       numberOfAffectedRows,
       updatedprofile,
-    } = await this.coachProfileService.update(id, profile, req.user.id);
+    } = await this.coachProfileService.update(id, profile, req.user);
 
     // if the number of row affected is zero,
     // it means the profile doesn't exist in our db

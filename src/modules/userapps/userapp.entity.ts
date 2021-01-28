@@ -1,15 +1,4 @@
-import {
-  Table,
-  Column,
-  Model,
-  DataType,
-  ForeignKey,
-  BelongsTo,
-  HasMany,
-} from 'sequelize-typescript';
-import { User } from '../users/user.entity';
-import { Photo } from '../photos/photo.entity';
-import { json } from 'sequelize';
+import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
 @Table
 export class Userapp extends Model<Userapp> {
@@ -46,31 +35,31 @@ export class Userapp extends Model<Userapp> {
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    // allowNull: false,
   })
   equipments: string;
 
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
+    // allowNull: false,
   })
   priceMax: number;
 
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
+    // allowNull: false,
   })
   priceMin: number;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    // allowNull: false,
   })
   healthIssue: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    // allowNull: false,
   })
   coment: string;
 
