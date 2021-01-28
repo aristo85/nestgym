@@ -35,3 +35,29 @@ export class TemplateWorkoutDto {
   @IsNotEmpty()
   readonly programs: WorkoutProg[];
 }
+// ///////
+export class TemplateWorkoutUpdateDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly title: string;
+
+  @ApiProperty({
+    description: ` example: [
+    {
+        workout: string,
+        sets: number,
+        reps: number,
+        weight: number,
+        dayNumber: number,
+        coment: string,
+    }, ...
+  ]`,
+
+    type: 'array',
+    items: {
+      type: 'object',
+    },
+  })
+  @IsNotEmpty()
+  readonly programs: WorkoutProg[];
+}

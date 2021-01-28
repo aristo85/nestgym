@@ -6,6 +6,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Put,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -13,28 +14,39 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DietProgram } from './dietprogram.entity';
 import { DietprogramService } from './dietprogram.service';
-import { DietProgramDto } from './dto/dietprogram.dto';
+import { DietProgramDto, DietProgramUpdateDto } from './dto/dietprogram.dto';
 
 @ApiTags('diet programs')
 @ApiBearerAuth()
 @Controller('dietprogram')
 export class DietprogramController {
-  constructor(
-    private readonly dietProgramService: DietprogramService,
-  ) {}
+  constructor(private readonly dietProgramService: DietprogramService) {}
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
-    @Body() program: DietProgramDto,
+    @Body() data: DietProgramDto,
     @Request() req,
   ): Promise<DietProgram> {
     // check the role
     if (req.user.role !== 'trainer') {
       throw new NotFoundException('Your role is not a trainer');
     }
+    // check if the cliet list is empty
+    if (data.clientIds.length < 1) {
+      throw new NotFoundException('You havent chosen any client');
+    }
+    // check if the client have this program already
+    let prg = await DietProgram.findAll({
+      where: { userId: [...data.clientIds], coachId: req.user.id },
+    });
+    if (prg.length > 0) {
+      throw new NotFoundException(
+        'Some or all of the clients are have program already!',
+      );
+    }
     // create a new progs and return the newly created progs
-    return await this.dietProgramService.create(program, req.user.id);
+    return await this.dietProgramService.create(data, req.user.id);
   }
 
   @ApiResponse({ status: 200 })
@@ -52,10 +64,7 @@ export class DietprogramController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  async findOne(
-    @Param('id') id: number,
-    @Request() req,
-  ): Promise<DietProgram> {
+  async findOne(@Param('id') id: number, @Request() req): Promise<DietProgram> {
     // find the progs with this id
     const progs = await this.dietProgramService.findOne(id, req.user);
 
@@ -82,5 +91,17 @@ export class DietprogramController {
 
     // return success message
     return 'Successfully deleted';
+  }
+
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Put(':id')
+  async update(
+    @Param('id') id: number,
+    @Body() data: DietProgramUpdateDto,
+    @Request() req,
+  ): Promise<DietProgram> {
+    // get the number of row affected and the updated Prog
+    return await this.dietProgramService.update(id, data, req.user.id);
   }
 }

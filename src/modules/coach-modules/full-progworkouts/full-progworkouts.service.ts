@@ -13,14 +13,14 @@ export class FullProgworkoutsService {
     private readonly workoutProgramService: WorkoutProgramsService,
   ) {}
 
-  async create(data: FullProgWorkoutDto, userId): Promise<any> {
+  async create(data: FullProgWorkoutDto, coachId): Promise<any> {
     // creating the  program(full program) in fullprogworkout table
     const { programs, clientIds, ...other } = data;
     for (const client of clientIds) {
       const fullProg = await this.fullProgworkoutRepository.create<FullProgWorkout>(
         {
           ...other,
-          coachId: userId,
+          coachId,
           userId: client,
         },
       );
@@ -38,6 +38,7 @@ export class FullProgworkoutsService {
     return await this.fullProgworkoutRepository.findAll({
       where: {
         userId: [...clientIds],
+        coachId,
       },
       include: [WorkoutProgram],
     });
@@ -66,6 +67,30 @@ export class FullProgworkoutsService {
   }
 
   async delete(id, coachId) {
-    return await this.fullProgworkoutRepository.destroy({ where: { id, coachId } });
+    return await this.fullProgworkoutRepository.destroy({
+      where: { id, coachId },
+    });
+  }
+
+  async update(id, data, userId) {
+    // delete the products for this program
+    await WorkoutProgram.destroy({ where: { fullprogworkoutId: id } });
+    // recreate products for this program
+    const { programs, ...other } = data;
+    for (const product of programs) {
+      await this.workoutProgramService.create(product, id);
+    }
+    // update the program
+    await this.fullProgworkoutRepository.update(
+      { ...other },
+      { where: { id }, returning: true },
+    );
+    // return the updated program with workouts
+    return await this.fullProgworkoutRepository.findOne({
+      where: {
+        id,
+      },
+      include: [WorkoutProgram],
+    });
   }
 }

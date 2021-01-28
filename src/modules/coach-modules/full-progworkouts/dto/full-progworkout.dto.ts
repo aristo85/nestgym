@@ -48,3 +48,34 @@ export class FullProgWorkoutDto {
   @IsNotEmpty()
   readonly clientIds: number[];
 }
+
+// //////
+export class FullProgWorkoutUpdateDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly title: string;
+
+  @ApiProperty()
+  // @IsNotEmpty()
+  readonly dayDone: number;
+
+  @ApiProperty({
+    description: ` example: [
+    {
+        workout: string,
+        sets: number,
+        reps: number,
+        weight: number,
+        dayNumber: number,
+        coment: string,
+    }, ...
+  ]`,
+
+    type: 'array',
+    items: {
+      type: 'object',
+    },
+  })
+  @IsNotEmpty()
+  readonly programs: WorkoutProg[];
+}

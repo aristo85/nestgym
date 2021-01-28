@@ -6,12 +6,16 @@ import {
   NotFoundException,
   Param,
   Post,
+  Put,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { TemplateWorkoutDto } from './dto/template-workout.dto';
+import {
+  TemplateWorkoutDto,
+  TemplateWorkoutUpdateDto,
+} from './dto/template-workout.dto';
 import { TemplateWorkout } from './template-workout.entity';
 import { TemplateWorkoutsService } from './template-workouts.service';
 
@@ -82,5 +86,17 @@ export class TemplateWorkoutsController {
 
     // return success message
     return 'Successfully deleted';
+  }
+
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Put(':id')
+  async update(
+    @Param('id') id: number,
+    @Body() data: TemplateWorkoutUpdateDto,
+    @Request() req,
+  ): Promise<TemplateWorkout> {
+    // get the number of row affected and the updated Prog
+    return await this.templateworkoutService.update(id, data, req.user.id);
   }
 }

@@ -69,4 +69,26 @@ export class TemplateWorkoutsService {
     // }})
     return await this.templateworkoutRepository.destroy({ where: { id, coachId } });
   }
+
+  async update(id, data, userId) {
+    // delete the products for this program
+    await WorkoutProgram.destroy({ where: { templateworkoutId: id } });
+    // recreate products for this program
+    const { programs, ...other } = data;
+    for (const product of programs) {
+      await this.workoutProgramService.create(product, id, 'template');
+    }
+    // update the program
+    await this.templateworkoutRepository.update(
+      { ...other },
+      { where: { id }, returning: true },
+    );
+    // return the updated program with dietProducts
+    return await this.templateworkoutRepository.findOne({
+      where: {
+        id,
+      },
+      include: [WorkoutProgram],
+    });
+  }
 }

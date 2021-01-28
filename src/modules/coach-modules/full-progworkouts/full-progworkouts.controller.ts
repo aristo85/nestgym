@@ -6,13 +6,14 @@ import {
   NotFoundException,
   Param,
   Post,
+  Put,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { WorkoutProgramDto } from '../workout-programs/dto/workout-progiam.dto';
-import { FullProgWorkoutDto } from './dto/full-progworkout.dto';
+import { FullProgWorkoutDto, FullProgWorkoutUpdateDto } from './dto/full-progworkout.dto';
 import { FullProgworkoutsService } from './full-progworkouts.service';
 import { FullProgWorkout } from './full.progworkout.enity';
 
@@ -33,6 +34,19 @@ export class FullProgworkoutsController {
     // check the role
     if (req.user.role !== 'trainer') {
       throw new NotFoundException('Your role is not a trainer');
+    }
+    // check if the cliet list is empty
+    if (fullprog.clientIds.length < 1) {
+      throw new NotFoundException('You havent chosen any client');
+    }
+    // check if the client have this program already
+    let prg = await FullProgWorkout.findAll({
+      where: { userId: [...fullprog.clientIds], coachId: req.user.id  },
+    });
+    if (prg.length > 0) {
+      throw new NotFoundException(
+        'Some or all of the clients are have program already!',
+      );
     }
     // create a new progs and return the newly created progs
     return await this.fullProgworkoutService.create(fullprog, req.user.id);
@@ -83,5 +97,17 @@ export class FullProgworkoutsController {
 
     // return success message
     return 'Successfully deleted';
+  }
+
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Put(':id')
+  async update(
+    @Param('id') id: number,
+    @Body() data: FullProgWorkoutUpdateDto,
+    @Request() req,
+  ): Promise<FullProgWorkout> {
+    // get the number of row affected and the updated Prog
+    return await this.fullProgworkoutService.update(id, data, req.user.id);
   }
 }

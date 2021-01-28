@@ -47,3 +47,43 @@ export class TemplateDietDto {
   @IsNotEmpty()
   readonly carbs: number;
 }
+// //////
+export class TemplateDietUpdateDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly title: string;
+
+  @ApiProperty({
+    description: ` example: [
+    {
+        product: string,
+        amount: number,
+        dayNumber: number,
+        measure: string,
+    }, ...
+  ]`,
+
+    type: 'array',
+    items: {
+      type: 'object',
+    },
+  })
+  @IsNotEmpty()
+  readonly programs: DietProd[];
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly dailyRate: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly protein: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly fats: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly carbs: number;
+}
