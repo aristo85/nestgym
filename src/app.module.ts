@@ -23,6 +23,7 @@ import { UserProgressModule } from './modules/user-progress/user-progress.module
 import { CoachProgressModule } from './modules/coach-modules/coach-progress/coach-progress.module';
 import { TemplateWorkoutsModule } from './modules/coach-modules/template-workouts/template-workouts.module';
 import { TemplateDietsModule } from './modules/coach-modules/template-diets/template-diets.module';
+import { ServicesModule } from './modules/services/services.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { TemplateDietsModule } from './modules/coach-modules/template-diets/temp
     CoachProgressModule,
     TemplateWorkoutsModule,
     TemplateDietsModule,
+    ServicesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
