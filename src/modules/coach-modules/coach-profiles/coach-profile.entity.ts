@@ -102,6 +102,9 @@ export class CoachProfile extends Model<CoachProfile> {
   @BelongsTo(() => User)
   user: User;
 
-  @HasMany(() => CoachService, 'coachprofileId')
+  @HasMany(() => CoachService, {
+    foreignKey: 'coachprofileId',
+    onDelete: 'CASCADE',
+  })
   coachservices: CoachService[];
 }

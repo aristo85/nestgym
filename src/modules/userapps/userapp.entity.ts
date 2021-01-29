@@ -1,4 +1,5 @@
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, HasOne } from 'sequelize-typescript';
+import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
 
 @Table
 export class Userapp extends Model<Userapp> {
@@ -74,4 +75,7 @@ export class Userapp extends Model<Userapp> {
     // allowNull: false,
   })
   coachProfile: any;
+
+  @HasOne(() => Requestedapp, { foreignKey: 'userappId', onDelete: 'CASCADE' })
+  requestedapp: Requestedapp;
 }

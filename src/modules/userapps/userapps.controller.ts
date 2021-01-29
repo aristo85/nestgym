@@ -98,7 +98,7 @@ export class UserappsController {
   @Delete(':id')
   async remove(@Param('id') id: number, @Req() req) {
     // delete the app with this id
-    const deleted = await this.userappService.delete(id, req.user.id);
+    const deleted = await this.userappService.delete(id, req.user);
 
     // if the number of row affected is zero,
     // then the app doesn't exist in our db

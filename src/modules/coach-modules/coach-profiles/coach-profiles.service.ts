@@ -15,7 +15,6 @@ export class CoachProfilesService {
   ) {}
   /////////////////////////////////////////////
   async create(data: CoachProfileDto, userId): Promise<any> {
-   
     // omit the coachservices prop and create profile
     const { coachServices, ...other } = data;
     const profile = await this.coachProfileRepository.create<CoachProfile>({
@@ -23,10 +22,10 @@ export class CoachProfilesService {
       userId,
     });
     // create coach services DB
-     const services = await this.coachServiceService.create(
+    const services = await this.coachServiceService.create(
       coachServices,
       userId,
-      profile.id
+      profile.id,
     );
 
     return { profile, services };
@@ -51,15 +50,15 @@ export class CoachProfilesService {
   }
   /////////////////////////////////////////////
 
-  async delete(id, userId) {
-    // delete also the coach services
-    await CoachService.destroy({ where: { userId } });
-    return await this.coachProfileRepository.destroy({ where: { id, userId } });
+  async delete(id, user) {
+    let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
+    // delete also the coach services (CASCADE)
+    return await this.coachProfileRepository.destroy({ where: updateOPtion });
   }
   /////////////////////////////////////////////
 
   async update(id, data, user) {
-    let updateOPtion = user.role === 'admin' ? {id} : { id, userId: user.id };
+    let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
     const [
       numberOfAffectedRows,
       [updatedprofile],

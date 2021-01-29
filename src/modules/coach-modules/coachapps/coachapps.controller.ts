@@ -25,7 +25,7 @@ interface stat {
 @ApiBearerAuth()
 @Controller('coachapps')
 export class CoachappsController {
-  constructor(private readonly coachappappService: CoachappsService) {}
+  constructor(private readonly coachappService: CoachappsService) {}
 
   // request to hire a Trainer
   @ApiTags('ClientRequest-ChosenCoach')
@@ -59,7 +59,7 @@ export class CoachappsController {
     }
     // create a new apps and return the newly created apps
     let createdRequest = (
-      await this.coachappappService.create(req.user.id, coachId, userappId)
+      await this.coachappService.create(req.user.id, coachId, userappId)
     ).get();
 
     const returnedData = {
@@ -82,7 +82,7 @@ export class CoachappsController {
       );
     }
     // get all apps in the db
-    const list = await this.coachappappService.findAll(req.user);
+    const list = await this.coachappService.findAll(req.user);
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -101,7 +101,7 @@ export class CoachappsController {
     @Request() req,
   ): Promise<updData> {
     // get the number of row affected and the updated userapp
-    const userapp: updData = await this.coachappappService.update(
+    const userapp: updData = await this.coachappService.update(
       userappId,
       data.status,
     );
