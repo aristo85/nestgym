@@ -24,6 +24,7 @@ import { CoachProgressModule } from './modules/coach-modules/coach-progress/coac
 import { TemplateWorkoutsModule } from './modules/coach-modules/template-workouts/template-workouts.module';
 import { TemplateDietsModule } from './modules/coach-modules/template-diets/template-diets.module';
 import { ServicesModule } from './modules/services/services.module';
+import { PublicationsModule } from './modules/publications/publications.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { ServicesModule } from './modules/services/services.module';
     TemplateWorkoutsModule,
     TemplateDietsModule,
     ServicesModule,
+    PublicationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

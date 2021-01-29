@@ -12,13 +12,13 @@ import {
   Req,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Omit } from 'sequelize-typescript/dist/shared/types';
-import { CoachServiceDto } from '../coach-services/dto/coach-service.dto';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CoachProfile } from './coach-profile.entity';
 import { CoachProfilesService } from './coach-profiles.service';
-import { CoachProfileDto, CoachProfileUpdateDto } from './dto/coach-profile.dto';
-
+import {
+  CoachProfileDto,
+  CoachProfileUpdateDto,
+} from './dto/coach-profile.dto';
 
 @Controller('coach-profiles')
 @ApiBearerAuth()
@@ -26,8 +26,34 @@ import { CoachProfileDto, CoachProfileUpdateDto } from './dto/coach-profile.dto'
 export class CoachProfilesController {
   constructor(private readonly coachProfileService: CoachProfilesService) {}
 
-@ApiTags('Coach Profile')
-@ApiResponse({ status: 200 })
+   // for the admin
+   @ApiResponse({ status: 200 })
+   @UseGuards(AuthGuard('jwt'))
+   @Put('admin:id')
+   async updateFromAdmin(
+     @Param('id') id: number,
+     @Body() profile: CoachProfileDto,
+     @Request() req,
+   ): Promise<CoachProfile> {
+     // first update services
+     // get the number of row affected and the updated profile
+     const {
+       numberOfAffectedRows,
+       updatedprofile,
+     } = await this.coachProfileService.updateFromAdmin(id, profile, req.user);
+ console.log('hi')
+     // if the number of row affected is zero,
+     // it means the profile doesn't exist in our db
+     if (numberOfAffectedRows === 0) {
+       throw new NotFoundException("This profile doesn't exist");
+     }
+ 
+     // return the updated profile
+     return updatedprofile;
+   }
+
+  @ApiTags('Coach Profile')
+  @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@Req() req) {
@@ -42,8 +68,8 @@ export class CoachProfilesController {
     return list;
   }
 
-@ApiTags('Coach Profile with services')
-@ApiResponse({ status: 200 })
+  @ApiTags('Coach Profile with services')
+  @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':profileId')
   async findOne(
@@ -65,8 +91,8 @@ export class CoachProfilesController {
     return profiles;
   }
 
-@ApiTags('Coach Profile')
-@UseGuards(AuthGuard('jwt'))
+  @ApiTags('Coach Profile')
+  @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
     @Body() profile: CoachProfileDto,
@@ -87,8 +113,8 @@ export class CoachProfilesController {
     return await this.coachProfileService.create(profile, req.user.id);
   }
 
-@ApiTags('Coach Profile')
-@ApiResponse({ status: 200 })
+  @ApiTags('Coach Profile')
+  @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   async update(
@@ -101,7 +127,7 @@ export class CoachProfilesController {
       numberOfAffectedRows,
       updatedprofile,
     } = await this.coachProfileService.update(id, profile, req.user);
-
+console.log('nope')
     // if the number of row affected is zero,
     // it means the profile doesn't exist in our db
     if (numberOfAffectedRows === 0) {
@@ -112,19 +138,22 @@ export class CoachProfilesController {
     return updatedprofile;
   }
 
-    @UseGuards(AuthGuard('jwt'))
-    @Delete(':id')
-    async remove(@Param('id') id: number, @Req() req) {
-      // delete the profile with this id
-      const deleted = await this.coachProfileService.delete(id, req.user);
+  @ApiTags('Coach Profile')
+  @UseGuards(AuthGuard('jwt'))
+  @Delete(':id')
+  async remove(@Param('id') id: number, @Req() req) {
+    // delete the profile with this id
+    const deleted = await this.coachProfileService.delete(id, req.user);
 
-      // if the number of row affected is zero,
-      // then the profile doesn't exist in our db
-      if (deleted === 0) {
-        throw new NotFoundException("This profile doesn't exist");
-      }
-
-      // return success message
-      return 'Successfully deleted';
+    // if the number of row affected is zero,
+    // then the profile doesn't exist in our db
+    if (deleted === 0) {
+      throw new NotFoundException("This profile doesn't exist");
     }
+
+    // return success message
+    return 'Successfully deleted';
+  }
+
+ 
 }

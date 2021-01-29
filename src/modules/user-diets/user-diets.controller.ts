@@ -18,7 +18,7 @@ export class UserDietsController {
   async findAll(@Request() req) {
     // get all progs in the db and filter it with the array of user ids in clientIds
     const list = await DietProgram.findAll({
-      where: { clientIds: { [Op.contains]: [req.user.id] } },
+      where: { userId: req.user.id },
       include: [DietProduct],
     });
     const count = list.length;

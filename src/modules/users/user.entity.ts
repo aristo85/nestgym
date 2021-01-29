@@ -7,6 +7,8 @@ import { TemplateDiet } from '../coach-modules/template-diets/template-diet.enti
 import { TemplateWorkout } from '../coach-modules/template-workouts/template-workout.entity';
 import { Photo } from '../photos/photo.entity';
 import { Profile } from '../profiles/profile.entity';
+import { Article } from '../publications/publication.entity';
+import { Servicio } from '../services/service.entity';
 import { Sport } from '../sports/sport.entity';
 import { UserProgress } from '../user-progress/user-progress.entity';
 import { Userapp } from '../userapps/userapp.entity';
@@ -68,6 +70,9 @@ export class User extends Model<User> {
   @HasMany(() => Sport, 'adminId')
   sports: Sport[];
 
+  @HasMany(() => Servicio, 'adminId')
+  servicios: Servicio[];
+
   @HasMany(() => UserProgress, 'userId')
   userprogresses: UserProgress[];
 
@@ -76,4 +81,7 @@ export class User extends Model<User> {
 
   @HasMany(() => TemplateDiet, 'coachId')
   templatediets: TemplateDiet[];
+
+  @HasMany(() => Article, 'adminId')
+  articles: Article[];
 }

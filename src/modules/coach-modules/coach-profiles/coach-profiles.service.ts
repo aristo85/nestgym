@@ -85,4 +85,18 @@ export class CoachProfilesService {
     return list;
   }
   /////////////////////////////////////////////
+
+  async updateFromAdmin(id, data, user) {
+    const { coachservices, ...other } = data;
+    await this.coachServiceService.update(id, coachservices, user.id);
+    const [
+      numberOfAffectedRows,
+      [updatedprofile],
+    ] = await this.coachProfileRepository.update(
+      { ...other },
+      { where: { id }, returning: true },
+    );
+
+    return { numberOfAffectedRows, updatedprofile };
+  }
 }
