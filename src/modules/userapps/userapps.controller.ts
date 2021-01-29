@@ -22,8 +22,8 @@ import { createPromise, UserappsService } from './userapps.service';
 export class UserappsController {
   constructor(private readonly userappService: UserappsService) {}
 
-@ApiTags('Client-Application')
-@ApiResponse({ status: 200 })
+  @ApiTags('Client-Application')
+  @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@Req() req) {
@@ -35,8 +35,8 @@ export class UserappsController {
     return list;
   }
 
-@ApiTags('Client-Application')
-@ApiResponse({ status: 200 })
+  @ApiTags('Client-Application')
+  @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(@Param('id') id: number, @Req() req): Promise<Userapp> {
@@ -52,8 +52,8 @@ export class UserappsController {
     return apps;
   }
 
-@ApiTags('Client-Application')
-@UseGuards(AuthGuard('jwt'))
+  @ApiTags('Client-Application')
+  @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
     @Body() userapp: UserappDto,
@@ -67,8 +67,8 @@ export class UserappsController {
     return await this.userappService.create(userapp, req.user.id);
   }
 
-@ApiTags('Client-Application')
-@ApiResponse({ status: 200 })
+  @ApiTags('Client-Application')
+  @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   async update(
@@ -93,8 +93,8 @@ export class UserappsController {
     return { createdUserapp: updatedApplication, matches };
   }
 
-@ApiTags('Client-Application')
-@UseGuards(AuthGuard('jwt'))
+  @ApiTags('Client-Application')
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(@Param('id') id: number, @Req() req) {
     // delete the app with this id
@@ -110,8 +110,8 @@ export class UserappsController {
     return 'Successfully deleted';
   }
 
-@ApiTags('Get all matches')
-@ApiResponse({ status: 200 })
+  @ApiTags('Get all matches')
+  @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get('matches/:userappId')
   async findMatches(@Param('userappId') userappId: number, @Req() req) {

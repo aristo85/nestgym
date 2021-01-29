@@ -30,36 +30,38 @@ export class CoachappsController {
   // request to hire a Trainer
   @ApiTags('ClientRequest-ChosenCoach')
   @UseGuards(AuthGuard('jwt'))
-  @Get(':coachId/:userappId')
+  @Post(':coachId/:userappId')
   async create(
     @Request() req,
-    @Param('coachId') coachId,
-    @Param('userappId') userappId,
+    @Param('coachId') coachId: number,
+    @Param('userappId') userappId: number,
   ): Promise<any> {
     // check if the application been used
-    let userapp = await Requestedapp.findOne({ where: { userappId } });
-    if (userapp) {
-      throw new NotFoundException('this application already active');
-    }
+    const requestedApp = await Requestedapp.findOne({ where: { userappId } });
     // check if client requested this coach before
     const myCoaches = await Requestedapp.findOne({
       where: { userId: req.user.id, coachId },
     });
     if (myCoaches) {
-      throw new NotFoundException('you have requested this coach already!');
+      // throw new NotFoundException('you have requested this coach already!');
     }
     // check if number of requested applications exseeded maximum
     const myRequests = await Requestedapp.findAll({
       where: { userId: req.user.id },
     });
-    if (myRequests.length >= 3) {
+    if (!requestedApp && myRequests.length >= 3) {
       throw new NotFoundException(
         'number of app requests are exseeded, 3 maximum',
       );
     }
     // create a new apps and return the newly created apps
     let createdRequest = (
-      await this.coachappService.create(req.user.id, coachId, userappId)
+      await this.coachappService.create(
+        req.user.id,
+        coachId,
+        userappId,
+        requestedApp,
+      )
     ).get();
 
     const returnedData = {

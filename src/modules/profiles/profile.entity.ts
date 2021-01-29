@@ -12,7 +12,7 @@ import { User } from '../users/user.entity';
 export class Profile extends Model<Profile> {
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
   })
   fullName: string;
 

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { COACH_APP_REPOSITORY } from 'src/core/constants';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { CoachProfile } from '../coach-profiles/coach-profile.entity';
@@ -12,18 +12,39 @@ export class CoachappsService {
     private readonly coachappRepository: typeof Requestedapp,
   ) {}
 
-  async create(userId, coachId, userappId): Promise<Requestedapp> {
-    const requestedapp = await this.coachappRepository.create<Requestedapp>({
-      userId,
-      coachId,
-      userappId,
-    });
+  async create(
+    userId: number,
+    coachId: number,
+    userappId: number,
+    requestedApp: Requestedapp,
+  ): Promise<Requestedapp> {
+    let newRequestedApp: Requestedapp;
+    if (requestedApp) {
+      await this.coachappRepository.update<Requestedapp>(
+        {
+          userId,
+          coachId,
+          userappId,
+        },
+        { where: { id: requestedApp.id } },
+      );
+      newRequestedApp = await Requestedapp.findOne({ where: { userappId } });
+    } else {
+      newRequestedApp = await this.coachappRepository.create<Requestedapp>({
+        userId,
+        coachId,
+        userappId,
+      });
+    }
 
     // update the staus of the userapp and add the coach profile to it
     let coach = await CoachProfile.findOne({
       where: { userId: coachId },
       include: [CoachService],
     });
+    if (coach === null) {
+      throw new NotFoundException(`coach does not found`);
+    }
     //  const coachStr = JSON.stringify(coach)
     //  console.log(coachStr)
     await Userapp.update(
@@ -31,7 +52,7 @@ export class CoachappsService {
       { where: { id: userappId }, returning: true },
     );
 
-    return requestedapp;
+    return newRequestedApp;
   }
 
   async findOne(id): Promise<Requestedapp> {
