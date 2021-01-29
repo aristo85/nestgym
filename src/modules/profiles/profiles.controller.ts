@@ -25,11 +25,15 @@ export class ProfilesController {
   @Post()
   async create(@Body() profile: ProfileDto, @Request() req): Promise<Profile> {
     // check the role
-    if(req.user.role !== "user"){
+    if (req.user.role !== 'user') {
       throw new NotFoundException('Your role is not a user');
     }
     // check if user already has a profile
-    const isProfile = await this.profileServise.findOne(req.user.id);
+    const isProfile = await Profile.findOne({
+      where: {
+        userId: req.user.id,
+      },
+    });
     if (isProfile) {
       throw new NotFoundException('This User already has a profile');
     }
@@ -40,13 +44,10 @@ export class ProfilesController {
 
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
-  @Get(':userId')
-  async findOne(
-    @Param('userId') userId: number,
-    @Request() req,
-  ): Promise<Profile> {
+  @Get()
+  async findAll(@Request() req): Promise<Profile[]> {
     // find the profile with this id
-    const profile = await this.profileServise.findOne(req.user.id);
+    const profile = await this.profileServise.findAll(req.user);
 
     // if the profile doesn't exit in the db, throw a 404 error
     if (!profile) {
@@ -55,6 +56,22 @@ export class ProfilesController {
 
     // if profile exist, return the profile
     return profile;
+  }
+
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Get(':id')
+  async findOne(@Param('id') id: number, @Request() req): Promise<Profile> {
+    // find the apps with this id
+    const apps = await this.profileServise.findOne(id, req.user);
+
+    // if the apps doesn't exit in the db, throw a 404 error
+    if (!apps) {
+      throw new NotFoundException("This app doesn't exist");
+    }
+
+    // if apps exist, return apps
+    return apps;
   }
 
   @ApiResponse({ status: 200 })

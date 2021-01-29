@@ -11,7 +11,6 @@ import { PhotoProgress } from './DB/dynamics/photoProgress.entity';
 import { UserProgress } from '../../modules/user-progress/user-progress.entity';
 import { Feedback } from './DB/feedbacks/feedback.entity';
 import { PhotoFeedback } from './DB/feedbacks/photoFeedback.entity';
-import { Article } from './DB/publication/article.entity';
 import { DailyRateDiet } from './DB/recomendations/dailyRateDiet.entity';
 import { DietRecomendation } from './DB/recomendations/dietrecomendation.entity';
 import { WorkoutOnDiet } from './DB/recomendations/workoutOnDiet.entity';
@@ -30,6 +29,7 @@ import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
 import { TemplateWorkout } from 'src/modules/coach-modules/template-workouts/template-workout.entity';
 import { TemplateDiet } from 'src/modules/coach-modules/template-diets/template-diet.entity';
 import { Servicio } from 'src/modules/services/service.entity';
+import { Article } from 'src/modules/publications/publication.entity';
 // import { Sequelize } from 'sequelize';
 
 export const databaseProviders = [
@@ -62,7 +62,6 @@ export const databaseProviders = [
         UserProgress,
         Feedback,
         PhotoFeedback,
-        Article,
         DailyRateDiet,
         DietRecomendation,
         WorkoutOnDiet,
@@ -80,7 +79,8 @@ export const databaseProviders = [
         UserWorkout,
         TemplateWorkout,
         TemplateDiet,
-        Servicio
+        Servicio,
+        Article
       ]);
       await sequelize.sync({ alter: true });
       return sequelize;
