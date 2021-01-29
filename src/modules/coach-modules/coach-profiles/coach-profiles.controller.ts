@@ -112,19 +112,19 @@ export class CoachProfilesController {
     return updatedprofile;
   }
 
-  //   @UseGuards(AuthGuard('jwt'))
-  //   @Delete(':id')
-  //   async remove(@Param('id') id: number, @Req() req) {
-  //     // delete the profile with this id
-  //     const deleted = await this.coachProfileService.delete(id, req.user.id);
+    @UseGuards(AuthGuard('jwt'))
+    @Delete(':id')
+    async remove(@Param('id') id: number, @Req() req) {
+      // delete the profile with this id
+      const deleted = await this.coachProfileService.delete(id, req.user);
 
-  //     // if the number of row affected is zero,
-  //     // then the profile doesn't exist in our db
-  //     if (deleted === 0) {
-  //       throw new NotFoundException("This profile doesn't exist");
-  //     }
+      // if the number of row affected is zero,
+      // then the profile doesn't exist in our db
+      if (deleted === 0) {
+        throw new NotFoundException("This profile doesn't exist");
+      }
 
-  //     // return success message
-  //     return 'Successfully deleted';
-  //   }
+      // return success message
+      return 'Successfully deleted';
+    }
 }

@@ -45,8 +45,9 @@ export class UserappsService {
     });
   }
 
-  async delete(id, userId) {
-    return await this.userappRepository.destroy({ where: { id, userId } });
+  async delete(id, user) {
+    let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
+    return await this.userappRepository.destroy({ where: updateOPtion });
   }
 
   async update(id, data, user) {
@@ -76,7 +77,6 @@ export class UserappsService {
     return list;
   }
 
-  
   // async findAllForAdmin(): Promise<Userapp[]> {
   //   const list = await this.userappRepository.findAll<Userapp>({});
   //   return list;
