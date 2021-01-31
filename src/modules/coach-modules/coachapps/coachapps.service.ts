@@ -16,43 +16,29 @@ export class CoachappsService {
     userId: number,
     coachId: number,
     userappId: number,
-    requestedApp: Requestedapp,
   ): Promise<Requestedapp> {
-    let newRequestedApp: Requestedapp;
-    if (requestedApp) {
-      await this.coachappRepository.update<Requestedapp>(
-        {
-          userId,
-          coachId,
-          userappId,
-        },
-        { where: { id: requestedApp.id } },
-      );
-      newRequestedApp = await Requestedapp.findOne({ where: { userappId } });
-    } else {
-      newRequestedApp = await this.coachappRepository.create<Requestedapp>({
-        userId,
-        coachId,
-        userappId,
-      });
-    }
 
     // update the staus of the userapp and add the coach profile to it
-    let coach = await CoachProfile.findOne({
+    const coach = await CoachProfile.findOne({
       where: { userId: coachId },
       include: [CoachService],
     });
+    
     if (coach === null) {
       throw new NotFoundException(`coach does not found`);
     }
-    //  const coachStr = JSON.stringify(coach)
-    //  console.log(coachStr)
-    await Userapp.update(
-      { status: 'pending', coachProfile: coach },
-      { where: { id: userappId }, returning: true },
-    );
+
+    const newRequestedApp = await this.coachappRepository.create<Requestedapp>({
+      userId,
+      coachId,
+      userappId,
+    });
 
     return newRequestedApp;
+  }
+
+  async findApp(id, userId): Promise<Userapp> {
+    return await Userapp.findOne({where: {id, userId}});
   }
 
   async findOne(id): Promise<Requestedapp> {

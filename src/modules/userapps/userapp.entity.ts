@@ -1,5 +1,6 @@
-import { Table, Column, Model, DataType, HasOne } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, HasMany, HasOne, ForeignKey } from 'sequelize-typescript';
 import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
+import { CoachProfile} from '../coach-modules/coach-profiles/coach-profile.entity'
 
 @Table
 export class Userapp extends Model<Userapp> {
@@ -70,12 +71,13 @@ export class Userapp extends Model<Userapp> {
   })
   status: string;
 
-  @Column({
-    type: DataType.JSON,
-    // allowNull: false,
-  })
-  coachProfile: any;
+  @HasMany(() => Requestedapp, { foreignKey: 'userappId', onDelete: 'CASCADE' })
+  requestedapps: Requestedapp[];
 
-  @HasOne(() => Requestedapp, { foreignKey: 'userappId', onDelete: 'CASCADE' })
-  requestedapp: Requestedapp;
+  @ForeignKey(() => CoachProfile)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  coachId: number;
 }

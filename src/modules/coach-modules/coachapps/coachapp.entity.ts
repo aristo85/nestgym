@@ -39,10 +39,19 @@ export class Requestedapp extends Model<Requestedapp> {
   })
   userappId: number;
   // 
-  @BelongsTo(() => User)
-  user: User;
-  // 
-  @BelongsTo(() => Userapp)
-  userapp: Userapp;
+  @Column({
+    type: DataType.STRING,
+    values: ['pending', 'rejected', 'accepted'],
+    allowNull: true,
+    defaultValue: 'pending'
+  })
+  status: string;
+  //
+  // @Column
+  // @BelongsTo(() => User)
+  // user: User;
+  // // 
+  // @BelongsTo(() => Userapp)
+  // userapp: Userapp;
   //
 }

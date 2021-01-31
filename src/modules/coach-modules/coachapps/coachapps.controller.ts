@@ -36,20 +36,24 @@ export class CoachappsController {
     @Param('coachId') coachId: number,
     @Param('userappId') userappId: number,
   ): Promise<any> {
-    // check if the application been used
-    const requestedApp = await Requestedapp.findOne({ where: { userappId } });
+
+    const app = await this.coachappService.findApp(userappId, req.user.id)
+    if(!app) {
+      throw new NotFoundException('application not found');
+    }
+
     // check if client requested this coach before
     const myCoaches = await Requestedapp.findOne({
-      where: { userId: req.user.id, coachId },
+      where: { coachId, userappId },
     });
     if (myCoaches) {
-      // throw new NotFoundException('you have requested this coach already!');
+      throw new NotFoundException('you have requested this coach already!');
     }
     // check if number of requested applications exseeded maximum
     const myRequests = await Requestedapp.findAll({
-      where: { userId: req.user.id },
+      where: { userappId },
     });
-    if (!requestedApp && myRequests.length >= 3) {
+    if (myRequests.length >= 3) {
       throw new NotFoundException(
         'number of app requests are exseeded, 3 maximum',
       );
@@ -59,8 +63,7 @@ export class CoachappsController {
       await this.coachappService.create(
         req.user.id,
         coachId,
-        userappId,
-        requestedApp,
+        userappId
       )
     ).get();
 
@@ -71,7 +74,7 @@ export class CoachappsController {
     return returnedData;
   }
 
-  // get all requestedapps(offers) of a triner
+  // get all requestedapps(offers) of a trainer
   @ApiTags('CoachApps')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))

@@ -2,7 +2,7 @@ import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { APPLICATION_REPOSITORY } from 'src/core/constants';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
 import { CoachService } from '../coach-modules/coach-services/coach-service.entity';
-import { User } from '../users/user.entity';
+import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
 import { UserappDto } from './userapp.dto';
 import { Userapp } from './userapp.entity';
 
@@ -33,6 +33,7 @@ export class UserappsService {
 
     const list = await this.userappRepository.findAll<Userapp>({
       where: updateOPtion,
+      include: [Requestedapp],
     });
     return list;
   }
@@ -42,6 +43,7 @@ export class UserappsService {
     let updateOPtion = user.role === 'user' ? { id, userId: user.id } : { id };
     return await this.userappRepository.findOne({
       where: updateOPtion,
+      include: [Requestedapp],
     });
   }
 
