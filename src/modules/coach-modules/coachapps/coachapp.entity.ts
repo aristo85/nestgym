@@ -50,8 +50,7 @@ export class Requestedapp extends Model<Requestedapp> {
   // @Column
   // @BelongsTo(() => User)
   // user: User;
-  // // 
-  // @BelongsTo(() => Userapp)
-  // userapp: Userapp;
-  //
+  // 
+  @BelongsTo(() => Userapp)
+  userapp: Userapp;
 }
