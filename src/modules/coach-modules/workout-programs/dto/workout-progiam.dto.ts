@@ -21,8 +21,4 @@ export class WorkoutProgramDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly weight: number;
-
-  @ApiProperty()
-  //   @IsNotEmpty()
-  readonly coment: string;
 }

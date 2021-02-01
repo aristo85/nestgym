@@ -34,6 +34,13 @@ export class DietProgram extends Model<DietProgram> {
   })
   carbs: number;
   //
+  //
+  @Column({
+    type: DataType.STRING,
+    // allowNull: false,
+  })
+  coment: string;
+
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,

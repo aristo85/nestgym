@@ -31,7 +31,7 @@ export class CoachServicesController {
     const {
       numberOfAffectedRows,
       updatedCoachServices,
-    } = await this.coachServiceService.update(id, service, req.user.id);
+    } = await this.coachServiceService.update(id, service, req.user);
 
     // if the number of row affected is zero,
     // it means the services doesn't exist in our db

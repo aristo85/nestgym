@@ -13,7 +13,7 @@ export class CoachServicesService {
   async create(
     servicelist: CoachServiceDto[],
     userId,
-    coachprofileId
+    coachprofileId,
   ): Promise<CoachService[]> {
     let newList = [];
     for (const serv of servicelist) {
@@ -21,7 +21,7 @@ export class CoachServicesService {
         {
           ...serv,
           userId,
-          coachprofileId
+          coachprofileId,
         },
       );
       newList.push(newService);
@@ -30,13 +30,14 @@ export class CoachServicesService {
     return newList;
   }
 
-  async update(id, data, userId) {
+  async update(id, data, user) {
+    let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
     const [
       numberOfAffectedRows,
       [updatedCoachServices],
     ] = await this.coachServiceRepository.update(
       { ...data },
-      { where: { id, userId }, returning: true },
+      { where: updateOPtion, returning: true },
     );
 
     return { numberOfAffectedRows, updatedCoachServices };

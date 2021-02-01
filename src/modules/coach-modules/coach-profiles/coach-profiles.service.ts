@@ -50,6 +50,14 @@ export class CoachProfilesService {
   }
   /////////////////////////////////////////////
 
+  async findMyProfile(userId): Promise<CoachProfile> {
+    return await this.coachProfileRepository.findOne({
+      where: { userId },
+      include: [CoachService]
+    });
+  }
+  /////////////////////////////////////////////
+
   async delete(id, user) {
     let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
     // delete also the coach services (CASCADE)
@@ -88,7 +96,12 @@ export class CoachProfilesService {
 
   async updateFromAdmin(id, data, user) {
     const { coachservices, ...other } = data;
-    await this.coachServiceService.update(id, coachservices, user.id);
+    await CoachService.destroy({
+      where: {
+        coachprofileId: id,
+      },
+    });
+    await this.coachServiceService.create(coachservices, user.id, id);
     const [
       numberOfAffectedRows,
       [updatedprofile],

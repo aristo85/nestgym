@@ -18,6 +18,14 @@ export class FullProgWorkoutDto {
   @ApiProperty()
   // @IsNotEmpty()
   readonly dayDone: number;
+  
+  @ApiProperty()
+  // @IsNotEmpty()
+  readonly workoutsPerWeek: number;
+
+  @ApiProperty()
+  //   @IsNotEmpty()
+  readonly coment: string;
 
   @ApiProperty({
     description: ` example: [
@@ -58,6 +66,14 @@ export class FullProgWorkoutUpdateDto {
   @ApiProperty()
   // @IsNotEmpty()
   readonly dayDone: number;
+
+  @ApiProperty()
+  // @IsNotEmpty()
+  readonly workoutsPerWeek: number;
+
+  @ApiProperty()
+  //   @IsNotEmpty()
+  readonly coment: string;
 
   @ApiProperty({
     description: ` example: [

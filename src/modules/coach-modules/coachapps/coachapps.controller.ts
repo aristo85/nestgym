@@ -69,7 +69,7 @@ export class CoachappsController {
 
     const returnedData = {
       ...createdRequest,
-      requestLeft: 3 - myRequests.length,
+      requestLeft: 2 - myRequests.length,
     };
     return returnedData;
   }
