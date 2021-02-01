@@ -62,16 +62,32 @@ export class ProfilesController {
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(@Param('id') id: number, @Request() req): Promise<Profile> {
-    // find the apps with this id
-    const apps = await this.profileServise.findOne(id, req.user);
+    // find the profiles with this id
+    const profiles = await this.profileServise.findOne(id, req.user);
 
-    // if the apps doesn't exit in the db, throw a 404 error
-    if (!apps) {
-      throw new NotFoundException("This app doesn't exist");
+    // if the profiles doesn't exit in the db, throw a 404 error
+    if (!profiles) {
+      throw new NotFoundException("This profile doesn't exist");
     }
 
-    // if apps exist, return apps
-    return apps;
+    // if profiles exist, return profiles
+    return profiles;
+  }
+
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Get('client/myprofile')
+  async findMyProfile(@Request() req): Promise<Profile> {
+    // find the profiles with this id
+    const profiles = await this.profileServise.findMyProfile(req.user.id);
+
+    // if the profiles doesn't exit in the db, throw a 404 error
+    if (!profiles) {
+      throw new NotFoundException("This profile doesn't exist");
+    }
+
+    // if profiles exist, return profiles
+    return profiles;
   }
 
   @ApiResponse({ status: 200 })

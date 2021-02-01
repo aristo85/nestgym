@@ -36,9 +36,8 @@ export class CoachappsController {
     @Param('coachId') coachId: number,
     @Param('userappId') userappId: number,
   ): Promise<any> {
-
-    const app = await this.coachappService.findApp(userappId, req.user.id)
-    if(!app) {
+    const app = await this.coachappService.findApp(userappId, req.user.id);
+    if (!app) {
       throw new NotFoundException('application not found');
     }
 
@@ -60,11 +59,7 @@ export class CoachappsController {
     }
     // create a new apps and return the newly created apps
     let createdRequest = (
-      await this.coachappService.create(
-        req.user.id,
-        coachId,
-        userappId
-      )
+      await this.coachappService.create(req.user.id, coachId, userappId)
     ).get();
 
     const returnedData = {
@@ -95,7 +90,7 @@ export class CoachappsController {
   }
 
   //
-  @ApiTags('CoachResponse-Accept/Reject/Coment-app')
+  @ApiTags('CoachResponse-(Accept, Reject) Application')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Put(':userappId')
@@ -105,6 +100,22 @@ export class CoachappsController {
     @Body() data: CoachAnswerDto,
     @Request() req,
   ): Promise<updData> {
+     // check the role
+     if (req.user.role === 'user') {
+      throw new NotFoundException(
+        "your role is 'user', users dont have access to coaches info.! ",
+      );
+    }
+    // check userappId
+    const myRequest = await Requestedapp.findOne({
+      where: {
+        coachId: req.user.id,
+        userappId,
+      },
+    });
+    if (!myRequest) {
+      throw new NotFoundException('You dont have a request with this Id');
+    }
     // get the number of row affected and the updated userapp
     const userapp: updData = await this.coachappService.update(
       userappId,

@@ -31,12 +31,7 @@ export class WorkoutProgram extends Model<WorkoutProgram> {
     allowNull: false,
   })
   weight: number;
-  //
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  coment: string;
+ 
   //
   // @ForeignKey(() => Userapp)
   // @Column({

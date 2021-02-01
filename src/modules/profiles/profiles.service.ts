@@ -33,6 +33,12 @@ export class ProfilesService {
     });
   }
 
+  async findMyProfile(userId): Promise<Profile> {
+    return await this.profileRepository.findOne({
+      where: { userId },
+    });
+  }
+
   async update(id, data, userId) {
     const [
       numberOfAffectedRows,

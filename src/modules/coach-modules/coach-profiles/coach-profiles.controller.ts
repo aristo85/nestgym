@@ -26,31 +26,31 @@ import {
 export class CoachProfilesController {
   constructor(private readonly coachProfileService: CoachProfilesService) {}
 
-   // for the admin
-   @ApiResponse({ status: 200 })
-   @UseGuards(AuthGuard('jwt'))
-   @Put('admin:id')
-   async updateFromAdmin(
-     @Param('id') id: number,
-     @Body() profile: CoachProfileDto,
-     @Request() req,
-   ): Promise<CoachProfile> {
-     // first update services
-     // get the number of row affected and the updated profile
-     const {
-       numberOfAffectedRows,
-       updatedprofile,
-     } = await this.coachProfileService.updateFromAdmin(id, profile, req.user);
- console.log('hi')
-     // if the number of row affected is zero,
-     // it means the profile doesn't exist in our db
-     if (numberOfAffectedRows === 0) {
-       throw new NotFoundException("This profile doesn't exist");
-     }
- 
-     // return the updated profile
-     return updatedprofile;
-   }
+  // for the admin
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Put('admin/update/:id')
+  async updateFromAdmin(
+    @Param('id') id: number,
+    @Body() profile: any,
+    @Request() req,
+  ): Promise<CoachProfile> {
+    // first update services
+    // get the number of row affected and the updated profile
+    const {
+      numberOfAffectedRows,
+      updatedprofile,
+    } = await this.coachProfileService.updateFromAdmin(id, profile, req.user);
+    console.log('hi');
+    // if the number of row affected is zero,
+    // it means the profile doesn't exist in our db
+    if (numberOfAffectedRows === 0) {
+      throw new NotFoundException("This profile doesn't exist");
+    }
+
+    // return the updated profile
+    return updatedprofile;
+  }
 
   @ApiTags('Coach Profile')
   @ApiResponse({ status: 200 })
@@ -77,18 +77,32 @@ export class CoachProfilesController {
     @Req() req,
   ): Promise<CoachProfile> {
     // find the profiles with this id
-    const profiles = await this.coachProfileService.findOne(
-      req.user,
-      profileId,
-    );
+    const profile = await this.coachProfileService.findOne(req.user, profileId);
 
     // if the profiles doesn't exit in the db, throw a 404 error
-    if (!profiles) {
+    if (!profile) {
       throw new NotFoundException("This profile doesn't exist");
     }
 
     // if profiles exist, return profiles
-    return profiles;
+    return profile;
+  }
+
+  @ApiTags('Coach Profile')
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Get('coach/myprofile')
+  async findMyProfile(@Request() req): Promise<CoachProfile> {
+    // find the profiles with this id
+    const profile = await this.coachProfileService.findMyProfile(req.user.id);
+
+    // if the profiles doesn't exit in the db, throw a 404 error
+    if (!profile) {
+      throw new NotFoundException("This profile doesn't exist");
+    }
+
+    // if profiles exist, return profiles
+    return profile;
   }
 
   @ApiTags('Coach Profile')
@@ -127,7 +141,7 @@ export class CoachProfilesController {
       numberOfAffectedRows,
       updatedprofile,
     } = await this.coachProfileService.update(id, profile, req.user);
-console.log('nope')
+    console.log('nope');
     // if the number of row affected is zero,
     // it means the profile doesn't exist in our db
     if (numberOfAffectedRows === 0) {
@@ -154,6 +168,4 @@ console.log('nope')
     // return success message
     return 'Successfully deleted';
   }
-
- 
 }

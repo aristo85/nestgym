@@ -46,6 +46,11 @@ export class DietProgramDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly carbs: number;
+  
+  @ApiProperty()
+  //   @IsNotEmpty()
+  readonly coment: string;
+
 
   @ApiProperty({
     type: 'array',
