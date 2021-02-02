@@ -81,6 +81,12 @@ ssh-copy-id root@myenergy.stream
 - `USER` - имя пользователя (**root**@myenergy.stream)
 - `SSH_PRIVATE_KEY` - приватный ключ, результат `cat ~/.ssh/id_rsa`
 
+### Получаем подмодули
+
+```bash
+git submodule init && git submodule update
+```
+
 ### Docker
 
 * Установить docker:

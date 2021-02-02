@@ -38,6 +38,8 @@ services:
       - adminbuild:/app/build
     ports:
       - 9999:9999
+    env_file:
+      - ./.env
     restart: always
 
   nginx:

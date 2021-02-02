@@ -17,7 +17,7 @@ deploy_dev:
   only:
     - dev
 
-deploy_dev:
+deploy_stage:
   type: 
     deploy
   environment:
