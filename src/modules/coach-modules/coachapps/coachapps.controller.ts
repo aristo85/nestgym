@@ -64,7 +64,7 @@ export class CoachappsController {
 
     const returnedData = {
       ...createdRequest,
-      requestLeft: 3 - myRequests.length,
+      requestLeft: 2 - myRequests.length,
     };
     return returnedData;
   }
@@ -100,8 +100,8 @@ export class CoachappsController {
     @Body() data: CoachAnswerDto,
     @Request() req,
   ): Promise<updData> {
-     // check the role
-     if (req.user.role === 'user') {
+    // check the role
+    if (req.user.role === 'user') {
       throw new NotFoundException(
         "your role is 'user', users dont have access to coaches info.! ",
       );
@@ -114,12 +114,15 @@ export class CoachappsController {
       },
     });
     if (!myRequest) {
-      throw new NotFoundException('You dont have a request with this Id');
+      throw new NotFoundException(
+        'You dont have a request with this application',
+      );
     }
     // get the number of row affected and the updated userapp
     const userapp: updData = await this.coachappService.update(
       userappId,
       data.status,
+      req.user,
     );
 
     // return the updated app

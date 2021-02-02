@@ -11,7 +11,6 @@ import { User } from 'src/modules/users/user.entity';
 
 @Table
 export class Requestedapp extends Model<Requestedapp> {
-  
   @Column({
     type: DataType.DATE,
     // allowNull: false,
@@ -31,26 +30,26 @@ export class Requestedapp extends Model<Requestedapp> {
     allowNull: false,
   })
   userId: number;
-  // 
+  //
   @ForeignKey(() => Userapp)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
   userappId: number;
-  // 
+  //
   @Column({
     type: DataType.STRING,
     values: ['pending', 'rejected', 'accepted'],
     allowNull: true,
-    defaultValue: 'pending'
+    defaultValue: 'pending',
   })
   status: string;
   //
   // @Column
   // @BelongsTo(() => User)
   // user: User;
-  // 
+  //
   @BelongsTo(() => Userapp)
   userapp: Userapp;
 }
