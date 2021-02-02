@@ -13,6 +13,16 @@ deploy_dev:
   environment:
     name: dev
   script:
-    - ssh $USER@$HOST -f "cd ~/getcoachapi && git pull && chmod +x deploy.sh && ./deploy.sh dev && exit"
+    - ssh $USER@$HOST -f "cd ~/getcoachapi && git pull && chmod +x deploy.sh && ./deploy.sh $CI_COMMIT_BRANCH && exit"
   only:
     - dev
+
+deploy_dev:
+  type: 
+    deploy
+  environment:
+    name: stage
+  script:
+    - ssh $USER@$HOST -f "cd ~/getcoachapi && git pull && chmod +x deploy.sh && ./deploy.sh $CI_COMMIT_BRANCH && exit"
+  only:
+    - stage
