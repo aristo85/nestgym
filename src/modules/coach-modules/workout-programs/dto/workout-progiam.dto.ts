@@ -11,14 +11,14 @@ export class WorkoutProgramDto {
   readonly workout: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly sets: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly reps: number;
 
   @ApiProperty()
-  @IsNotEmpty()
-  readonly weight: number;
+  // @IsNotEmpty()
+  readonly value: number;
 }

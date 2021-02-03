@@ -7,6 +7,7 @@ import {
   ForeignKey,
   BelongsTo,
 } from 'sequelize-typescript';
+import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
 import { User } from 'src/modules/users/user.entity';
 import { WorkoutProgram } from '../workout-programs/workout-program.entity';
 
@@ -17,20 +18,14 @@ export class FullProgWorkout extends Model<FullProgWorkout> {
     allowNull: false,
   })
   title: string;
-
-  @Column({
-    type: DataType.INTEGER,
-    // allowNull: false,
-  })
-  dayDone: number;
-   //
+  //
   @Column({
     type: DataType.INTEGER,
     // allowNull: false,
   })
   workoutsPerWeek: number;
-   //
-   @Column({
+  //
+  @Column({
     type: DataType.STRING,
     // allowNull: false,
   })
@@ -52,4 +47,10 @@ export class FullProgWorkout extends Model<FullProgWorkout> {
     onDelete: 'CASCADE',
   })
   workoutprograms: WorkoutProgram[];
+
+  @HasMany(() => UserWorkout, {
+    foreignKey: 'fullprogworkoutId',
+    onDelete: 'CASCADE',
+  })
+  userworkouts: UserWorkout[];
 }

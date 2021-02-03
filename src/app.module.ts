@@ -25,6 +25,7 @@ import { TemplateWorkoutsModule } from './modules/coach-modules/template-workout
 import { TemplateDietsModule } from './modules/coach-modules/template-diets/template-diets.module';
 import { ServicesModule } from './modules/services/services.module';
 import { PublicationsModule } from './modules/publications/publications.module';
+import { FeedbacksModule } from './modules/feedbacks/feedbacks.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { PublicationsModule } from './modules/publications/publications.module';
     TemplateDietsModule,
     ServicesModule,
     PublicationsModule,
+    FeedbacksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,5 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { where } from 'sequelize';
 import { USER_WORKOUT_REPOSITORY } from 'src/core/constants';
+import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
+import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
 import { UserWorkoutDto } from './dto/user-workout.dto';
 import { UserWorkout } from './user-workout.entity';
 
@@ -10,21 +13,31 @@ export class UserWorkoutsService {
     private readonly userWorkoutRepository: typeof UserWorkout,
   ) {}
 
-  // async create(
-  //   lastWeight: UserWorkoutDto,
-  //   workoutprogramId,
-  //   fullprogworkoutId,
-  //   userId,
-  // ): Promise<any> {
-  //   const myWorkout = await this.userWorkoutRepository.create<UserWorkout>({
-  //     ...lastWeight,
-  //     workoutprogramId,
-  //     fullprogworkoutId,
-  //     userId,
-  //   });
+  async create(
+    data: UserWorkoutDto,
+    // workoutprogramId,
+    fullprogworkoutId,
+    user,
+    userappId,
+  ): Promise<any> {
+    // iterate and create workouts
+    const { dayDone, workoutList } = data;
+    for (const workout of workoutList) {
+      await this.userWorkoutRepository.create<UserWorkout>({
+        weight: workout.weight,
+        dayDone,
+        workoutprogramId: workout.id,
+        fullprogworkoutId,
+        userId: user.id,
+        userappId,
+      });
+    }
 
-  //   return myWorkout;
-  // }
+    return await FullProgWorkout.findOne({
+      where: { id: fullprogworkoutId },
+      include: [{ model: WorkoutProgram, include: [UserWorkout] }],
+    });
+  }
 
   //   async findAll(user, fullprogworkoutId): Promise<UserWorkout[]> {
   //     // check if from admin

@@ -14,7 +14,7 @@ import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Op } from 'sequelize';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
 import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
-import { WorkoutProgUpdateDto } from './dto/user-workout.dto';
+import { UserWorkoutDto, WorkoutProgUpdateDto } from './dto/user-workout.dto';
 import { UserWorkout } from './user-workout.entity';
 import { UserWorkoutsService } from './user-workouts.service';
 
@@ -31,7 +31,7 @@ export class UserWorkoutsController {
     // find my programs
     const list = await FullProgWorkout.findAll({
       where: { userId: req.user.id },
-      include: [WorkoutProgram],
+      include: [{ model: WorkoutProgram, include: [UserWorkout] }],
     });
 
     const count = list.length;
@@ -54,7 +54,7 @@ export class UserWorkoutsController {
         id,
         userId: req.user.id,
       },
-      include: [WorkoutProgram],
+      include: [{ model: WorkoutProgram, include: [UserWorkout] }],
     });
 
     // if the apps doesn't exit in the db, throw a 404 error
@@ -69,54 +69,31 @@ export class UserWorkoutsController {
   // updating workout weight
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
-  @Put(':fullprogworkoutId')
-  async update(
+  @Post(':fullprogworkoutId')
+  async create(
     @Param('fullprogworkoutId') fullprogworkoutId: number,
-    @Body() data: WorkoutProgUpdateDto,
+    @Body() data: UserWorkoutDto,
     @Request() req,
   ): Promise<FullProgWorkout> {
     // check id
-    const apps = await FullProgWorkout.findOne({
-      where: { id: fullprogworkoutId },
-    });
-
-    // if the apps doesn't exit in the db, throw a 404 error
-    if (!apps) {
-      throw new NotFoundException("This program doesn't exist");
-    }
-    // first update the workouts weight
-    const { dayDone, workoutList } = data;
-    for (const workout of workoutList) {
-
-      // check id
-      const apps = await FullProgWorkout.findOne({
-        where: { id: workout.id },
-      });
-      // if the apps doesn't exit in the db, throw a 404 error
-      if (!apps) {
-        throw new NotFoundException("wrong workout id(s)");
-      }
-
-      await WorkoutProgram.update(
-        { weight: workout.lastWeight },
-        {
-          where: {
-            id: workout.id,
-          },
-          returning: true,
-        },
+    const prog: any = (
+      await FullProgWorkout.findOne({
+        where: { id: fullprogworkoutId, userId: req.user.id },
+      })
+    ).get();
+    // if the prog doesn't exit in the db, throw a 404 error
+    if (!prog) {
+      throw new NotFoundException(
+        "This program doesn't exist, or not your program",
       );
     }
-    // then update the day of training done by client
-    await FullProgWorkout.update(
-      { dayDone: dayDone },
-      { where: { id: fullprogworkoutId }, returning: true },
-    );
 
-    // return the updated app
-    return await FullProgWorkout.findOne({
-      where: { id: fullprogworkoutId },
-      include: [WorkoutProgram],
-    });
+    // return the created workouts
+    return await this.userWorkoutService.create(
+      data,
+      fullprogworkoutId,
+      req.user,
+      prog.userappId,
+    );
   }
 }

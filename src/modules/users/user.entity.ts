@@ -11,6 +11,7 @@ import { Article } from '../publications/publication.entity';
 import { Servicio } from '../services/service.entity';
 import { Sport } from '../sports/sport.entity';
 import { UserProgress } from '../user-progress/user-progress.entity';
+import { UserWorkout } from '../user-workouts/user-workout.entity';
 import { Userapp } from '../userapps/userapp.entity';
 @Table
 export class User extends Model<User> {
@@ -60,6 +61,9 @@ export class User extends Model<User> {
 
   @HasMany(() => FullProgWorkout, 'coachId')
   fullprogworkouts: FullProgWorkout[];
+
+  @HasMany(() => UserWorkout, 'userId')
+  userworkouts: UserWorkout[];
 
   @HasMany(() => DietProgram, 'coachId')
   dietprograms: DietProgram[];

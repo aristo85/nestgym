@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { FULL_PROGWORKOUT_REPOSITORY } from 'src/core/constants';
+import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { WorkoutProgram } from '../workout-programs/workout-program.entity';
 import { WorkoutProgramsService } from '../workout-programs/workout-programs.service';
@@ -58,7 +59,7 @@ export class FullProgworkoutsService {
       user.role === 'trainer' ? { id, coachId: user.id } : { id };
     return await this.fullProgworkoutRepository.findOne({
       where: updateOPtion,
-      include: [WorkoutProgram],
+      include: [{ model: WorkoutProgram, include: [UserWorkout] }],
     });
   }
 

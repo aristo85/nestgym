@@ -5,7 +5,7 @@ export interface WorkoutProg {
   workout: string;
   sets: number;
   reps: number;
-  weight: number;
+  value: number;
   dayNumber: number;
   coment: string;
 }
@@ -33,7 +33,7 @@ export class FullProgWorkoutDto {
         workout: string,
         sets: number,
         reps: number,
-        weight: number,
+        value: number,
         dayNumber: number,
         coment: string,
     }, ...
@@ -81,7 +81,7 @@ export class FullProgWorkoutUpdateDto {
         workout: string,
         sets: number,
         reps: number,
-        weight: number,
+        value: number,
         dayNumber: number,
         coment: string,
     }, ...

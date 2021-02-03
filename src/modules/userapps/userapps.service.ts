@@ -5,6 +5,8 @@ import { CoachService } from '../coach-modules/coach-services/coach-service.enti
 import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
+import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
+import { UserWorkout } from '../user-workouts/user-workout.entity';
 import { UserappDto } from './userapp.dto';
 import { Userapp } from './userapp.entity';
 
@@ -45,7 +47,14 @@ export class UserappsService {
     let updateOPtion = user.role === 'user' ? { id, userId: user.id } : { id };
     return await this.userappRepository.findOne({
       where: updateOPtion,
-      include: [Requestedapp, FullProgWorkout, DietProgram],
+      include: [
+        Requestedapp,
+        {
+          model: FullProgWorkout,
+          include: [{ model: WorkoutProgram, include: [UserWorkout] }],
+        },
+        DietProgram,
+      ],
     });
   }
 
