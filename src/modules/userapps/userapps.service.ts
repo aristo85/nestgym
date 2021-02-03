@@ -3,6 +3,8 @@ import { APPLICATION_REPOSITORY } from 'src/core/constants';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
 import { CoachService } from '../coach-modules/coach-services/coach-service.entity';
 import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
+import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
+import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
 import { UserappDto } from './userapp.dto';
 import { Userapp } from './userapp.entity';
 
@@ -43,7 +45,7 @@ export class UserappsService {
     let updateOPtion = user.role === 'user' ? { id, userId: user.id } : { id };
     return await this.userappRepository.findOne({
       where: updateOPtion,
-      include: [Requestedapp],
+      include: [Requestedapp, FullProgWorkout, DietProgram],
     });
   }
 

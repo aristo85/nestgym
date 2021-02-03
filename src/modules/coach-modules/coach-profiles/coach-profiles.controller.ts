@@ -22,7 +22,6 @@ import {
 
 @Controller('coach-profiles')
 @ApiBearerAuth()
-@Controller('coachprofiles')
 export class CoachProfilesController {
   constructor(private readonly coachProfileService: CoachProfilesService) {}
 
@@ -68,16 +67,16 @@ export class CoachProfilesController {
     return list;
   }
 
-  @ApiTags('Coach Profile with services')
+  @ApiTags('Coach Profile')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
-  @Get(':profileId')
+  @Get(':id')
   async findOne(
-    @Param('profileId') profileId: number,
+    @Param('id') id: number,
     @Req() req,
   ): Promise<CoachProfile> {
     // find the profiles with this id
-    const profile = await this.coachProfileService.findOne(req.user, profileId);
+    const profile = await this.coachProfileService.findOne(req.user, id);
 
     // if the profiles doesn't exit in the db, throw a 404 error
     if (!profile) {

@@ -1,7 +1,13 @@
-import { Controller, Get, Request, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Op } from 'sequelize';
 import { DietProduct } from '../coach-modules/dietproducts/dietproduct.entity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { UserDietsService } from './user-diets.service';
@@ -27,19 +33,19 @@ export class UserDietsController {
     return list;
   }
 
-  //   @ApiResponse({ status: 200 })
-  //     @UseGuards(AuthGuard('jwt'))
-  //     @Get(':id')
-  //     async findOne(@Param('id') id: number, @Request() req): Promise<FullProgWorkout> {
-  //       // find the progs with this id
-  //       const progs = await this.userDietService.findOne(id, req.user);
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Get(':id')
+  async findOne(@Param('id') id: number, @Request() req): Promise<DietProgram> {
+    // find the progs with this id
+    const progs = await DietProgram.findOne({ where: { id } });
 
-  //       // if the progs doesn't exit in the db, throw a 404 error
-  //       if (!progs) {
-  //         throw new NotFoundException("This program doesn't exist");
-  //       }
+    // if the progs doesn't exit in the db, throw a 404 error
+    if (!progs) {
+      throw new NotFoundException("This program doesn't exist");
+    }
 
-  //       // if progs exist, return progs
-  //       return progs;
-  //     }
+    // if progs exist, return progs
+    return progs;
+  }
 }
