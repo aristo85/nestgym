@@ -3,6 +3,7 @@ import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
 import { CoachProfile} from '../coach-modules/coach-profiles/coach-profile.entity'
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
+import { UserWorkout } from '../user-workouts/user-workout.entity';
 
 @Table
 export class Userapp extends Model<Userapp> {
@@ -78,6 +79,9 @@ export class Userapp extends Model<Userapp> {
 
   @HasMany(() => FullProgWorkout, 'userappId')
   fullprogworkouts: FullProgWorkout[];
+
+  @HasMany(() => UserWorkout, 'userappId')
+  userworkouts: UserWorkout[];
 
   @HasMany(() => DietProgram, 'userappId')
   dietprograms: DietProgram[];

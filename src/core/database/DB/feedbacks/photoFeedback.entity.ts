@@ -7,7 +7,7 @@ import {
   ForeignKey,
 } from 'sequelize-typescript';
 import { Photo } from 'src/modules/photos/photo.entity';
-import { Feedback } from './feedback.entity';
+import { Feedback } from '../../../../modules/feedbacks/feedback.entity';
 
 @Table
 export class PhotoFeedback extends Model<PhotoFeedback> {

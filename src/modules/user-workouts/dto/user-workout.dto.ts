@@ -1,17 +1,36 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
+export interface Workout {
+  id: number;
+  weight: number;
+}
 export class UserWorkoutDto {
   @ApiProperty()
   @IsNotEmpty()
-  readonly lastWeight: number;
+  readonly dayDone: number;
+
+  @ApiProperty({
+    description: ` example: [
+    {
+      id: 1,
+      weight: 55,
+    },
+    {
+      id: 2,
+      weight: 60,
+    }, ...
+  ]`,
+
+    type: 'array',
+    items: {
+      type: 'object',
+    },
+  })
+  @IsNotEmpty()
+  readonly workoutList: Workout[];
 }
 ///////////////////////////////
-
-export interface Workout {
-  id: number;
-  lastWeight: number;
-}
 
 export class WorkoutProgUpdateDto {
   @ApiProperty()
@@ -22,11 +41,11 @@ export class WorkoutProgUpdateDto {
     description: ` example: [
     {
       id: 1,
-      lastWeight: 55,
+      weight: 55,
     },
     {
       id: 2,
-      lastWeight: 60,
+      weight: 60,
     }, ...
   ]`,
 

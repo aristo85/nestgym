@@ -9,7 +9,7 @@ import { CoachProfile } from 'src/modules/coach-modules/coach-profiles/coach-pro
 import { Requestedapp } from 'src/modules/coach-modules/coachapps/coachapp.entity';
 import { PhotoProgress } from './DB/dynamics/photoProgress.entity';
 import { UserProgress } from '../../modules/user-progress/user-progress.entity';
-import { Feedback } from './DB/feedbacks/feedback.entity';
+import { Feedback } from '../../modules/feedbacks/feedback.entity';
 import { PhotoFeedback } from './DB/feedbacks/photoFeedback.entity';
 import { DailyRateDiet } from './DB/recomendations/dailyRateDiet.entity';
 import { DietRecomendation } from './DB/recomendations/dietrecomendation.entity';

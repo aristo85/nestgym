@@ -5,7 +5,7 @@ export interface WorkoutProg {
   workout: string;
   sets: number;
   reps: number;
-  weight: number;
+  value: number;
   dayNumber: number;
   coment: string;
 }
@@ -21,7 +21,7 @@ export class TemplateWorkoutDto {
         workout: string,
         sets: number,
         reps: number,
-        weight: number,
+        value: number,
         dayNumber: number,
         coment: string,
     }, ...
@@ -47,7 +47,7 @@ export class TemplateWorkoutUpdateDto {
         workout: string,
         sets: number,
         reps: number,
-        weight: number,
+        value: number,
         dayNumber: number,
         coment: string,
     }, ...

@@ -1,4 +1,5 @@
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
+import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
 
 @Table
 export class WorkoutProgram extends Model<WorkoutProgram> {
@@ -16,22 +17,24 @@ export class WorkoutProgram extends Model<WorkoutProgram> {
   //
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
+    // allowNull: false,
   })
   sets: number;
   //
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
+    // allowNull: false,
   })
   reps: number;
   //
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
+    // allowNull: false,
   })
-  weight: number;
- 
+  value: number;
+
+  @HasMany(() => UserWorkout, 'workoutprogramId')
+  userworkouts: UserWorkout[];
   //
   // @ForeignKey(() => Userapp)
   // @Column({
