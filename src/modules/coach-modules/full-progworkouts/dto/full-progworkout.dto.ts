@@ -54,7 +54,7 @@ export class FullProgWorkoutDto {
     },
   })
   @IsNotEmpty()
-  readonly clientIds: number[];
+  readonly userappIds: number[];
 }
 
 // //////

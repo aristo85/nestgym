@@ -75,9 +75,28 @@ export class UserWorkoutsController {
     @Body() data: WorkoutProgUpdateDto,
     @Request() req,
   ): Promise<FullProgWorkout> {
+    // check id
+    const apps = await FullProgWorkout.findOne({
+      where: { id: fullprogworkoutId },
+    });
+
+    // if the apps doesn't exit in the db, throw a 404 error
+    if (!apps) {
+      throw new NotFoundException("This program doesn't exist");
+    }
     // first update the workouts weight
     const { dayDone, workoutList } = data;
     for (const workout of workoutList) {
+
+      // check id
+      const apps = await FullProgWorkout.findOne({
+        where: { id: workout.id },
+      });
+      // if the apps doesn't exit in the db, throw a 404 error
+      if (!apps) {
+        throw new NotFoundException("wrong workout id(s)");
+      }
+
       await WorkoutProgram.update(
         { weight: workout.lastWeight },
         {

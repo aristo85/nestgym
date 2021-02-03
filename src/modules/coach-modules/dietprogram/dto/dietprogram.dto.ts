@@ -59,7 +59,7 @@ export class DietProgramDto {
     },
   })
   @IsNotEmpty()
-  readonly clientIds: number[];
+  readonly userappIds: number[];
 }
 
 // ///

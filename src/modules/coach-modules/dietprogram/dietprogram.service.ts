@@ -13,34 +13,29 @@ export class DietprogramService {
     private readonly dietProductService: DietproductsService,
   ) {}
 
-  async create(data: DietProgramDto, coachId): Promise<any> {
+  async create(data: DietProgramDto, coachId, myRequests): Promise<any> {
     // creating the diet program
-    const { programs, clientIds, ...other } = data;
-    for (const client of clientIds) {
+    const { programs, userappIds, ...other } = data;
+    for (const appRequest of myRequests) {
       const fullProg = await this.dietProgramRepository.create<DietProgram>({
         ...other,
         coachId,
-        userId: client,
+        userappId: appRequest.userappId,
+        userId: appRequest.userId,
       });
       // creating product in dietProduct table
-      let listProgs = [];
       for (const product of programs) {
-        const newProg = await this.dietProductService.create(
-          product,
-          fullProg.id,
-        );
-        listProgs.push(newProg);
+        await this.dietProductService.create(product, fullProg.id);
       }
     }
 
     return await this.dietProgramRepository.findAll({
       where: {
-        userId: [...clientIds],
+        userappId: [...userappIds],
         coachId,
       },
       include: [DietProduct],
     });
-    // return { fullProg, programs: listProgs };
   }
 
   async findAll(user): Promise<DietProgram[]> {

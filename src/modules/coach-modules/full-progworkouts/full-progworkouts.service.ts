@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { FULL_PROGWORKOUT_REPOSITORY } from 'src/core/constants';
+import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { WorkoutProgram } from '../workout-programs/workout-program.entity';
 import { WorkoutProgramsService } from '../workout-programs/workout-programs.service';
 import { FullProgWorkoutDto } from './dto/full-progworkout.dto';
@@ -13,36 +14,31 @@ export class FullProgworkoutsService {
     private readonly workoutProgramService: WorkoutProgramsService,
   ) {}
 
-  async create(data: FullProgWorkoutDto, coachId): Promise<any> {
+  async create(data: FullProgWorkoutDto, coachId, myRequests): Promise<any> {
     // creating the  program(full program) in fullprogworkout table
-    const { programs, clientIds, ...other } = data;
-    for (const client of clientIds) {
+    const { programs, userappIds, ...other } = data;
+    for (const appRequest of myRequests) {
       const fullProg = await this.fullProgworkoutRepository.create<FullProgWorkout>(
         {
           ...other,
           coachId,
-          userId: client,
+          userappId: appRequest.userappId,
+          userId: appRequest.userId,
         },
       );
       // creating workouts in workoutprogram table
-      let listProgs = [];
-      for (const workout of data.programs) {
-        const newProg = await this.workoutProgramService.create(
-          workout,
-          fullProg.id,
-        );
-        listProgs.push(newProg);
+      for (const workout of programs) {
+        await this.workoutProgramService.create(workout, fullProg.id);
       }
     }
 
     return await this.fullProgworkoutRepository.findAll({
       where: {
-        userId: [...clientIds],
+        userappId: [...userappIds],
         coachId,
       },
       include: [WorkoutProgram],
     });
-    // return { fullProg, programs: listProgs };
   }
 
   async findAll(user): Promise<FullProgWorkout[]> {

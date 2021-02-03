@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Requestedapp } from '../coachapps/coachapp.entity';
 import { DietProgram } from './dietprogram.entity';
 import { DietprogramService } from './dietprogram.service';
 import { DietProgramDto, DietProgramUpdateDto } from './dto/dietprogram.dto';
@@ -32,21 +33,20 @@ export class DietprogramController {
     if (req.user.role !== 'trainer') {
       throw new NotFoundException('Your role is not a trainer');
     }
-    // check if the cliet list is empty
-    if (data.clientIds.length < 1) {
-      throw new NotFoundException('You havent chosen any client');
+    // check if the userappIds list is empty
+    if (data.userappIds.length < 1) {
+      throw new NotFoundException('You havent chosen any application');
     }
-    // check if the client have this program already
-    let prg = await DietProgram.findAll({
-      where: { userId: [...data.clientIds], coachId: req.user.id },
+    // check if applications are exists
+    const myRequests = await Requestedapp.findAll({
+      where: { userappId: [...data.userappIds], coachId: req.user.id },
     });
-    if (prg.length > 0) {
-      throw new NotFoundException(
-        'Some or all of the clients are have program already!',
-      );
+    if (myRequests.length !== data.userappIds.length) {
+      throw new NotFoundException('some of the Apps are not exist');
     }
-    // create a new progs and return the newly created progs
-    return await this.dietProgramService.create(data, req.user.id);
+
+    // create a new prog and return the newly created progs
+    return await this.dietProgramService.create(data, req.user.id, myRequests);
   }
 
   @ApiResponse({ status: 200 })
@@ -101,6 +101,11 @@ export class DietprogramController {
     @Body() data: DietProgramUpdateDto,
     @Request() req,
   ): Promise<DietProgram> {
+    // check id
+    const prog = await this.dietProgramService.findOne(id, req.user);
+    if (!prog) {
+      throw new NotFoundException("This program doesn't exist");
+    }
     // get the number of row affected and the updated Prog
     return await this.dietProgramService.update(id, data, req.user.id);
   }

@@ -6,7 +6,6 @@ import {
   ForeignKey,
   BelongsTo,
 } from 'sequelize-typescript';
-import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
 import { User } from '../users/user.entity';
 
 @Table

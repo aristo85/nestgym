@@ -12,8 +12,11 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { WorkoutProgramDto } from '../workout-programs/dto/workout-progiam.dto';
-import { FullProgWorkoutDto, FullProgWorkoutUpdateDto } from './dto/full-progworkout.dto';
+import { Requestedapp } from '../coachapps/coachapp.entity';
+import {
+  FullProgWorkoutDto,
+  FullProgWorkoutUpdateDto,
+} from './dto/full-progworkout.dto';
 import { FullProgworkoutsService } from './full-progworkouts.service';
 import { FullProgWorkout } from './full.progworkout.enity';
 
@@ -35,21 +38,24 @@ export class FullProgworkoutsController {
     if (req.user.role !== 'trainer') {
       throw new NotFoundException('Your role is not a trainer');
     }
-    // check if the cliet list is empty
-    if (fullprog.clientIds.length < 1) {
-      throw new NotFoundException('You havent chosen any client');
+    // check if the userappIds list is empty
+    if (fullprog.userappIds.length < 1) {
+      throw new NotFoundException('You havent chosen any application');
     }
-    // check if the client have this program already
-    let prg = await FullProgWorkout.findAll({
-      where: { userId: [...fullprog.clientIds], coachId: req.user.id  },
+    // check if applications are exists
+    const myRequests = await Requestedapp.findAll({
+      where: { userappId: [...fullprog.userappIds], coachId: req.user.id },
     });
-    if (prg.length > 0) {
-      throw new NotFoundException(
-        'Some or all of the clients are have program already!',
-      );
+    if (myRequests.length !== fullprog.userappIds.length) {
+      throw new NotFoundException('some of the Apps are not exist');
     }
-    // create a new progs and return the newly created progs
-    return await this.fullProgworkoutService.create(fullprog, req.user.id);
+
+    // create a new prog and return the newly created progs
+    return await this.fullProgworkoutService.create(
+      fullprog,
+      req.user.id,
+      myRequests,
+    );
   }
 
   @ApiResponse({ status: 200 })
@@ -107,7 +113,12 @@ export class FullProgworkoutsController {
     @Body() data: FullProgWorkoutUpdateDto,
     @Request() req,
   ): Promise<FullProgWorkout> {
+    // check id
+    const prog = await this.fullProgworkoutService.findOne(id, req.user);
+    if (!prog) {
+      throw new NotFoundException("This program doesn't exist");
+    }
     // get the number of row affected and the updated Prog
-    return await this.fullProgworkoutService.update(id, data, req.user.id);
+    return await this.fullProgworkoutService.update(id, data, req.user);
   }
 }
