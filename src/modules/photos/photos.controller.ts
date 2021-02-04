@@ -10,12 +10,31 @@ import {
   UseGuards,
   Request,
   Req,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PhotoDto } from './dto/photo.dto';
 import { Photo } from './photo.entity';
 import { PhotosService } from './photos.service';
+import { diskStorage } from 'multer';
+import path = require('path');
+import { v4 as uuidv4 } from 'uuid';
+
+export const storage = {
+  storage: diskStorage({
+    destination: './uploads/profileimages',
+    filename: (req, file, cb) => {
+      const filename: string =
+        path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
+      const extension: string = path.parse(file.originalname).ext;
+
+      cb(null, `${filename}${extension}`);
+    },
+  }),
+};
 
 @ApiTags('Photo')
 @ApiBearerAuth()
@@ -34,7 +53,7 @@ export class PhotosController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  async findOne(@Param('id') id: number,  @Req() req): Promise<Photo> {
+  async findOne(@Param('id') id: number, @Req() req): Promise<Photo> {
     // find the photo with this id
     const photo = await this.photoService.findOne(id, req.user.id);
 
@@ -49,10 +68,22 @@ export class PhotosController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
+  @UseInterceptors(FileInterceptor('file', storage))
+  // uploadFile(@UploadedFile() file, @Request() req): Observable<Object> {
+  //     const user: User = req.user;
+
+  //     return this.userService.updateOne(user.id, {profileImage: file.filename}).pipe(
+  //         tap((user: User) => console.log(user)),
+  //         map((user:User) => ({profileImage: user.profileImage}))
+  //     )
+  // }
   async create(@Body() photo: PhotoDto, @Request() req): Promise<Photo> {
     // check the role
-    if(req.user.role !== "user"){
+    if (req.user.role !== 'user') {
       throw new NotFoundException('Your role is not a user');
+    }
+    if (photo) {
+      console.log(photo);
     }
     // create a new photo and return the newly created photo
     return await this.photoService.create(photo, req.user.id);

@@ -1,5 +1,13 @@
-import { Table, Column, Model, DataType, HasMany, HasOne } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  HasMany,
+  HasOne,
+} from 'sequelize-typescript';
 import { Aim } from '../aims/aim.entity';
+import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
 import { CoachService } from '../coach-modules/coach-services/coach-service.entity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
@@ -48,7 +56,10 @@ export class User extends Model<User> {
   password: string;
 
   @HasOne(() => Profile, 'userId')
-  profile: Profile
+  profile: Profile;
+
+  @HasOne(() => CoachProfile, 'coachId')
+  coachprofile: CoachProfile;
 
   @HasMany(() => Userapp, 'userId')
   userapps: Userapp[];

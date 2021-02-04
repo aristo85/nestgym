@@ -12,8 +12,11 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Op } from 'sequelize';
+import { DietProduct } from '../coach-modules/dietproducts/dietproduct.entity';
+import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
 import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
+import { Userapp } from '../userapps/userapp.entity';
 import { UserWorkoutDto, WorkoutProgUpdateDto } from './dto/user-workout.dto';
 import { UserWorkout } from './user-workout.entity';
 import { UserWorkoutsService } from './user-workouts.service';
@@ -28,10 +31,20 @@ export class UserWorkoutsController {
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@Request() req) {
+    // check the role
+    if (req.user.role === 'trainer') {
+      throw new NotFoundException('Your role is not a user');
+    }
     // find my programs
     const list = await FullProgWorkout.findAll({
       where: { userId: req.user.id },
-      include: [{ model: WorkoutProgram, include: [UserWorkout] }],
+      include: [
+        { model: WorkoutProgram, include: [UserWorkout] },
+        {
+          model: Userapp,
+          include: [{ model: DietProgram, include: [DietProduct] }],
+        },
+      ],
     });
 
     const count = list.length;
@@ -54,7 +67,13 @@ export class UserWorkoutsController {
         id,
         userId: req.user.id,
       },
-      include: [{ model: WorkoutProgram, include: [UserWorkout] }],
+      include: [
+        { model: WorkoutProgram, include: [UserWorkout] },
+        {
+          model: Userapp,
+          include: [{ model: DietProgram, include: [DietProduct] }],
+        },
+      ],
     });
 
     // if the apps doesn't exit in the db, throw a 404 error
