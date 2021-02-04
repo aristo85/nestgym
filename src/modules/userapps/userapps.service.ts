@@ -37,7 +37,15 @@ export class UserappsService {
 
     const list = await this.userappRepository.findAll<Userapp>({
       where: updateOPtion,
-      include: [Requestedapp],
+      include: [
+        Requestedapp,
+        {
+          model: FullProgWorkout,
+          include: [{ model: WorkoutProgram }],
+        },
+        DietProgram,
+        UserWorkout,
+      ],
     });
     return list;
   }
@@ -51,9 +59,10 @@ export class UserappsService {
         Requestedapp,
         {
           model: FullProgWorkout,
-          include: [{ model: WorkoutProgram, include: [UserWorkout] }],
+          include: [{ model: WorkoutProgram }],
         },
         DietProgram,
+        UserWorkout,
       ],
     });
   }

@@ -76,6 +76,15 @@ export class UserappsController {
     @Body() userapp: UserappDto,
     @Request() req,
   ): Promise<createPromise> {
+    // check the role
+    if (req.user.role === 'trainer') {
+      throw new NotFoundException('Your role is not a user');
+    }
+    // update not allowed once the applicatin been used
+    const app = await Userapp.findOne({ where: { id } });
+    if (!app || app.status !== null) {
+      throw new NotFoundException("This app been used or doesn't exist");
+    }
     // get the number of row affected and the updated userapp
     const {
       numberOfAffectedRows,

@@ -8,6 +8,7 @@ import {
   BelongsTo,
 } from 'sequelize-typescript';
 import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
+import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { User } from 'src/modules/users/user.entity';
 import { WorkoutProgram } from '../workout-programs/workout-program.entity';
 
@@ -40,6 +41,17 @@ export class FullProgWorkout extends Model<FullProgWorkout> {
 
   @BelongsTo(() => User)
   user: User;
+
+  //
+  @ForeignKey(() => Userapp)
+  @Column({
+    type: DataType.INTEGER,
+    // allowNull: false,
+  })
+  userappId: number;
+
+  @BelongsTo(() => Userapp)
+  userapp: Userapp;
 
   //
   @HasMany(() => WorkoutProgram, {

@@ -1,4 +1,13 @@
-import { Table, Column, Model, DataType, HasMany, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  HasMany,
+  ForeignKey,
+  BelongsTo,
+} from 'sequelize-typescript';
+import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { User } from 'src/modules/users/user.entity';
 import { DietProduct } from '../dietproducts/dietproduct.entity';
 
@@ -48,9 +57,25 @@ export class DietProgram extends Model<DietProgram> {
   })
   userId: number;
 
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.INTEGER,
+    // allowNull: false,
+  })
+  coachId: number;
+
   @BelongsTo(() => User)
   user: User;
+  //
+  @ForeignKey(() => Userapp)
+  @Column({
+    type: DataType.INTEGER,
+    // allowNull: false,
+  })
+  userappId: number;
 
+  @BelongsTo(() => Userapp)
+  userapp: Userapp;
 
   @HasMany(() => DietProduct, {
     foreignKey: 'dietProgramId',
