@@ -3,6 +3,7 @@ import { APPLICATION_REPOSITORY } from 'src/core/constants';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
 import { CoachService } from '../coach-modules/coach-services/coach-service.entity';
 import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
+import { DietProduct } from '../coach-modules/dietproducts/dietproduct.entity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
 import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
@@ -43,7 +44,7 @@ export class UserappsService {
           model: FullProgWorkout,
           include: [{ model: WorkoutProgram }],
         },
-        DietProgram,
+        { model: DietProgram, include: [DietProduct] },
         UserWorkout,
       ],
     });
@@ -61,7 +62,7 @@ export class UserappsService {
           model: FullProgWorkout,
           include: [{ model: WorkoutProgram }],
         },
-        DietProgram,
+        { model: DietProgram, include: [DietProduct] },
         UserWorkout,
       ],
     });
