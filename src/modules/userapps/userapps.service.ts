@@ -52,15 +52,15 @@ export class UserappsService {
       .map((el) => el.get({ plain: true }));
     let listWithProfile = [];
     for (const app of list) {
-      const coachprofile =
+      const coachProfile =
         app.coachId &&
         (await CoachProfile.findOne({
           where: {
             userId: app.coachId,
           },
         }));
-      coachprofile
-        ? listWithProfile.push({ ...app, coachprofile })
+      coachProfile
+        ? listWithProfile.push({ ...app, coachProfile })
         : listWithProfile.push(app);
     }
     return listWithProfile;
@@ -82,14 +82,14 @@ export class UserappsService {
       ],
     });
     const plainAppData: any = app.get({ plain: true });
-    const coachprofile =
+    const coachProfile =
       plainAppData.coachId &&
       (await CoachProfile.findOne({
         where: {
           userId: plainAppData.coachId,
         },
       }));
-    const returnedData = coachprofile ? { ...app.toJSON(), coachprofile } : app;
+    const returnedData = coachProfile ? { ...app.toJSON(), coachProfile } : app;
     return returnedData;
   }
 

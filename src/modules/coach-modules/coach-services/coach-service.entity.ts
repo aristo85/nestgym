@@ -31,8 +31,8 @@ export class CoachService extends Model<CoachService> {
 
   @ForeignKey(() => CoachProfile)
   @Column
-  coachprofileId: number;
+  coachProfileId: number;
 
   @BelongsTo(() => CoachProfile)
-  coachprofile: CoachProfile;
+  coachProfile: CoachProfile;
 }

@@ -103,7 +103,7 @@ export class CoachProfile extends Model<CoachProfile> {
   user: User;
 
   @HasMany(() => CoachService, {
-    foreignKey: 'coachprofileId',
+    foreignKey: 'coachProfileId',
     onDelete: 'CASCADE',
   })
   coachservices: CoachService[];

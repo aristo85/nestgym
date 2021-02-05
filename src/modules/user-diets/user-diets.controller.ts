@@ -39,12 +39,12 @@ export class UserDietsController {
 
     let listWithProfile = [];
     for (const prog of list) {
-      const coachprofile = await CoachProfile.findOne({
+      const coachProfile = await CoachProfile.findOne({
         where: {
           userId: prog.coachId,
         },
       });
-      listWithProfile.push({ ...prog, coachprofile });
+      listWithProfile.push({ ...prog, coachProfile });
     }
     const count = listWithProfile.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
@@ -81,12 +81,12 @@ export class UserDietsController {
     }
 
     const plainProgData: any = progs.get({ plain: true });
-    const coachprofile = await CoachProfile.findOne({
+    const coachProfile = await CoachProfile.findOne({
       where: {
         userId: plainProgData.coachId,
       },
     });
-    const returnedData = { ...plainProgData, coachprofile };
+    const returnedData = { ...plainProgData, coachProfile };
 
     // if progs exist, return progs
     return returnedData;
