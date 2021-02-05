@@ -31,24 +31,25 @@ export class UserDietsController {
   @Get()
   async findAll(@Request() req) {
     // get all progs in the db and filter it with the array of user ids in clientIds
-    const list = await DietProgram.findAll({
+    const list: any = await DietProgram.findAll({
       where: { userId: req.user.id },
       include: [DietProduct, Userapp],
-    });
-    // let newList = [];
-    // for (const prog of list) {
-    //   // let rawProg: any = prog.get();
-    //   console.log(prog);
-    //   const coachprofile = await CoachProfile.findOne({
-    //     where: { id: prog.coachId },
-    //     include: [CoachService],
-    //   });
-    //   newList.push({ prog, coachprofile });
-    // }
-    const count = list.length;
+    })
+    .map((el) => el.get({ plain: true }));
+
+    let listWithProfile = [];
+    for (const prog of list) {
+      const coachprofile = await CoachProfile.findOne({
+        where: {
+          userId: prog.coachId,
+        },
+      });
+      listWithProfile.push({ ...prog, coachprofile });
+    }
+    const count = listWithProfile.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
-    return list;
+    return listWithProfile;
   }
 
   @ApiResponse({ status: 200 })
@@ -79,7 +80,15 @@ export class UserDietsController {
       throw new NotFoundException("This program doesn't exist");
     }
 
+    const plainProgData: any = progs.get({ plain: true });
+    const coachprofile = await CoachProfile.findOne({
+      where: {
+        userId: plainProgData.coachId,
+      },
+    });
+    const returnedData = { ...plainProgData, coachprofile };
+
     // if progs exist, return progs
-    return progs;
+    return returnedData;
   }
 }
