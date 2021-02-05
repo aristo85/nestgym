@@ -32,29 +32,44 @@ export class UserappsService {
     return { createdUserapp, matches };
   }
 
-  async findAll(user): Promise<Userapp[]> {
+  async findAll(user): Promise<any[]> {
     // check if from admin
     let updateOPtion = user.role === 'admin' ? {} : { userId: user.id };
 
-    const list = await this.userappRepository.findAll<Userapp>({
-      where: updateOPtion,
-      include: [
-        Requestedapp,
-        {
-          model: FullProgWorkout,
-          include: [{ model: WorkoutProgram }],
-        },
-        { model: DietProgram, include: [DietProduct] },
-        UserWorkout,
-      ],
-    });
-    return list;
+    const list: any = await this.userappRepository
+      .findAll<Userapp>({
+        where: updateOPtion,
+        include: [
+          Requestedapp,
+          {
+            model: FullProgWorkout,
+            include: [{ model: WorkoutProgram }],
+          },
+          { model: DietProgram, include: [DietProduct] },
+          UserWorkout,
+        ],
+      })
+      .map((el) => el.get({ plain: true }));
+    let listWithProfile = [];
+    for (const app of list) {
+      const coachprofile =
+        app.coachId &&
+        (await CoachProfile.findOne({
+          where: {
+            userId: app.coachId,
+          },
+        }));
+      coachprofile
+        ? listWithProfile.push({ ...app, coachprofile })
+        : listWithProfile.push(app);
+    }
+    return listWithProfile;
   }
 
-  async findOne(id, user): Promise<Userapp> {
+  async findOne(id, user): Promise<any> {
     // check the role
     let updateOPtion = user.role === 'user' ? { id, userId: user.id } : { id };
-    return await this.userappRepository.findOne({
+    const app = await this.userappRepository.findOne({
       where: updateOPtion,
       include: [
         Requestedapp,
@@ -66,6 +81,16 @@ export class UserappsService {
         UserWorkout,
       ],
     });
+    const plainAppData: any = app.get({ plain: true });
+    const coachprofile =
+      plainAppData.coachId &&
+      (await CoachProfile.findOne({
+        where: {
+          userId: plainAppData.coachId,
+        },
+      }));
+    const returnedData = coachprofile ? { ...app.toJSON(), coachprofile } : app;
+    return returnedData;
   }
 
   async delete(id, user) {
