@@ -10,6 +10,8 @@ services:
       POSTGRES_PASSWORD: getcoach_api
       POSTGRES_USER: getcoach_api
       POSTGRES_DB: getcoach_api
+    ports:
+      - 5432:5432
     restart: always
 
   getcoachapi:
@@ -29,13 +31,15 @@ services:
   getcoachadmin:
     container_name: getcoachadmin
     build: ./getcoachadmin
-    command: npm run start
+    command: npm run start-server
     volumes:
       - ./getcoachadmin:/app
       - /app/node_modules
       - adminbuild:/app/build
     ports:
-      - 6000:6000
+      - 9999:9999
+    env_file:
+      - ./.env
     restart: always
 
   nginx:

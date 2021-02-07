@@ -1,13 +1,47 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  ForeignKey,
+  BelongsTo,
+  HasMany,
+} from 'sequelize-typescript';
 import { User } from 'src/modules/users/user.entity';
+import { CoachService } from '../coach-services/coach-service.entity';
 
+// creating two tables (Coach profiles and coach services)
 @Table
 export class CoachProfile extends Model<CoachProfile> {
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  fullName: string;
+
   @Column({
     type: DataType.ARRAY(DataType.STRING),
     allowNull: false,
   })
   sportTypes: string[];
+
+  @Column({
+    type: DataType.ARRAY(DataType.STRING),
+    allowNull: false,
+  })
+  aim: string[];
+
+  @Column({
+    type: DataType.ARRAY(DataType.STRING),
+    allowNull: false,
+  })
+  place: string[];
+
+  @Column({
+    type: DataType.ARRAY(DataType.STRING),
+    allowNull: false,
+  })
+  serviceTypes: string[];
 
   @Column({
     type: DataType.TEXT,
@@ -44,24 +78,6 @@ export class CoachProfile extends Model<CoachProfile> {
     allowNull: false,
   })
   age: number;
-  
-  @Column({
-    type: DataType.ARRAY(DataType.STRING),
-    allowNull: false,
-  })
-  aim: string[];
-  
-  @Column({
-    type: DataType.ARRAY(DataType.STRING),
-    allowNull: false,
-  })
-  place: string[];
-  
-  @Column({
-    type: DataType.ARRAY(DataType.STRING),
-    allowNull: false,
-  })
-  serviceTypes: string[];
 
   @Column({
     type: DataType.STRING,
@@ -85,4 +101,10 @@ export class CoachProfile extends Model<CoachProfile> {
 
   @BelongsTo(() => User)
   user: User;
+
+  @HasMany(() => CoachService, {
+    foreignKey: 'coachProfileId',
+    onDelete: 'CASCADE',
+  })
+  coachservices: CoachService[];
 }

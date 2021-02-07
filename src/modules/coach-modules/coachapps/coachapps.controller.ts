@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { Requestedapp } from './coachapp.entity';
 import { CoachappsService } from './coachapps.service';
@@ -25,31 +25,51 @@ interface stat {
 @ApiBearerAuth()
 @Controller('coachapps')
 export class CoachappsController {
-  constructor(private readonly coachappappService: CoachappsService) {}
+  constructor(private readonly coachappService: CoachappsService) {}
 
   // request to hire a Trainer
   @ApiTags('ClientRequest-ChosenCoach')
   @UseGuards(AuthGuard('jwt'))
-  @Get(':coachId/:userappId')
+  @Post(':coachId/:userappId')
   async create(
     @Request() req,
-    @Param('coachId') coachId,
-    @Param('userappId') userappId,
-  ): Promise<Requestedapp> {
-    // check if the the application been used
-    let userapp = (await Requestedapp.findOne({ where: { userappId } }))
-    if (userapp) {
-      throw new NotFoundException('this application already active');
+    @Param('coachId') coachId: number,
+    @Param('userappId') userappId: number,
+  ): Promise<any> {
+    const app = await this.coachappService.findApp(userappId, req.user.id);
+    if (!app) {
+      throw new NotFoundException('application not found');
+    }
+
+    // check if client requested this coach before
+    const myCoaches = await Requestedapp.findOne({
+      where: { coachId, userappId },
+    });
+    if (myCoaches) {
+      throw new NotFoundException('you have requested this coach already!');
+    }
+    // check if number of requested applications exseeded maximum
+    const myRequests = await Requestedapp.findAll({
+      where: { userappId },
+    });
+    if (myRequests.length >= 3) {
+      throw new NotFoundException(
+        'number of app requests are exseeded, 3 maximum',
+      );
     }
     // create a new apps and return the newly created apps
-    return await this.coachappappService.create(
-      req.user.id,
-      coachId,
-      userappId,
-    );
+    let createdRequest = (
+      await this.coachappService.create(req.user.id, coachId, userappId)
+    ).get();
+
+    const returnedData = {
+      ...createdRequest,
+      requestLeft: 2 - myRequests.length,
+    };
+    return returnedData;
   }
 
-  // get all requestedapps(offers) of a triner
+  // get all requestedapps(offers) of a trainer
   @ApiTags('CoachApps')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
@@ -62,7 +82,7 @@ export class CoachappsController {
       );
     }
     // get all apps in the db
-    const list = await this.coachappappService.findAll(req.user);
+    const list = await this.coachappService.findAll(req.user);
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -70,20 +90,39 @@ export class CoachappsController {
   }
 
   //
-  @ApiTags('CoachResponse-Accept/Reject/Coment-app')
+  @ApiTags('CoachResponse-(Accept, Reject) Application')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Put(':userappId')
   async update(
     @Param('userappId') userappId: number,
 
-@Body() data: CoachAnswerDto,
+    @Body() data: CoachAnswerDto,
     @Request() req,
   ): Promise<updData> {
+    // check the role
+    if (req.user.role === 'user') {
+      throw new NotFoundException(
+        "your role is 'user', users dont have access to coaches info.! ",
+      );
+    }
+    // check userappId
+    const myRequest = await Requestedapp.findOne({
+      where: {
+        coachId: req.user.id,
+        userappId,
+      },
+    });
+    if (!myRequest) {
+      throw new NotFoundException(
+        'You dont have a request with this application',
+      );
+    }
     // get the number of row affected and the updated userapp
-    const userapp: updData = await this.coachappappService.update(
+    const userapp: updData = await this.coachappService.update(
       userappId,
       data.status,
+      req.user,
     );
 
     // return the updated app

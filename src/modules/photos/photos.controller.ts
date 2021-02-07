@@ -10,8 +10,10 @@ import {
   UseGuards,
   Request,
   Req,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PhotoDto } from './dto/photo.dto';
 import { Photo } from './photo.entity';
@@ -34,7 +36,7 @@ export class PhotosController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  async findOne(@Param('id') id: number,  @Req() req): Promise<Photo> {
+  async findOne(@Param('id') id: number, @Req() req): Promise<Photo> {
     // find the photo with this id
     const photo = await this.photoService.findOne(id, req.user.id);
 
@@ -49,13 +51,16 @@ export class PhotosController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  async create(@Body() photo: PhotoDto, @Request() req): Promise<Photo> {
+  async create(@Body() data: PhotoDto, @Request() req): Promise<string[]> {
     // check the role
-    if(req.user.role !== "user"){
+    if (req.user.role !== 'user') {
       throw new NotFoundException('Your role is not a user');
     }
+    // if (photos) {
+    //   console.log(photos);
+    // }
     // create a new photo and return the newly created photo
-    return await this.photoService.create(photo, req.user.id);
+    return await this.photoService.create(data, req.user.id);
   }
 
   @UseGuards(AuthGuard('jwt'))

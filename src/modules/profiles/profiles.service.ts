@@ -15,7 +15,25 @@ export class ProfilesService {
     return await this.profileRepository.create<Profile>({ ...profile, userId });
   }
 
-  async findOne(userId): Promise<Profile> {
+  async findAll(user): Promise<Profile[]> {
+    // check if from admin
+    let updateOPtion = user.role === 'admin' ? {} : { userId: user.id };
+
+    const list = await this.profileRepository.findAll<Profile>({
+      where: updateOPtion,
+    });
+    return list;
+  }
+
+  async findOne(id, user): Promise<Profile> {
+    // check the role
+    let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
+    return await this.profileRepository.findOne({
+      where: updateOPtion,
+    });
+  }
+
+  async findMyProfile(userId): Promise<Profile> {
     return await this.profileRepository.findOne({
       where: { userId },
     });

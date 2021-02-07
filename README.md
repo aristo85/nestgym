@@ -58,6 +58,35 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+### GitLab CI
+
+- Получаем приватный ключ и копируем его в буфер
+
+```bash
+ssh-keygen -f ~/.ssh/id_rsa
+
+
+cat ~/.ssh/id_rsa
+```
+
+- Добавляем ключ на сервер
+
+```bash
+ssh-copy-id root@myenergy.stream
+```
+
+- Устанавливаем переменные окружения в gitlab `Settings -> CL/CD -> Variables`
+
+- `HOST` - адрес сервера (root@**myenergy.stream**)
+- `USER` - имя пользователя (**root**@myenergy.stream)
+- `SSH_PRIVATE_KEY` - приватный ключ, результат `cat ~/.ssh/id_rsa`
+
+### Получаем подмодули
+
+```bash
+git submodule init && git submodule update
+```
+
 ### Docker
 
 * Установить docker:
@@ -65,6 +94,10 @@ $ npm run test:cov
 
 * Установить docker-compose:
     https://docs.docker.com/compose/install/
+
+```bash
+  chmod +x install-docker.sh && ./install-docker.sh
+  ```
 
 * Запускам контейнеры:
 

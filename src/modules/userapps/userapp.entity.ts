@@ -3,12 +3,15 @@ import {
   Column,
   Model,
   DataType,
-  ForeignKey,
-  BelongsTo,
   HasMany,
+  HasOne,
+  ForeignKey,
 } from 'sequelize-typescript';
-import { User } from '../users/user.entity';
-import { Photo } from '../photos/photo.entity';
+import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
+import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
+import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
+import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
+import { UserWorkout } from '../user-workouts/user-workout.entity';
 
 @Table
 export class Userapp extends Model<Userapp> {
@@ -45,31 +48,31 @@ export class Userapp extends Model<Userapp> {
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    // allowNull: false,
   })
   equipments: string;
 
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
+    // allowNull: false,
   })
   priceMax: number;
 
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
+    // allowNull: false,
   })
   priceMin: number;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    // allowNull: false,
   })
   healthIssue: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    // allowNull: false,
   })
   coment: string;
 
@@ -78,4 +81,29 @@ export class Userapp extends Model<Userapp> {
     // allowNull: false,
   })
   status: string;
+
+  @HasMany(() => Requestedapp, { foreignKey: 'userappId', onDelete: 'CASCADE' })
+  requestedapps: Requestedapp[];
+
+  @HasMany(() => FullProgWorkout, {
+    foreignKey: 'userappId',
+    onDelete: 'CASCADE',
+  })
+  fullprogworkouts: FullProgWorkout[];
+
+  @HasMany(() => UserWorkout, 'userappId')
+  userworkouts: UserWorkout[];
+
+  @HasMany(() => DietProgram, {
+    foreignKey: 'userappId',
+    onDelete: 'CASCADE',
+  })
+  dietprograms: DietProgram[];
+
+  @ForeignKey(() => CoachProfile)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  coachId: number;
 }
