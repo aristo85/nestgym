@@ -11,7 +11,6 @@ import {
   Request,
   Req,
   UseInterceptors,
-  UploadedFile,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -19,22 +18,6 @@ import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PhotoDto } from './dto/photo.dto';
 import { Photo } from './photo.entity';
 import { PhotosService } from './photos.service';
-import { diskStorage } from 'multer';
-import path = require('path');
-import { v4 as uuidv4 } from 'uuid';
-
-export const storage = {
-  storage: diskStorage({
-    destination: './uploads/profileimages',
-    filename: (req, file, cb) => {
-      const filename: string =
-        path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
-      const extension: string = path.parse(file.originalname).ext;
-
-      cb(null, `${filename}${extension}`);
-    },
-  }),
-};
 
 @ApiTags('Photo')
 @ApiBearerAuth()
@@ -68,25 +51,16 @@ export class PhotosController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  @UseInterceptors(FileInterceptor('file', storage))
-  // uploadFile(@UploadedFile() file, @Request() req): Observable<Object> {
-  //     const user: User = req.user;
-
-  //     return this.userService.updateOne(user.id, {profileImage: file.filename}).pipe(
-  //         tap((user: User) => console.log(user)),
-  //         map((user:User) => ({profileImage: user.profileImage}))
-  //     )
-  // }
-  async create(@Body() photo: PhotoDto, @Request() req): Promise<Photo> {
+  async create(@Body() data: PhotoDto, @Request() req): Promise<string[]> {
     // check the role
     if (req.user.role !== 'user') {
       throw new NotFoundException('Your role is not a user');
     }
-    if (photo) {
-      console.log(photo);
-    }
+    // if (photos) {
+    //   console.log(photos);
+    // }
     // create a new photo and return the newly created photo
-    return await this.photoService.create(photo, req.user.id);
+    return await this.photoService.create(data, req.user.id);
   }
 
   @UseGuards(AuthGuard('jwt'))

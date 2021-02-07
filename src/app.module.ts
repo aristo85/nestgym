@@ -26,6 +26,8 @@ import { TemplateDietsModule } from './modules/coach-modules/template-diets/temp
 import { ServicesModule } from './modules/services/services.module';
 import { PublicationsModule } from './modules/publications/publications.module';
 import { FeedbacksModule } from './modules/feedbacks/feedbacks.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -54,6 +56,10 @@ import { FeedbacksModule } from './modules/feedbacks/feedbacks.module';
     ServicesModule,
     PublicationsModule,
     FeedbacksModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'images'),
+      exclude: ['/api/gym*'],
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
