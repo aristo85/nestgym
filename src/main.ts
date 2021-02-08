@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
 import { AimsModule } from './modules/aims/aims.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -63,6 +64,8 @@ async function bootstrap() {
     ],
   });
   SwaggerModule.setup('api', app, document);
+  app.use(json({ limit: '100mb' }));
+  app.use(urlencoded({ extended: true, limit: '100mb' }));
 
   app.enableCors();
   await app.listen(process.env.PORT || 3000);

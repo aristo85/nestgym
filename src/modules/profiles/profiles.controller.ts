@@ -8,10 +8,13 @@ import {
   UseGuards,
   Request,
   Post,
+  Delete,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ProfileDto } from './dto/profile.dto';
+import { PhotoDto } from '../photos/dto/photo.dto';
+import { Photo } from '../photos/photo.entity';
+import { ProfileDto, ProfileUpdateDto } from './dto/profile.dto';
 import { Profile } from './profile.entity';
 import { ProfilesService } from './profiles.service';
 
@@ -95,7 +98,7 @@ export class ProfilesController {
   @Put(':id')
   async update(
     @Param('id') id: number,
-    @Body() profile: ProfileDto,
+    @Body() profile: ProfileUpdateDto,
     @Request() req,
   ): Promise<Profile> {
     // get the number of row affected and the updated profile
@@ -112,5 +115,64 @@ export class ProfilesController {
 
     // return the updated profile
     return updatedProfile;
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('photoprofile')
+  async addPhoto(@Body() data: PhotoDto, @Request() req): Promise<string[]> {
+    // check the role
+    if (req.user.role !== 'user') {
+      throw new NotFoundException('Your role is not a user');
+    }
+
+    const profile = await Profile.findOne({ where: { userId: req.user.id } });
+
+    // create a new profile and return the newly created profile
+    return await this.profileServise.addPhoto(data, req.user.id, {
+      profileId: profile.id,
+    });
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete('photoprofile/:id')
+  async deletePhoto(@Param('id') id: number, @Request() req) {
+    const photo: any = await Photo.findOne<Photo>({ where: { id } });
+    if (!photo) {
+      throw new NotFoundException("This photo doesn't exist");
+    }
+    const plainPhoto = photo.get({ plain: true });
+    // delete the photo with this id
+    const deleted = await this.profileServise.deletePhoto(
+      id,
+      req.user.id,
+      plainPhoto.photo,
+    );
+
+    // if the number of row affected is zero,
+    // then the photo doesn't exist in our db
+    if (deleted === 0) {
+      throw new NotFoundException("This photo doesn't exist");
+    }
+
+    // return success message
+    return 'Successfully deleted';
+  }
+  // ////////////TEST
+  @UseGuards(AuthGuard('jwt'))
+  @Delete(':id')
+  async remove(@Param('id') id: number, @Request() req) {
+    // delete the app with this id
+    const deleted = await Profile.destroy({
+      where: { id, userId: req.user.id },
+    });
+
+    // if the number of row affected is zero,
+    // then the app doesn't exist in our db
+    if (deleted === 0) {
+      throw new NotFoundException("This app doesn't exist");
+    }
+
+    // return success message
+    return 'Successfully deleted';
   }
 }
