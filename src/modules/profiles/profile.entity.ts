@@ -5,7 +5,9 @@ import {
   DataType,
   BelongsTo,
   ForeignKey,
+  HasMany,
 } from 'sequelize-typescript';
+import { Photo } from '../photos/photo.entity';
 import { User } from '../users/user.entity';
 
 @Table
@@ -50,4 +52,7 @@ export class Profile extends Model<Profile> {
 
   @BelongsTo(() => User)
   user: User;
+
+  @HasMany(() => Photo, 'profileId')
+  photos: Photo[];
 }

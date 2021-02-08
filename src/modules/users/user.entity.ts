@@ -58,8 +58,8 @@ export class User extends Model<User> {
   @HasOne(() => Profile, 'userId')
   profile: Profile;
 
-  @HasOne(() => CoachProfile, 'coachId')
-  coachprofile: CoachProfile;
+  @HasOne(() => CoachProfile, 'userId')
+  coachProfile: CoachProfile;
 
   @HasMany(() => Userapp, 'userId')
   userapps: Userapp[];

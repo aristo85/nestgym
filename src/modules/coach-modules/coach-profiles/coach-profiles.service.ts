@@ -98,7 +98,7 @@ export class CoachProfilesService {
     const { coachservices, ...other } = data;
     await CoachService.destroy({
       where: {
-        coachprofileId: id,
+        coachProfileId: id,
       },
     });
     await this.coachServiceService.create(coachservices, user.id, id);

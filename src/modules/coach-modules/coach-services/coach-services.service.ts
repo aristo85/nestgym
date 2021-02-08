@@ -13,7 +13,7 @@ export class CoachServicesService {
   async create(
     servicelist: CoachServiceDto[],
     userId,
-    coachprofileId,
+    coachProfileId,
   ): Promise<CoachService[]> {
     let newList = [];
     for (const serv of servicelist) {
@@ -21,7 +21,7 @@ export class CoachServicesService {
         {
           ...serv,
           userId,
-          coachprofileId,
+          coachProfileId,
         },
       );
       newList.push(newService);

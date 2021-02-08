@@ -3,6 +3,7 @@ import { APPLICATION_REPOSITORY } from 'src/core/constants';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
 import { CoachService } from '../coach-modules/coach-services/coach-service.entity';
 import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
+import { DietProduct } from '../coach-modules/dietproducts/dietproduct.entity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
 import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
@@ -31,29 +32,44 @@ export class UserappsService {
     return { createdUserapp, matches };
   }
 
-  async findAll(user): Promise<Userapp[]> {
+  async findAll(user): Promise<any[]> {
     // check if from admin
     let updateOPtion = user.role === 'admin' ? {} : { userId: user.id };
 
-    const list = await this.userappRepository.findAll<Userapp>({
-      where: updateOPtion,
-      include: [
-        Requestedapp,
-        {
-          model: FullProgWorkout,
-          include: [{ model: WorkoutProgram }],
-        },
-        DietProgram,
-        UserWorkout,
-      ],
-    });
-    return list;
+    const list: any = await this.userappRepository
+      .findAll<Userapp>({
+        where: updateOPtion,
+        include: [
+          Requestedapp,
+          {
+            model: FullProgWorkout,
+            include: [{ model: WorkoutProgram }],
+          },
+          { model: DietProgram, include: [DietProduct] },
+          UserWorkout,
+        ],
+      })
+      .map((el) => el.get({ plain: true }));
+    let listWithProfile = [];
+    for (const app of list) {
+      const coachProfile =
+        app.coachId &&
+        (await CoachProfile.findOne({
+          where: {
+            userId: app.coachId,
+          },
+        }));
+      coachProfile
+        ? listWithProfile.push({ ...app, coachProfile })
+        : listWithProfile.push(app);
+    }
+    return listWithProfile;
   }
 
-  async findOne(id, user): Promise<Userapp> {
+  async findOne(id, user): Promise<any> {
     // check the role
     let updateOPtion = user.role === 'user' ? { id, userId: user.id } : { id };
-    return await this.userappRepository.findOne({
+    const app = await this.userappRepository.findOne({
       where: updateOPtion,
       include: [
         Requestedapp,
@@ -61,10 +77,20 @@ export class UserappsService {
           model: FullProgWorkout,
           include: [{ model: WorkoutProgram }],
         },
-        DietProgram,
+        { model: DietProgram, include: [DietProduct] },
         UserWorkout,
       ],
     });
+    const plainAppData: any = app.get({ plain: true });
+    const coachProfile =
+      plainAppData.coachId &&
+      (await CoachProfile.findOne({
+        where: {
+          userId: plainAppData.coachId,
+        },
+      }));
+    const returnedData = coachProfile ? { ...app.toJSON(), coachProfile } : app;
+    return returnedData;
   }
 
   async delete(id, user) {
