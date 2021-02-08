@@ -11,8 +11,8 @@ import { User } from '../users/user.entity';
 @Table
 export class Photo extends Model<Photo> {
   @Column({
-    // type: DataType.TEXT,
+    type: DataType.TEXT,
     // allowNull: false,
   })
-  photoPath: string;
+  photo: string;
 }

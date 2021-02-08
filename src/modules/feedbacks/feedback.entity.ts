@@ -5,8 +5,10 @@ import {
   DataType,
   BelongsTo,
   ForeignKey,
+  HasMany,
 } from 'sequelize-typescript';
 import { User } from 'src/modules/users/user.entity';
+import { Photo } from '../photos/photo.entity';
 
 @Table
 export class Feedback extends Model<Feedback> {
@@ -41,4 +43,7 @@ export class Feedback extends Model<Feedback> {
   @BelongsTo(() => User)
   user: User;
   //
+
+  @HasMany(() => Photo, 'feedbackId')
+  photos: Photo[];
 }

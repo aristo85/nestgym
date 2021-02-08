@@ -4,5 +4,5 @@ import { ApiProperty } from '@nestjs/swagger';
 export class PhotoDto {
   @ApiProperty()
   @IsNotEmpty()
-  readonly photoPathes: string[];
+  readonly photo: string[];
 }

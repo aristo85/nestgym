@@ -12,6 +12,7 @@ import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.enti
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { UserWorkout } from '../user-workouts/user-workout.entity';
+import { Photo } from '../photos/photo.entity';
 
 @Table
 export class Userapp extends Model<Userapp> {
@@ -106,4 +107,7 @@ export class Userapp extends Model<Userapp> {
     allowNull: true,
   })
   coachId: number;
+
+  @HasMany(() => Photo, 'userappId')
+  photos: Photo[];
 }

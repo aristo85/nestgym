@@ -1,4 +1,5 @@
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
+import { Photo } from '../photos/photo.entity';
 
 @Table
 export class UserProgress extends Model<UserProgress> {
@@ -38,4 +39,7 @@ export class UserProgress extends Model<UserProgress> {
   })
   calf: number;
   //
+  
+  @HasMany(() => Photo, 'progressId')
+  photos: Photo[];
 }
