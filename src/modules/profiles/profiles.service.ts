@@ -17,46 +17,87 @@ export class ProfilesService {
   async create(profile: ProfileDto, userId): Promise<Profile> {
     // create profile first
     const { photos, ...others } = profile;
-    const newProfile = await this.profileRepository.create<Profile>({
-      ...others,
-      userId,
-    });
-    // create photos
-    await this.photoService.create({ photo: photos }, userId, {
-      profileId: newProfile.id,
-    });
-    // return created profile with photos
-    return await Profile.findOne({
-      where: { id: newProfile.id },
-      include: [Photo],
-    });
+    const newProfile: any = (
+      await this.profileRepository.create<Profile>({
+        ...others,
+        userId,
+      })
+    ).get({ plain: true });
+    // create photos if any
+    if (photos.length > 0) {
+      const createdList = await this.photoService.create(
+        { photo: photos },
+        userId,
+        {
+          profileId: newProfile.id,
+        },
+      );
+      // // find the profile just created
+      // const createdProfile: any = (
+      //   await Profile.findOne({
+      //     where: { id: newProfile.id },
+      //   })
+      // ).get({ plain: true });
+      // return created profile with photos
+      return { ...newProfile, photos: createdList };
+    } else {
+      // return created profile
+      return { ...newProfile, photos: [] };
+    }
   }
 
   async findAll(user): Promise<Profile[]> {
     // check if from admin
     let updateOPtion = user.role === 'admin' ? {} : { userId: user.id };
 
-    const list = await this.profileRepository.findAll<Profile>({
-      where: updateOPtion,
-      include: [Photo],
-    });
-    return list;
+    const list: any = await this.profileRepository
+      .findAll<Profile>({
+        where: updateOPtion,
+      })
+      .map((el) => el.get({ plain: true }));
+    // get all photos with exact urls for each profile
+    const returnedList = [];
+    if (list.length > 0) {
+      for (const prof of list) {
+        // find all photos for this profile
+        const photo = await this.photoService.findAll({ profileId: prof.id });
+        returnedList.push({ ...prof, photos: photo });
+      }
+    }
+
+    return returnedList;
   }
 
   async findOne(id, user): Promise<Profile> {
     // check the role
     let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
-    return await this.profileRepository.findOne({
+    const prof = await this.profileRepository.findOne({
       where: updateOPtion,
-      include: [Photo],
     });
+    if (prof) {
+      const plainProf: any = prof.get({ plain: true });
+      const photo = await this.photoService.findAll({
+        profileId: plainProf.id,
+      });
+      return { ...plainProf, photos: photo };
+    } else {
+      return prof;
+    }
   }
 
   async findMyProfile(userId): Promise<Profile> {
-    return await this.profileRepository.findOne({
+    const prof = await this.profileRepository.findOne({
       where: { userId },
-      include: [Photo],
     });
+    if (prof) {
+      const plainProf: any = prof.get({ plain: true });
+      const photo = await this.photoService.findAll({
+        profileId: plainProf.id,
+      });
+      return { ...plainProf, photos: photo };
+    } else {
+      return prof;
+    }
   }
 
   async update(id, data, userId) {

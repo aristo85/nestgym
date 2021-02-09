@@ -13,6 +13,8 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { PhotoDto } from '../photos/dto/photo.dto';
+import { Photo } from '../photos/photo.entity';
 import { UserappDto } from './userapp.dto';
 import { Userapp } from './userapp.entity';
 import { createPromise, UserappsService } from './userapps.service';
@@ -21,6 +23,22 @@ import { createPromise, UserappsService } from './userapps.service';
 @Controller('userapps')
 export class UserappsController {
   constructor(private readonly userappService: UserappsService) {}
+
+  
+  @ApiTags('Client-Application')
+  @UseGuards(AuthGuard('jwt'))
+  @Post()
+  async create(
+    @Body() userapp: UserappDto,
+    @Request() req,
+  ): Promise<createPromise> {
+    // check the role
+    if (req.user.role !== 'user') {
+      throw new NotFoundException('Your role is not a user');
+    }
+    // create a new apps and return the newly created apps
+    return await this.userappService.create(userapp, req.user.id);
+  }
 
   @ApiTags('Client-Application')
   @ApiResponse({ status: 200 })
@@ -50,21 +68,6 @@ export class UserappsController {
 
     // if apps exist, return apps
     return apps;
-  }
-
-  @ApiTags('Client-Application')
-  @UseGuards(AuthGuard('jwt'))
-  @Post()
-  async create(
-    @Body() userapp: UserappDto,
-    @Request() req,
-  ): Promise<createPromise> {
-    // check the role
-    if (req.user.role !== 'user') {
-      throw new NotFoundException('Your role is not a user');
-    }
-    // create a new apps and return the newly created apps
-    return await this.userappService.create(userapp, req.user.id);
   }
 
   @ApiTags('Client-Application')
@@ -132,6 +135,50 @@ export class UserappsController {
     return list;
   }
 
+// photos
+  // 
+  @ApiTags('Client-Application')
+  @UseGuards(AuthGuard('jwt'))
+  @Post('photoapp')
+  async addPhoto(@Body() photoData: PhotoDto, @Request() req): Promise<string[]> {
+    // check the role
+    if (req.user.role !== 'user') {
+      throw new NotFoundException('Your role is not a user');
+    }
+
+    const userapp = await Userapp.findOne({ where: { userId: req.user.id } });
+
+    // create a new userapp and return the newly created userapp
+    return await this.userappService.addPhoto(photoData, req.user.id, {
+      userappId: userapp.id,
+    });
+  }
+
+  @ApiTags('Client-Application')
+  @UseGuards(AuthGuard('jwt'))
+  @Delete('photoapp/:id')
+  async deletePhoto(@Param('id') id: number, @Request() req) {
+    const photo: any = await Photo.findOne<Photo>({ where: { id } });
+    if (!photo) {
+      throw new NotFoundException("This photo doesn't exist");
+    }
+    const plainPhoto = photo.get({ plain: true });
+    // delete the photo with this id
+    const deleted = await this.userappService.deletePhoto(
+      id,
+      req.user.id,
+      plainPhoto.photo,
+    );
+
+    // if the number of row affected is zero,
+    // then the photo doesn't exist in our db
+    if (deleted === 0) {
+      throw new NotFoundException("This photo doesn't exist");
+    }
+
+    // return success message
+    return 'Successfully deleted';
+  }
   // @ApiResponse({ status: 200 })
   // @UseGuards(AuthGuard('jwt'))
   // @Get('allapps')
