@@ -27,18 +27,13 @@ export class PhotosController {
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@Req() req): Promise<any> {
-    // get all photos of one user in the db
-    const list: any = (await this.photoService.findAll(req.user.id)).map((el) =>
-      el.get({ plain: true }),
-    );
-
-    const returnedList = [];
-    for (const el of list) {
-      const photo = `https://${process.env.DOMAIN_NAME}/${el.photo}`;
-      returnedList.push({ ...el, photo });
+    if(req.user.role !== "admin"){
+      throw new NotFoundException("only admin");
     }
-
-    return returnedList;
+    // get all photos of one user in the db
+    const list: any = (await this.photoService.findAll({})
+    );
+    return list;
   }
 
   @ApiResponse({ status: 200 })
@@ -52,12 +47,9 @@ export class PhotosController {
     if (!photo) {
       throw new NotFoundException("This photo doesn't exist");
     }
-    const plainData: any = photo.get({ plain: true });
-    const photoPath = `https://${process.env.DOMAIN_NAME}/${plainData.photo}`;
-    const retrunData = { ...plainData, photo: photoPath };
-
+    
     // if photo exist, return the photo
-    return retrunData;
+    return photo;
   }
 
   @UseGuards(AuthGuard('jwt'))

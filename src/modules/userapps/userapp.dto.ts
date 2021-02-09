@@ -44,4 +44,8 @@ export class UserappDto {
 
   @ApiProperty()
   readonly status: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly photos: string[];
 }
