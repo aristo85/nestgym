@@ -58,6 +58,7 @@ export class UserappsController {
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(@Param('id') id: number, @Req() req): Promise<Userapp> {
+    console.log(req)
     // find the apps with this id
     const apps = await this.userappService.findOne(id, req.user);
 
