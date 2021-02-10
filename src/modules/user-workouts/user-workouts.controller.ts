@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -11,6 +12,8 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import * as moment from 'moment';
+import { where } from 'sequelize';
 import { Op } from 'sequelize';
 import { DietProduct } from '../coach-modules/dietproducts/dietproduct.entity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
@@ -26,6 +29,37 @@ import { UserWorkoutsService } from './user-workouts.service';
 @Controller('user-workouts')
 export class UserWorkoutsController {
   constructor(private readonly userWorkoutService: UserWorkoutsService) {}
+
+  // updating workout weight
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Post(':fullprogworkoutId')
+  async create(
+    @Param('fullprogworkoutId') fullprogworkoutId: number,
+    @Body() data: UserWorkoutDto,
+    @Request() req,
+  ): Promise<FullProgWorkout> {
+    // check id
+    const prog: any = (
+      await FullProgWorkout.findOne({
+        where: { id: fullprogworkoutId, userId: req.user.id },
+      })
+    )?.get({ plain: true });
+    // if the prog doesn't exit in the db, throw a 404 error
+    if (!prog) {
+      throw new NotFoundException(
+        "This program doesn't exist, or not your program",
+      );
+    }
+
+    // return the created workouts
+    return await this.userWorkoutService.create(
+      data,
+      fullprogworkoutId,
+      req.user,
+      prog.userappId,
+    );
+  }
 
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
@@ -85,34 +119,20 @@ export class UserWorkoutsController {
     return apps;
   }
 
-  // updating workout weight
-  @ApiResponse({ status: 200 })
-  @UseGuards(AuthGuard('jwt'))
-  @Post(':fullprogworkoutId')
-  async create(
-    @Param('fullprogworkoutId') fullprogworkoutId: number,
-    @Body() data: UserWorkoutDto,
-    @Request() req,
-  ): Promise<FullProgWorkout> {
-    // check id
-    const prog: any = (
-      await FullProgWorkout.findOne({
-        where: { id: fullprogworkoutId, userId: req.user.id },
-      })
-    ).get();
-    // if the prog doesn't exit in the db, throw a 404 error
-    if (!prog) {
-      throw new NotFoundException(
-        "This program doesn't exist, or not your program",
-      );
-    }
+  // // ////////TEST
+  // @UseGuards(AuthGuard('jwt'))
+  // @Delete(':id')
+  // async remove(@Param('id') id: number, @Request() req) {
+  //   // delete the app with this id
+  //   const deleted = await UserWorkout.destroy({ where: { id } });
 
-    // return the created workouts
-    return await this.userWorkoutService.create(
-      data,
-      fullprogworkoutId,
-      req.user,
-      prog.userappId,
-    );
-  }
+  //   // if the number of row affected is zero,
+  //   // then the app doesn't exist in our db
+  //   if (deleted === 0) {
+  //     throw new NotFoundException("This app doesn't exist");
+  //   }
+
+  //   // return success message
+  //   return 'Successfully deleted';
+  // }
 }

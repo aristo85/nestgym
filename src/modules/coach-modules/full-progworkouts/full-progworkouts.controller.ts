@@ -92,13 +92,18 @@ export class FullProgworkoutsController {
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(@Param('id') id: number, @Request() req) {
+    // check id
+    const prog = await this.fullProgworkoutService.findOne(id, req.user);
+    if (!prog) {
+      throw new NotFoundException("This program doesn't exist or you are a user");
+    }
     // delete the app with this id
     const deleted = await this.fullProgworkoutService.delete(id, req.user.id);
 
     // if the number of row affected is zero,
     // then the app doesn't exist in our db
     if (deleted === 0) {
-      throw new NotFoundException("This app doesn't exist");
+      throw new NotFoundException("This program doesn't exist");
     }
 
     // return success message

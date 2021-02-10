@@ -56,7 +56,7 @@ export class FullProgworkoutsService {
   async findOne(id, user): Promise<FullProgWorkout> {
     // check the role
     let updateOPtion =
-      user.role === 'trainer' ? { id, coachId: user.id } : { id };
+      user.role === 'admin' ? { id } : { id, coachId: user.id };
     return await this.fullProgworkoutRepository.findOne({
       where: updateOPtion,
       include: [{ model: WorkoutProgram, include: [UserWorkout] }],
@@ -70,8 +70,10 @@ export class FullProgworkoutsService {
   }
 
   async update(id, data, userId) {
-    // delete the products for this program
+    // delete the workout-programs for this program
     await WorkoutProgram.destroy({ where: { fullprogworkoutId: id } });
+    // delete user records too
+    await UserWorkout.destroy({ where: { fullprogworkoutId: id } });
     // recreate products for this program
     const { programs, ...other } = data;
     for (const product of programs) {
