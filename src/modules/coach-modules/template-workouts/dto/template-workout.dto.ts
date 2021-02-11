@@ -7,13 +7,15 @@ export interface WorkoutProg {
   reps: number;
   value: number;
   dayNumber: number;
-  coment: string;
 }
 
 export class TemplateWorkoutDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly title: string;
+
+  @ApiProperty()
+  readonly workoutsPerWeek: number;
 
   @ApiProperty({
     description: ` example: [
@@ -23,7 +25,6 @@ export class TemplateWorkoutDto {
         reps: number,
         value: number,
         dayNumber: number,
-        coment: string,
     }, ...
   ]`,
 
@@ -41,6 +42,9 @@ export class TemplateWorkoutUpdateDto {
   @IsNotEmpty()
   readonly title: string;
 
+  @ApiProperty()
+  readonly workoutsPerWeek: number;
+
   @ApiProperty({
     description: ` example: [
     {
@@ -49,7 +53,6 @@ export class TemplateWorkoutUpdateDto {
         reps: number,
         value: number,
         dayNumber: number,
-        coment: string,
     }, ...
   ]`,
 

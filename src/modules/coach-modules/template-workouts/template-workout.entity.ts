@@ -7,7 +7,13 @@ export class TemplateWorkout extends Model<TemplateWorkout> {
     type: DataType.STRING,
     allowNull: false,
   })
+
   title: string;
+  @Column({
+    type: DataType.STRING,
+    // allowNull: false,
+  })
+  workoutsPerWeek: number;
 
   //
   @HasMany(() => WorkoutProgram, {

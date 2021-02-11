@@ -73,6 +73,10 @@ export class TemplateDietsController {
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(@Param('id') id: number, @Request() req) {
+     // check the role
+     if (req.user.role === 'user') {
+      throw new NotFoundException('Your role is not a trainer');
+    }
     // delete the app with this id
     const deleted = await this.templateDietService.delete(id, req.user.id);
 
@@ -94,7 +98,11 @@ export class TemplateDietsController {
     @Body() data: TemplateDietUpdateDto,
     @Request() req,
   ): Promise<TemplateDiet> {
+    // check the role
+    if (req.user.role === 'user') {
+      throw new NotFoundException('Your role is not a trainer');
+    }
     // get the number of row affected and the updated Prog
-    return await this.templateDietService.update(id, data, req.user.id);
+    return await this.templateDietService.update(id, data, req.user);
   }
 }

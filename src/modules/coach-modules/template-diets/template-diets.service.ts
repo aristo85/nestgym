@@ -16,12 +16,10 @@ export class TemplateDietsService {
   async create(data: TemplateDietDto, userId): Promise<any> {
     // creating the template program
     const { programs, ...other } = data;
-    const template = await this.templateDietRepository.create<TemplateDiet>(
-      {
-        ...other,
-        coachId: userId,
-      },
-    );
+    const template = await this.templateDietRepository.create<TemplateDiet>({
+      ...other,
+      coachId: userId,
+    });
     // creating product in dietproduct table
     let listProgs = [];
     for (const product of data.programs) {
@@ -56,7 +54,7 @@ export class TemplateDietsService {
   async findOne(id, user): Promise<TemplateDiet> {
     // check the role
     let updateOPtion =
-      user.role === 'trainer' ? { id, coachId: user.id } : { id };
+      user.role === 'admin' ? { id } : { id, coachId: user.id };
     return await this.templateDietRepository.findOne({
       where: updateOPtion,
       include: [DietProduct],
@@ -64,13 +62,13 @@ export class TemplateDietsService {
   }
 
   async delete(id, coachId) {
-    // const workouts = await DietProduct.findAll({where: {
-    //   templateworkoutId: id
-    // }})
-    return await this.templateDietRepository.destroy({ where: { id, coachId } });
+    return await this.templateDietRepository.destroy({
+      where: { id, coachId },
+    });
   }
 
-  async update(id, data, userId) {
+  async update(id, data, user) {
+    let updateOPtion = user.role === 'admin' ? { id } : { id, coachId: user.id };
     // delete the products for this program
     await DietProduct.destroy({ where: { templateDietId: id } });
     // recreate products for this program
@@ -81,7 +79,7 @@ export class TemplateDietsService {
     // update the program
     await this.templateDietRepository.update(
       { ...other },
-      { where: { id }, returning: true },
+      { where: updateOPtion, returning: true },
     );
     // return the updated program with dietProducts
     return await this.templateDietRepository.findOne({
