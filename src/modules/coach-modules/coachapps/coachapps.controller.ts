@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   Request,
   UseGuards,
@@ -23,7 +24,7 @@ interface stat {
 }
 
 @ApiBearerAuth()
-@Controller('coachapps')
+@Controller('coach-requests')
 export class CoachappsController {
   constructor(private readonly coachappService: CoachappsService) {}
 
@@ -70,7 +71,7 @@ export class CoachappsController {
   }
 
   // get all requestedapps(offers) of a trainer
-  @ApiTags('CoachApps')
+  @ApiTags('CoachRequests')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
@@ -83,6 +84,27 @@ export class CoachappsController {
     }
     // get all apps in the db
     const list = await this.coachappService.findAll(req.user);
+    const count = list.length;
+    req.res.set('Access-Control-Expose-Headers', 'Content-Range');
+    req.res.set('Content-Range', `0-${count}/${count}`);
+    return list;
+  }
+
+  // get all requestedapps(offers) by query
+  @ApiTags('CoachRequests')
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Get('query')
+  async findByQuery(@Query() query, @Req() req) {
+    console.log(query)
+    // check the role
+    if (req.user.role === 'user') {
+      throw new NotFoundException(
+        "your role is 'user', users dont have access to coaches info.! ",
+      );
+    }
+    // get all apps in the db
+    const list = await this.coachappService.findByQuery(req.user, query);
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
