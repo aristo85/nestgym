@@ -20,8 +20,13 @@ export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
   @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
   @Get()
-  async findAll(@Req() req) {
+  async findAll(@Request() req) {
+    // check the role
+    if (req.user.role !== 'admin') {
+      throw new NotFoundException('only admin');
+    }
     // get all apps in the db
     const list = await this.userService.findAll();
     const count = list.length;
@@ -31,8 +36,13 @@ export class UsersController {
   }
 
   @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  async findOne(@Param('id') id: number): Promise<User> {
+  async findOne(@Param('id') id: number, @Req() req): Promise<User> {
+    // check the role
+    if (req.user.role !== 'admin') {
+      throw new NotFoundException('only admin');
+    }
     // find the users with this id
     const user = await this.userService.findOne(id);
 
@@ -59,6 +69,10 @@ export class UsersController {
     @Body() user,
     @Request() req,
   ): Promise<User> {
+    // check the role
+    if (req.user.role !== 'admin') {
+      throw new NotFoundException('only admin');
+    }
     // get the number of row affected and the updated user
     const {
       numberOfAffectedRows,

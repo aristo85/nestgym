@@ -68,10 +68,17 @@ export class UserappsService {
           Requestedapp,
           {
             model: FullProgWorkout,
+            limit: 1,
+            order: [['createdAt', 'DESC']],
             include: [{ model: WorkoutProgram }],
           },
-          { model: DietProgram, include: [DietProduct] },
-          UserWorkout,
+          {
+            model: DietProgram,
+            limit: 1,
+            order: [['createdAt', 'DESC']],
+            include: [DietProduct],
+          },
+          { model: UserWorkout, limit: 7 },
         ],
       })
       .map((el) => el.get({ plain: true }));
@@ -109,7 +116,7 @@ export class UserappsService {
           include: [{ model: WorkoutProgram }],
         },
         { model: DietProgram, include: [DietProduct] },
-        UserWorkout,
+        { model: UserWorkout, limit: 7 },
       ],
     });
     if (app) {

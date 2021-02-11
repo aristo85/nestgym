@@ -56,7 +56,7 @@ export class TemplateWorkoutsService {
   async findOne(id, user): Promise<TemplateWorkout> {
     // check the role
     let updateOPtion =
-      user.role === 'trainer' ? { id, coachId: user.id } : { id };
+      user.role === 'admin' ? { id } : { id, coachId: user.id };
     return await this.templateworkoutRepository.findOne({
       where: updateOPtion,
       include: [WorkoutProgram],
@@ -64,26 +64,26 @@ export class TemplateWorkoutsService {
   }
 
   async delete(id, coachId) {
-    // const workouts = await WorkoutProgram.findAll({where: {
-    //   templateworkoutId: id
-    // }})
-    return await this.templateworkoutRepository.destroy({ where: { id, coachId } });
+    return await this.templateworkoutRepository.destroy({
+      where: { id, coachId },
+    });
   }
 
-  async update(id, data, userId) {
-    // delete the products for this program
+  async update(id, data, user) {
+    let updateOPtion = user.role === 'admin' ? { id } : { id, coachId: user.id };
+    // delete the workouts for this program
     await WorkoutProgram.destroy({ where: { templateworkoutId: id } });
-    // recreate products for this program
+    // recreate workouts for this program
     const { programs, ...other } = data;
-    for (const product of programs) {
-      await this.workoutProgramService.create(product, id, 'template');
+    for (const workout of programs) {
+      await this.workoutProgramService.create(workout, id, 'template');
     }
     // update the program
     await this.templateworkoutRepository.update(
       { ...other },
-      { where: { id }, returning: true },
+      { where: updateOPtion, returning: true },
     );
-    // return the updated program with dietProducts
+    // return the updated program with workouts
     return await this.templateworkoutRepository.findOne({
       where: {
         id,

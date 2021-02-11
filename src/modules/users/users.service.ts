@@ -22,7 +22,9 @@ export class UsersService {
   }
 
   async findAll(): Promise<User[]> {
-    const list = await this.userRepository.findAll<User>({});
+    const list = await this.userRepository.findAll<User>({
+      attributes: { exclude: ['password'] },
+    });
     // const count = await this.userRepository.count();
     // console.log(count);
     return list;
@@ -43,6 +45,7 @@ export class UsersService {
   async findOne(id): Promise<User> {
     return await this.userRepository.findOne({
       where: { id },
+      attributes: { exclude: ['password'] },
     });
   }
 }
