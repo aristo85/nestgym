@@ -121,7 +121,6 @@ export class PhotosService {
       .map((photo) => {
         const plainPhoto: any = photo.get({ plain: true });
         const { photoPosition, ...other } = plainPhoto;
-        console.log(photoPosition);
         return {
           ...other,
           photo: `https://${process.env.DOMAIN_NAME}/${plainPhoto.photo}`,

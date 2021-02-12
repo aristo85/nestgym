@@ -15,37 +15,44 @@ export class DietprogramService {
 
   async create(data: DietProgramDto, coachId, myRequests): Promise<any> {
     // creating the diet program
-    const { programs, userappIds, ...other } = data;
+    const { days, userappIds, ...other } = data;
+    console.log(days);
+    const jsonDays = JSON.stringify(days);
     for (const appRequest of myRequests) {
-      const fullProg = await this.dietProgramRepository.create<DietProgram>({
+      await this.dietProgramRepository.create<DietProgram>({
         ...other,
         coachId,
         userappId: appRequest.userappId,
         userId: appRequest.userId,
+        days: jsonDays,
       });
-      // creating product in dietProduct table
-      for (const product of programs) {
-        await this.dietProductService.create(product, fullProg.id);
-      }
     }
 
-    return await this.dietProgramRepository.findAll({
-      where: {
-        userappId: [...userappIds],
-        coachId,
-      },
-      include: [DietProduct],
-    });
+    return await this.dietProgramRepository
+      .findAll({
+        where: {
+          userappId: [...userappIds],
+          coachId,
+        },
+      })
+      .map((diet) => {
+        const plainDiet: any = diet.get({ plain: true });
+        return { ...plainDiet, days: JSON.parse(plainDiet.days) };
+      });
   }
 
   async findAll(user): Promise<DietProgram[]> {
     // check if from admin
     let updateOPtion = user.role === 'admin' ? {} : { coachId: user.id };
 
-    const list = await this.dietProgramRepository.findAll<DietProgram>({
-      where: updateOPtion,
-      include: [DietProduct],
-    });
+    const list = await this.dietProgramRepository
+      .findAll<DietProgram>({
+        where: updateOPtion,
+      })
+      .map((diet) => {
+        const plainDiet: any = diet.get({ plain: true });
+        return { ...plainDiet, days: JSON.parse(plainDiet.days) };
+      });
     return list;
   }
 
@@ -53,10 +60,12 @@ export class DietprogramService {
     // check the role
     let updateOPtion =
       user.role === 'trainer' ? { id, coachId: user.id } : { id };
-    return await this.dietProgramRepository.findOne({
-      where: updateOPtion,
-      include: [DietProduct],
-    });
+    const data: any = (
+      await this.dietProgramRepository.findOne({
+        where: updateOPtion,
+      })
+    ).get({ plain: true });
+    return { ...data, days: JSON.parse(data.days) };
   }
 
   async delete(id, coachId) {
@@ -64,24 +73,28 @@ export class DietprogramService {
   }
 
   async update(id, data, userId) {
-    // delete the products for this program
-    await DietProduct.destroy({ where: { dietProgramId: id } });
-    // recreate products for this program
-    const { programs, ...other } = data;
-    for (const product of programs) {
-      await this.dietProductService.create(product, id);
-    }
+    // // delete the products for this program
+    // await DietProduct.destroy({ where: { dietProgramId: id } });
+    // // recreate products for this program
+    // const { programs, ...other } = data;
+    // for (const product of programs) {
+    //   await this.dietProductService.create(product, id);
+    // }
     // update the program
     await this.dietProgramRepository.update(
-      { ...other },
+      { ...data },
       { where: { id }, returning: true },
     );
     // return the updated program with dietProducts
-    return await this.dietProgramRepository.findOne({
-      where: {
-        id,
-      },
-      include: [DietProduct],
-    });
+    const dataUpdate: any = (
+      await this.dietProgramRepository.findOne({
+        where: {
+          id,
+        },
+      })
+    ).get({ plain: true });
+    return { ...dataUpdate, days: JSON.parse(dataUpdate.days) };
   }
+
+  private toObj(dataUpdate) {}
 }
