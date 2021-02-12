@@ -50,6 +50,12 @@ export class DietProgram extends Model<DietProgram> {
   })
   coment: string;
 
+  @Column({
+    type: DataType.JSON,
+    // allowNull: false,
+  })
+  days: JSON;
+
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,

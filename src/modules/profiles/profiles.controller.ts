@@ -82,9 +82,6 @@ export class ProfilesController {
   @UseGuards(AuthGuard('jwt'))
   @Get('client/myprofile')
   async findMyProfile(@Request() req): Promise<Profile> {
-    const test = await PhotoPosition.findAll({}).map((el) =>
-      el.get({ plain: true }),
-    );
     // find the profiles with this id
     const profiles = await this.profileServise.findMyProfile(req.user.id);
 
