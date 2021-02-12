@@ -125,7 +125,7 @@ export class PhotosService {
         return {
           ...other,
           photo: `https://${process.env.DOMAIN_NAME}/${plainPhoto.photo}`,
-          positoin: photoPosition[position],
+          position: photoPosition[position],
         };
       });
   }
