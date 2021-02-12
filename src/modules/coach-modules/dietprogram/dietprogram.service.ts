@@ -73,16 +73,16 @@ export class DietprogramService {
   }
 
   async update(id, data, userId) {
-    // delete the products for this program
-    await DietProduct.destroy({ where: { dietProgramId: id } });
-    // recreate products for this program
-    const { programs, ...other } = data;
-    for (const product of programs) {
-      await this.dietProductService.create(product, id);
-    }
+    // // delete the products for this program
+    // await DietProduct.destroy({ where: { dietProgramId: id } });
+    // // recreate products for this program
+    // const { programs, ...other } = data;
+    // for (const product of programs) {
+    //   await this.dietProductService.create(product, id);
+    // }
     // update the program
     await this.dietProgramRepository.update(
-      { ...other },
+      { ...data },
       { where: { id }, returning: true },
     );
     // return the updated program with dietProducts

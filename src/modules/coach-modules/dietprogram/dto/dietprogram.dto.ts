@@ -10,11 +10,11 @@ export interface DietProd {
   measure: string;
 }
 
-export class DietJsonDto {
-  @ApiProperty()
-  @IsNotEmpty()
-  readonly days: JSON;
-}
+// export class DietJsonDto {
+//   @ApiProperty()
+//   @IsNotEmpty()
+//   readonly days: JSON;
+// }
 
 export class DietProgramDto {
   @ApiProperty()
@@ -92,7 +92,7 @@ export class DietProgramUpdateDto {
     },
   })
   @IsNotEmpty()
-  readonly programs: DietProd[];
+  readonly days: DietProd[];
 
   @ApiProperty()
   @IsNotEmpty()
