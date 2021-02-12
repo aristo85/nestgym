@@ -35,6 +35,10 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
+# env
 data/
 .env
-images/
+
+# static
+images/*
+!images/index.html
