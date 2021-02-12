@@ -16,8 +16,9 @@ export class DietprogramService {
   async create(data: DietProgramDto, coachId, myRequests): Promise<any> {
     // creating the diet program
     const { days, userappIds, ...other } = data;
-    console.log(days);
+    // change dayly programs to json
     const jsonDays = JSON.stringify(days);
+    // create program for each requests
     for (const appRequest of myRequests) {
       await this.dietProgramRepository.create<DietProgram>({
         ...other,
@@ -35,9 +36,12 @@ export class DietprogramService {
           coachId,
         },
       })
-      .map((diet) => {
-        const plainDiet: any = diet.get({ plain: true });
-        return { ...plainDiet, days: JSON.parse(plainDiet.days) };
+      .map(async (diet: any) => {
+        // check the json
+        const checkJson = this.isJson(diet.days);
+        return checkJson
+          ? { ...diet.toJSON(), days: JSON.parse(diet.days) }
+          : diet;
       });
   }
 
@@ -49,9 +53,12 @@ export class DietprogramService {
       .findAll<DietProgram>({
         where: updateOPtion,
       })
-      .map((diet) => {
-        const plainDiet: any = diet.get({ plain: true });
-        return { ...plainDiet, days: JSON.parse(plainDiet.days) };
+      .map(async (diet: any) => {
+        // check the json
+        const checkJson = this.isJson(diet.days);
+        return checkJson
+          ? { ...diet.toJSON(), days: JSON.parse(diet.days) }
+          : diet;
       });
     return list;
   }
@@ -60,12 +67,12 @@ export class DietprogramService {
     // check the role
     let updateOPtion =
       user.role === 'trainer' ? { id, coachId: user.id } : { id };
-    const data: any = (
-      await this.dietProgramRepository.findOne({
-        where: updateOPtion,
-      })
-    ).get({ plain: true });
-    return { ...data, days: JSON.parse(data.days) };
+    const diet: any = await this.dietProgramRepository.findOne({
+      where: updateOPtion,
+    }); 
+    // check the json
+    const checkJson = this.isJson(diet.days);
+    return checkJson ? { ...diet.toJSON(), days: JSON.parse(diet.days) } : diet;
   }
 
   async delete(id, coachId) {
@@ -80,21 +87,36 @@ export class DietprogramService {
     // for (const product of programs) {
     //   await this.dietProductService.create(product, id);
     // }
+
+    // creating the diet program
+    const { days, ...other } = data;
+    // change dayly programs to json
+    const jsonDays = JSON.stringify(days);
     // update the program
     await this.dietProgramRepository.update(
-      { ...data },
+      { ...data, days: jsonDays },
       { where: { id }, returning: true },
     );
     // return the updated program with dietProducts
-    const dataUpdate: any = (
+    const diet: any = (
       await this.dietProgramRepository.findOne({
         where: {
           id,
         },
       })
-    ).get({ plain: true });
-    return { ...dataUpdate, days: JSON.parse(dataUpdate.days) };
+    )// check the json
+    const checkJson = this.isJson(diet.days);
+    return checkJson ? { ...diet.toJSON(), days: JSON.parse(diet.days) } : diet;
   }
 
-  private toObj(dataUpdate) {}
+
+  // json checker
+  private isJson(str) {
+    try {
+      JSON.parse(str);
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
 }
