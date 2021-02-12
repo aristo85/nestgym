@@ -23,6 +23,21 @@ import { PhotosService } from './photos.service';
 export class PhotosController {
   constructor(private readonly photoService: PhotosService) {}
 
+  
+  @UseGuards(AuthGuard('jwt'))
+  @Post()
+  async create(@Body() data: PhotoDto, @Request() req): Promise<string[]> {
+    // check the role
+    if (req.user.role !== 'user') {
+      throw new NotFoundException('Your role is not a user');
+    }
+
+    // create a new photo and return the newly created photo
+    for(const photo of data.photos){
+      return await this.photoService.create(photo.photo, req.user.id, {}, {});
+    }
+  }
+
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
@@ -31,7 +46,7 @@ export class PhotosController {
       throw new NotFoundException("only admin");
     }
     // get all photos of one user in the db
-    const list: any = (await this.photoService.findAll({})
+    const list: any = (await this.photoService.findAll({},{})
     );
     return list;
   }
@@ -50,18 +65,6 @@ export class PhotosController {
     
     // if photo exist, return the photo
     return photo;
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Post()
-  async create(@Body() data: PhotoDto, @Request() req): Promise<string[]> {
-    // check the role
-    if (req.user.role !== 'user') {
-      throw new NotFoundException('Your role is not a user');
-    }
-
-    // create a new photo and return the newly created photo
-    return await this.photoService.create(data, req.user.id, {});
   }
 
   @UseGuards(AuthGuard('jwt'))

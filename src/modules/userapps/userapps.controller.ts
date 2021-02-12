@@ -58,8 +58,7 @@ export class UserappsController {
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(@Param('id') id: number, @Req() req): Promise<Userapp> {
-    console.log(req)
-    // find the apps with this id
+    // find the app with this id
     const apps = await this.userappService.findOne(id, req.user);
 
     // if the apps doesn't exit in the db, throw a 404 error
@@ -138,48 +137,52 @@ export class UserappsController {
 
 // photos
   // 
-  @ApiTags('Client-Application')
-  @UseGuards(AuthGuard('jwt'))
-  @Post('photoapp')
-  async addPhoto(@Body() photoData: PhotoDto, @Request() req): Promise<string[]> {
-    // check the role
-    if (req.user.role !== 'user') {
-      throw new NotFoundException('Your role is not a user');
-    }
+  // @ApiTags('Client-Application')
+  // @UseGuards(AuthGuard('jwt'))
+  // @Post('photoapp')
+  // async addPhoto(@Body() photoData: PhotoDto, @Request() req): Promise<string[]> {
+  //   // check the role
+  //   if (req.user.role !== 'user') {
+  //     throw new NotFoundException('Your role is not a user');
+  //   }
 
-    const userapp = await Userapp.findOne({ where: { userId: req.user.id } });
+  //   const userapp = await Userapp.findOne({ where: { userId: req.user.id } });
 
-    // create a new userapp and return the newly created userapp
-    return await this.userappService.addPhoto(photoData, req.user.id, {
-      userappId: userapp.id,
-    });
-  }
+  //   // create a new userapp and return the newly created userapp
+  //   return await this.userappService.addPhoto(photoData, req.user.id, {
+  //     userappId: userapp.id,
+  //   });
+  // }
 
-  @ApiTags('Client-Application')
-  @UseGuards(AuthGuard('jwt'))
-  @Delete('photoapp/:id')
-  async deletePhoto(@Param('id') id: number, @Request() req) {
-    const photo: any = await Photo.findOne<Photo>({ where: { id } });
-    if (!photo) {
-      throw new NotFoundException("This photo doesn't exist");
-    }
-    const plainPhoto = photo.get({ plain: true });
-    // delete the photo with this id
-    const deleted = await this.userappService.deletePhoto(
-      id,
-      req.user.id,
-      plainPhoto.photo,
-    );
+  // @ApiTags('Client-Application')
+  // @UseGuards(AuthGuard('jwt'))
+  // @Delete('photoapp/:id')
+  // async deletePhoto(@Param('id') id: number, @Request() req) {
+  //   const photo: any = await Photo.findOne<Photo>({ where: { id } });
+  //   if (!photo) {
+  //     throw new NotFoundException("This photo doesn't exist");
+  //   }
+  //   const plainPhoto = photo.get({ plain: true });
+  //   // delete the photo with this id
+  //   const deleted = await this.userappService.deletePhoto(
+  //     id,
+  //     req.user.id,
+  //     plainPhoto.photo,
+  //   );
 
-    // if the number of row affected is zero,
-    // then the photo doesn't exist in our db
-    if (deleted === 0) {
-      throw new NotFoundException("This photo doesn't exist");
-    }
+  //   // if the number of row affected is zero,
+  //   // then the photo doesn't exist in our db
+  //   if (deleted === 0) {
+  //     throw new NotFoundException("This photo doesn't exist");
+  //   }
 
-    // return success message
-    return 'Successfully deleted';
-  }
+  //   // return success message
+  //   return 'Successfully deleted';
+  // }
+
+
+
+  
   // @ApiResponse({ status: 200 })
   // @UseGuards(AuthGuard('jwt'))
   // @Get('allapps')

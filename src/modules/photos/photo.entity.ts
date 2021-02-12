@@ -1,4 +1,5 @@
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, HasOne } from 'sequelize-typescript';
+import { PhotoPosition } from './photoPosition.entity';
 
 @Table
 export class Photo extends Model<Photo> {
@@ -12,4 +13,7 @@ export class Photo extends Model<Photo> {
     // allowNull: false,
   })
   hashPicture: string;
+
+  @HasOne(() => PhotoPosition, { foreignKey: 'photoId', onDelete: 'CASCADE' })
+  photoPosition: PhotoPosition;
 }
