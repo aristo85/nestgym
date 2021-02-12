@@ -40,8 +40,8 @@ export class UsersController {
   @Get(':id')
   async findOne(@Param('id') id: number, @Req() req): Promise<User> {
     // check the role
-    if (req.user.role !== 'admin') {
-      throw new NotFoundException('only admin');
+    if (req.user.role !== 'admin' && +id !== +req.user.id) {
+      throw new NotFoundException('not your account');
     }
     // find the users with this id
     const user = await this.userService.findOne(id);

@@ -30,6 +30,7 @@ import { TemplateWorkout } from 'src/modules/coach-modules/template-workouts/tem
 import { TemplateDiet } from 'src/modules/coach-modules/template-diets/template-diet.entity';
 import { Servicio } from 'src/modules/services/service.entity';
 import { Article } from 'src/modules/publications/publication.entity';
+import { PhotoPosition } from 'src/modules/photos/photoPosition.entity';
 // import { Sequelize } from 'sequelize';
 
 export const databaseProviders = [
@@ -80,7 +81,8 @@ export const databaseProviders = [
         TemplateWorkout,
         TemplateDiet,
         Servicio,
-        Article
+        Article,
+        PhotoPosition
       ]);
       await sequelize.sync({ alter: true });
       return sequelize;

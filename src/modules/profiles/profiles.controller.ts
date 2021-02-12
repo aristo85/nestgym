@@ -14,6 +14,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PhotoDto } from '../photos/dto/photo.dto';
 import { Photo } from '../photos/photo.entity';
+import { PhotoPosition } from '../photos/photoPosition.entity';
 import { ProfileDto, ProfileUpdateDto } from './dto/profile.dto';
 import { Profile } from './profile.entity';
 import { ProfilesService } from './profiles.service';
@@ -81,6 +82,9 @@ export class ProfilesController {
   @UseGuards(AuthGuard('jwt'))
   @Get('client/myprofile')
   async findMyProfile(@Request() req): Promise<Profile> {
+    const test = await PhotoPosition.findAll({}).map((el) =>
+      el.get({ plain: true }),
+    );
     // find the profiles with this id
     const profiles = await this.profileServise.findMyProfile(req.user.id);
 
@@ -126,8 +130,11 @@ export class ProfilesController {
     }
 
     const profile = await Profile.findOne({ where: { userId: req.user.id } });
+    if(!profile){
+      throw new NotFoundException('Yoy dont have profile yet');
+    }
 
-    // create a new profile and return the newly created profile
+    // create a new photo and return the newly created profile
     return await this.profileServise.addPhoto(data, req.user.id, {
       profileId: profile.id,
     });
@@ -157,19 +164,16 @@ export class ProfilesController {
     // return success message
     return 'Successfully deleted';
   }
-  // ////////////TEST
+
+  // ////////////
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async remove(@Param('id') id: number, @Request() req) {
-    // delete the app with this id
-    const deleted = await Profile.destroy({
-      where: { id, userId: req.user.id },
-    });
-
+  async deleteProfile(@Param('id') id: number, @Request() req) {
+    const deleted = await this.profileServise.deleteProfile(id, req.user);
     // if the number of row affected is zero,
-    // then the app doesn't exist in our db
+    // then the profile doesn't exist in our db
     if (deleted === 0) {
-      throw new NotFoundException("This app doesn't exist");
+      throw new NotFoundException("This profile doesn't exist");
     }
 
     // return success message

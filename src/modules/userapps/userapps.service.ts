@@ -37,17 +37,20 @@ export class UserappsService {
     ).get({ plain: true });
     // create photos if any
     if (photos.length > 0) {
-      const createdList = await this.photoService.create(
-        { photo: photos },
-        userId,
-        {
-          userappId: createdUserapp.id,
-        },
-      );
+      // const createdList = await this.photoService.create(
+      //   photos,
+      //   userId,
+      //   {
+      //     userappId: createdUserapp.id,
+      //   },
+      // );
       // return created application with photos and matches
       let matches: CoachProfile[] = await this.coachMatches(createdUserapp);
       return {
-        createdUserapp: { ...createdUserapp, pootos: createdList },
+        createdUserapp: {
+          ...createdUserapp,
+          //  pootos: createdList
+        },
         matches,
       };
     } else {
@@ -86,7 +89,10 @@ export class UserappsService {
     if (list.length > 0) {
       for (const app of list) {
         // find all photos in this app
-        const photo = await this.photoService.findAll({ userappId: app.id });
+        const photo = await this.photoService.findAll(
+          { userappId: app.id },
+          'userapp',
+        );
         // add coach profile if the app been accepted by a coach
         const coachProfile =
           app.coachId &&
@@ -106,7 +112,7 @@ export class UserappsService {
 
   async findOne(id, user): Promise<any> {
     // check the role
-    let updateOPtion = user.role === 'user' ? { id, userId: user.id } : { id };
+    let updateOPtion = user.role !== 'admin' ? { id, userId: user.id } : { id };
     const app = await this.userappRepository.findOne({
       where: updateOPtion,
       include: [
@@ -122,7 +128,10 @@ export class UserappsService {
     if (app) {
       const plainAppData: any = app.get({ plain: true });
       // find all photos in this app
-      const photo = await this.photoService.findAll({ userappId: app.id });
+      const photo = await this.photoService.findAll(
+        { userappId: app.id },
+        'userapp',
+      );
       const coachProfile =
         plainAppData.coachId &&
         (await CoachProfile.findOne({
@@ -193,9 +202,9 @@ export class UserappsService {
     return list;
   }
 
-  async addPhoto(data, userId, sourceId) {
-    return this.photoService.create(data, userId, sourceId);
-  }
+  // async addPhoto(data, userId, sourceId) {
+  //   return this.photoService.create(data, userId, sourceId);
+  // }
 
   async deletePhoto(id, userId, name) {
     const checkOtherIds = {

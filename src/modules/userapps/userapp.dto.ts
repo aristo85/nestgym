@@ -1,5 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { PhotoData } from '../photos/dto/photo.dto';
 
 export class UserappDto {
   @ApiProperty()
@@ -47,5 +48,5 @@ export class UserappDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  readonly photos: string[];
+  readonly photos: PhotoData[];
 }
