@@ -44,7 +44,7 @@ export class UsersService {
 
   async findOne(id): Promise<User> {
     return await this.userRepository.findOne({
-      where: { id },
+      where: {id },
       attributes: { exclude: ['password'] },
     });
   }
