@@ -24,29 +24,21 @@ export class UserappDto {
   readonly coachGender: string;
 
   @ApiProperty()
-  // @IsNotEmpty()
   readonly equipments: string;
 
   @ApiProperty()
-  // @IsNotEmpty()
   readonly priceMax: number;
 
   @ApiProperty()
-  // @IsNotEmpty()
   readonly priceMin: number;
 
   @ApiProperty()
-  // @IsNotEmpty()
   readonly healthIssue: string;
 
   @ApiProperty()
-  // @IsNotEmpty()
   readonly coment: string;
 
   @ApiProperty()
   readonly status: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  readonly photos: PhotoData[];
 }

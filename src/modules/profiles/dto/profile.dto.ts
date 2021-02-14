@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty,  } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { PhotoData, PhotoDto } from 'src/modules/photos/dto/photo.dto';
 
@@ -24,8 +24,13 @@ export class ProfileDto {
   readonly gender: string;
 
   @ApiProperty()
-  @IsNotEmpty()
-  readonly photos: PhotoData[];
+  readonly frontPhotoHash?: string;
+
+  @ApiProperty()
+  readonly sidePhotoHash?: string;
+
+  @ApiProperty()
+  readonly backPhotoHash?: string;
 }
 
 // update
@@ -49,4 +54,13 @@ export class ProfileUpdateDto {
   @ApiProperty({ enum: ['female', 'male'] })
   @IsNotEmpty()
   readonly gender: string;
+
+  @ApiProperty()
+  readonly frontPhotoHash?: string;
+
+  @ApiProperty()
+  readonly sidePhotoHash?: string;
+
+  @ApiProperty()
+  readonly backPhotoHash?: string;
 }

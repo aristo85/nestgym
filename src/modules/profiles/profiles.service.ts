@@ -2,10 +2,9 @@ import { Injectable, Inject } from '@nestjs/common';
 import { User } from '../users/user.entity';
 import { PROFILE_REPOSITORY } from '../../core/constants';
 import { Profile } from './profile.entity';
-import { ProfileDto } from './dto/profile.dto';
+import { ProfileDto, ProfileUpdateDto } from './dto/profile.dto';
 import { PhotosService } from '../photos/photos.service';
 import { Photo } from '../photos/photo.entity';
-import { PhotoDto } from '../photos/dto/photo.dto';
 
 @Injectable()
 export class ProfilesService {
@@ -16,49 +15,43 @@ export class ProfilesService {
   ) {}
 
   async create(profile: ProfileDto, userId): Promise<Profile> {
+    // photos
+    const frontPhoto =
+      profile.frontPhotoHash &&
+      (await this.photoService.findOneByHash(profile.frontPhotoHash));
+    const sidePhoto =
+      profile.sidePhotoHash &&
+      (await this.photoService.findOneByHash(profile.sidePhotoHash));
+    const backPhoto =
+      profile.backPhotoHash &&
+      (await this.photoService.findOneByHash(profile.backPhotoHash));
+
     // create profile first
-    const { photos, ...others } = profile;
-    const newProfile: any = (
+    const newProfile = (
       await this.profileRepository.create<Profile>({
-        ...others,
+        ...profile,
+        frontPhotoId: frontPhoto?.id,
+        sidePhotoId: sidePhoto?.id,
+        backPhotoId: backPhoto?.id,
         userId,
       })
     ).get({ plain: true });
-    // create photos if any
-    if (photos.length > 0) {
-      const photoList = await this.addPhoto({ photos }, userId, {
-        profileId: newProfile.id,
-      });
-      return { ...newProfile, photos: photoList };
-    } else {
-      // return created profile
-      return { ...newProfile, photos: [] };
-    }
+
+    return newProfile as Profile;
   }
 
   async findAll(user): Promise<Profile[]> {
     // check if from admin
     let updateOPtion = user.role === 'admin' ? {} : { userId: user.id };
 
-    const list: any = await this.profileRepository
+    const list = await this.profileRepository
       .findAll<Profile>({
         where: updateOPtion,
+        include: [Photo],
       })
-      .map((el) => el.get({ plain: true }));
-    // get all photos with exact urls for each profile
-    const returnedList = [];
-    if (list.length > 0) {
-      for (const prof of list) {
-        // find all photos for this profile
-        const photo = await this.photoService.findAll(
-          { profileId: prof.id },
-          'profile',
-        );
-        returnedList.push({ ...prof, photos: photo });
-      }
-    }
+      .map((el) => el.get({ plain: true }) as Profile);
 
-    return returnedList;
+    return list;
   }
 
   async findOne(id, user): Promise<Profile> {
@@ -66,112 +59,50 @@ export class ProfilesService {
     let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
     const prof = await this.profileRepository.findOne({
       where: updateOPtion,
+      include: [{ all: true }],
     });
-    if (prof) {
-      const plainProf: any = prof.get({ plain: true });
-      const photo = await this.photoService.findAll(
-        {
-          profileId: plainProf.id,
-        },
-        'profile',
-      );
-      return { ...plainProf, photos: photo };
-    } else {
-      return prof;
-    }
+    return prof;
   }
 
   async findMyProfile(userId): Promise<Profile> {
     const prof = await this.profileRepository.findOne({
       where: { userId },
+      include: [{ all: true }],
     });
-    if (prof) {
-      const plainProf: any = prof.get({ plain: true });
-      const photo = await this.photoService.findAll(
-        {
-          profileId: plainProf.id,
-        },
-        'profile',
-      );
-      return { ...plainProf, photos: photo };
-    } else {
-      return prof;
-    }
+    return prof;
   }
 
-  async update(id, data, userId) {
+  async update(id: number, profile: ProfileUpdateDto, userId: number) {
+    const frontPhoto =
+      profile.frontPhotoHash &&
+      (await this.photoService.findOneByHash(profile.frontPhotoHash));
+    const sidePhoto =
+      profile.sidePhotoHash &&
+      (await this.photoService.findOneByHash(profile.sidePhotoHash));
+    const backPhoto =
+      profile.backPhotoHash &&
+      (await this.photoService.findOneByHash(profile.backPhotoHash));
+
     const [
       numberOfAffectedRows,
       [updatedProfile],
     ] = await this.profileRepository.update(
-      { ...data },
+      {
+        ...profile,
+        frontPhotoId: frontPhoto?.id,
+        sidePhotoId: sidePhoto?.id,
+        backPhotoId: backPhoto?.id,
+      },
       { where: { id, userId }, returning: true },
     );
 
     return { numberOfAffectedRows, updatedProfile };
   }
 
-  async addPhoto(data, userId, sourceId) {
-    // if (data.photos.length > 0) {
-    const createdList = [];
-    for (const photo of data.photos) {
-      const newPhoto = await this.photoService.create(
-        photo.photo,
-        userId,
-        sourceId,
-        { profile: photo.position },
-      );
-      const { postitionData, ...others } = newPhoto;
-      createdList.push({ ...others, position: postitionData.profile });
-    }
-    // }
-    return createdList;
-  }
-
-  async deletePhoto(id, userId, name) {
-    // remove the photo if all its only attached to profile,
-    const checkOtherIds = {
-      progressId: null,
-      userappId: null,
-      feedbackId: null,
-    };
-    // otherwise only detouch profileId
-    const updateSourceId = { profileId: null };
-    return await this.photoService.delete(
-      id,
-      userId,
-      name,
-      checkOtherIds,
-      updateSourceId,
-    );
-  }
-
   async deleteProfile(id, user) {
+    // TODO: remove foreignkey photos
     // find all profile photos
-    const profPhtos: any = await Photo.findAll({
-      where: { profileId: id },
-    }).map((el) => el?.get({ plain: true }));
 
-    // remove the photo if all its only attached to profile,
-    const checkOtherIds = {
-      progressId: null,
-      userappId: null,
-      feedbackId: null,
-    };
-    // otherwise only detouch profileId
-    const updateSourceId = { profileId: null };
-    if (profPhtos.length > 0) {
-      // then delete or detouch profileId from photos
-      for (const photo of profPhtos) {
-        await this.photoService.delete(
-          photo.id,
-          user.id,
-          photo.photo,
-          checkOtherIds,
-          updateSourceId,
-        );
-      }
-    }
     // delete profile with this id
     return await this.profileRepository.destroy({
       where: { id, userId: user.id },

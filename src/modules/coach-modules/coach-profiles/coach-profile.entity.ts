@@ -7,7 +7,9 @@ import {
   BelongsTo,
   HasMany,
 } from 'sequelize-typescript';
+
 import { User } from 'src/modules/users/user.entity';
+import { Photo } from 'src/modules/photos/photo.entity';
 import { CoachService } from '../coach-services/coach-service.entity';
 
 // creating two tables (Coach profiles and coach services)
@@ -107,4 +109,13 @@ export class CoachProfile extends Model<CoachProfile> {
     onDelete: 'CASCADE',
   })
   coachservices: CoachService[];
+
+  @BelongsTo(() => Photo, { foreignKey: 'frontPhotoId' })
+  frontPhoto: Photo;
+
+  @BelongsTo(() => Photo, { foreignKey: 'sidePhotoId' })
+  sidePhoto: Photo;
+
+  @BelongsTo(() => Photo, { foreignKey: 'backPhotoId' })
+  backPhoto: Photo;
 }

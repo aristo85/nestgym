@@ -2,29 +2,49 @@ import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export interface PhotoData {
-  photo: string;
-  position: string;
+  photoFileName: string;
+  hashPicture: string;
+  photoURL: string;
 }
+
 export interface PhotoList {
   photo: string;
-  position: string;
+}
+
+export class UpdatePhotoDto {
+  @ApiProperty({
+    description: ` example: [
+      photoBase64String,
+     ...]`,
+
+    type: 'array',
+    items: {
+      type: 'TEXT',
+    },
+  })
+  @IsNotEmpty()
+  readonly photosBase64: string[];
 }
 
 export class PhotoDto {
   @ApiProperty({
-    description: ` example: [
-    {
-      photo: string,
-      position: string,
-    }, ...
-  ]`,
-
-    type: 'array',
-    items: {
-      type: 'object',
-    },
+    description: `photo file name`,
+    type: 'string',
   })
   @IsNotEmpty()
-  readonly photos: PhotoList[];
-}
+  readonly photoFileName: string;
 
+  @ApiProperty({
+    description: `photo URL`,
+    type: 'string',
+  })
+  @IsNotEmpty()
+  readonly photoURL: string;
+
+  @ApiProperty({
+    description: `photo HASH`,
+    type: 'string',
+  })
+  @IsNotEmpty()
+  readonly hashPicture: string;
+}

@@ -13,7 +13,7 @@ deploy_dev:
   environment:
     name: dev
   script:
-    - ssh $USER@$HOST "cd ~/getcoachapi && chmod +x deploy.sh && ./deploy.sh $CI_COMMIT_BRANCH && exit"
+    - ssh $USER@$HOST "cd ~/getcoachapi && chmod +x deploy.sh && ./deploy.sh $CI_COMMIT_BRANCH"
   only:
     - dev
 
@@ -23,6 +23,6 @@ deploy_stage:
   environment:
     name: stage
   script:
-    - ssh $USER@$HOST "cd ~/getcoachapi && chmod +x deploy.sh && ./deploy.sh $CI_COMMIT_BRANCH && exit"
+    - ssh $USER@$HOST "cd ~/getcoachapi && chmod +x deploy.sh && ./deploy.sh $CI_COMMIT_BRANCH"
   only:
     - stage

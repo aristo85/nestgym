@@ -53,6 +53,12 @@ export class Profile extends Model<Profile> {
   @BelongsTo(() => User)
   user: User;
 
-  @HasMany(() => Photo, 'profileId')
-  photos: Photo[];
+  @BelongsTo(() => Photo, { foreignKey: 'frontPhotoId' })
+  frontPhoto: Photo;
+
+  @BelongsTo(() => Photo, { foreignKey: 'sidePhotoId' })
+  sidePhoto: Photo;
+
+  @BelongsTo(() => Photo, { foreignKey: 'backPhotoId' })
+  backPhoto: Photo;
 }

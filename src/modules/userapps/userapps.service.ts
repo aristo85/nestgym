@@ -10,6 +10,7 @@ import { WorkoutProgram } from '../coach-modules/workout-programs/workout-progra
 import { Photo } from '../photos/photo.entity';
 import { PhotosService } from '../photos/photos.service';
 import { UserWorkout } from '../user-workouts/user-workout.entity';
+import { User } from '../users/user.entity';
 import { UserappDto } from './userapp.dto';
 import { Userapp } from './userapp.entity';
 
@@ -28,89 +29,48 @@ export class UserappsService {
 
   async create(userapp: UserappDto, userId): Promise<createPromise> {
     // create application first
-    const { photos, ...others } = userapp;
-    const createdUserapp: any = (
-      await this.userappRepository.create<Userapp>({
-        ...others,
-        userId,
-      })
-    ).get({ plain: true });
-    // create photos if any
-    if (photos.length > 0) {
-      // const createdList = await this.photoService.create(
-      //   photos,
-      //   userId,
-      //   {
-      //     userappId: createdUserapp.id,
-      //   },
-      // );
-      // return created application with photos and matches
-      let matches: CoachProfile[] = await this.coachMatches(createdUserapp);
-      return {
-        createdUserapp: {
-          ...createdUserapp,
-          //  pootos: createdList
-        },
-        matches,
-      };
-    } else {
-      //return profile with matches
-      let matches: CoachProfile[] = await this.coachMatches(createdUserapp);
-      return { createdUserapp: { ...createdUserapp, pootos: [] }, matches };
-    }
+    const createdUserapp = await this.userappRepository.create<Userapp>({
+      ...userapp,
+      userId,
+    });
+    //return profile with matches
+    const matches: CoachProfile[] = await this.coachMatches(createdUserapp);
+    return { createdUserapp: createdUserapp, matches };
   }
 
-  async findAll(user): Promise<any[]> {
+  async findAll(user): Promise<Userapp[]> {
     // check if from admin
     let updateOPtion = user.role === 'admin' ? {} : { userId: user.id };
 
-    const list: any = await this.userappRepository
-      .findAll<Userapp>({
-        where: updateOPtion,
-        include: [
-          Requestedapp,
-          {
-            model: FullProgWorkout,
-            limit: 1,
-            order: [['createdAt', 'DESC']],
-            include: [{ model: WorkoutProgram }],
-          },
-          {
-            model: DietProgram,
-            limit: 1,
-            order: [['createdAt', 'DESC']],
-            include: [DietProduct],
-          },
-          { model: UserWorkout, limit: 7 },
-        ],
-      })
-      .map((el) => el.get({ plain: true }));
-    let listWithProfile = [];
-    if (list.length > 0) {
-      for (const app of list) {
-        // find all photos in this app
-        const photo = await this.photoService.findAll(
-          { userappId: app.id },
-          'userapp',
-        );
-        // add coach profile if the app been accepted by a coach
-        const coachProfile =
-          app.coachId &&
-          (await CoachProfile.findOne({
-            where: {
-              userId: app.coachId,
-            },
-          }));
-        coachProfile
-          ? listWithProfile.push({ ...app, photos: photo, coachProfile })
-          : listWithProfile.push({ ...app, photos: photo });
-      }
-    }
+    const list = await this.userappRepository.findAll<Userapp>({
+      where: updateOPtion,
+      include: [
+        Requestedapp,
+        {
+          model: FullProgWorkout,
+          limit: 1,
+          order: [['createdAt', 'DESC']],
+          include: [{ model: WorkoutProgram }],
+        },
+        {
+          model: DietProgram,
+          limit: 1,
+          order: [['createdAt', 'DESC']],
+          include: [DietProduct],
+        },
+        { model: UserWorkout, limit: 7 },
+        {
+          model: CoachProfile,
+          as: 'coachProfile',
+          include: [{ all: true }],
+        },
+      ],
+    });
 
-    return listWithProfile;
+    return list;
   }
 
-  async findOne(id, user): Promise<any> {
+  async findOne(id, user): Promise<Userapp> {
     // check the role
     let updateOPtion = user.role !== 'admin' ? { id, userId: user.id } : { id };
     const app = await this.userappRepository.findOne({
@@ -126,23 +86,22 @@ export class UserappsService {
       ],
     });
     if (app) {
-      const plainAppData: any = app.get({ plain: true });
-      // find all photos in this app
-      const photo = await this.photoService.findAll(
-        { userappId: app.id },
-        'userapp',
-      );
+      const plainAppData: Userapp = app.get({ plain: true }) as Userapp;
+
       const coachProfile =
-        plainAppData.coachId &&
+        plainAppData.coachProfile &&
         (await CoachProfile.findOne({
           where: {
-            userId: plainAppData.coachId,
+            userId: plainAppData.coachProfile.id,
           },
+          include: [Photo],
         }));
+
       const returnedData = coachProfile
-        ? { ...plainAppData, photos: photo, coachProfile }
-        : { ...plainAppData, photos: photo };
-      return returnedData;
+        ? { ...plainAppData, coachProfile }
+        : { ...plainAppData };
+
+      return returnedData as Userapp;
     } else {
       return app;
     }
@@ -150,27 +109,7 @@ export class UserappsService {
 
   async delete(id, user) {
     let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
-    // first delete photos (or delete uaerappId if optional)
-    const checkOtherIds = {
-      progressId: null,
-      profileId: null,
-      feedbackId: null,
-    };
-    const updateSourceId = { userappId: null };
-    const photos: any = await Photo.findAll({
-      where: { userappId: id },
-    }).map((el) => el?.get({ plain: true }));
-    if (photos.length > 0) {
-      for (const pic of photos) {
-        await this.photoService.delete(
-          pic.id,
-          user.id, //probably wont be used
-          pic.photo,
-          checkOtherIds,
-          updateSourceId,
-        );
-      }
-    }
+
     // then remove the app
     return await this.userappRepository.destroy({ where: updateOPtion });
   }
@@ -201,31 +140,6 @@ export class UserappsService {
     const list = this.coachMatches(application);
     return list;
   }
-
-  // async addPhoto(data, userId, sourceId) {
-  //   return this.photoService.create(data, userId, sourceId);
-  // }
-
-  async deletePhoto(id, userId, name) {
-    const checkOtherIds = {
-      progressId: null,
-      profileId: null,
-      feedbackId: null,
-    };
-    const updateSourceId = { userappId: null };
-    return await this.photoService.delete(
-      id,
-      userId, //probably wont be used
-      name,
-      checkOtherIds,
-      updateSourceId,
-    );
-  }
-
-  // async findAllForAdmin(): Promise<Userapp[]> {
-  //   const list = await this.userappRepository.findAll<Userapp>({});
-  //   return list;
-  // }
 
   //////////////////////////////////////////////////////////////////////////
   // matching function

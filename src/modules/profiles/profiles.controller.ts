@@ -14,7 +14,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PhotoDto } from '../photos/dto/photo.dto';
 import { Photo } from '../photos/photo.entity';
-import { PhotoPosition } from '../photos/photoPosition.entity';
 import { ProfileDto, ProfileUpdateDto } from './dto/profile.dto';
 import { Profile } from './profile.entity';
 import { ProfilesService } from './profiles.service';
@@ -27,7 +26,7 @@ export class ProfilesController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  async create(@Body() profile: ProfileDto, @Request() req): Promise<Profile> {
+  async create(@Body() profile: ProfileUpdateDto, @Request() req): Promise<Profile> {
     // check the role
     if (req.user.role !== 'user') {
       throw new NotFoundException('Your role is not a user');
@@ -116,50 +115,6 @@ export class ProfilesController {
 
     // return the updated profile
     return updatedProfile;
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Post('photoprofile')
-  async addPhoto(@Body() data: PhotoDto, @Request() req): Promise<string[]> {
-    // check the role
-    if (req.user.role !== 'user') {
-      throw new NotFoundException('Your role is not a user');
-    }
-
-    const profile = await Profile.findOne({ where: { userId: req.user.id } });
-    if(!profile){
-      throw new NotFoundException('Yoy dont have profile yet');
-    }
-
-    // create a new photo and return the newly created profile
-    return await this.profileServise.addPhoto(data, req.user.id, {
-      profileId: profile.id,
-    });
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Delete('photoprofile/:id')
-  async deletePhoto(@Param('id') id: number, @Request() req) {
-    const photo: any = await Photo.findOne<Photo>({ where: { id } });
-    if (!photo) {
-      throw new NotFoundException("This photo doesn't exist");
-    }
-    const plainPhoto = photo.get({ plain: true });
-    // delete the photo with this id
-    const deleted = await this.profileServise.deletePhoto(
-      id,
-      req.user.id,
-      plainPhoto.photo,
-    );
-
-    // if the number of row affected is zero,
-    // then the photo doesn't exist in our db
-    if (deleted === 0) {
-      throw new NotFoundException("This photo doesn't exist");
-    }
-
-    // return success message
-    return 'Successfully deleted';
   }
 
   // ////////////

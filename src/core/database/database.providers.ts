@@ -7,10 +7,8 @@ import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { Photo } from 'src/modules/photos/photo.entity';
 import { CoachProfile } from 'src/modules/coach-modules/coach-profiles/coach-profile.entity';
 import { Requestedapp } from 'src/modules/coach-modules/coachapps/coachapp.entity';
-import { PhotoProgress } from './DB/dynamics/photoProgress.entity';
 import { UserProgress } from '../../modules/user-progress/user-progress.entity';
 import { Feedback } from '../../modules/feedbacks/feedback.entity';
-import { PhotoFeedback } from './DB/feedbacks/photoFeedback.entity';
 import { DailyRateDiet } from './DB/recomendations/dailyRateDiet.entity';
 import { DietRecomendation } from './DB/recomendations/dietrecomendation.entity';
 import { WorkoutOnDiet } from './DB/recomendations/workoutOnDiet.entity';
@@ -30,7 +28,6 @@ import { TemplateWorkout } from 'src/modules/coach-modules/template-workouts/tem
 import { TemplateDiet } from 'src/modules/coach-modules/template-diets/template-diet.entity';
 import { Servicio } from 'src/modules/services/service.entity';
 import { Article } from 'src/modules/publications/publication.entity';
-import { PhotoPosition } from 'src/modules/photos/photoPosition.entity';
 // import { Sequelize } from 'sequelize';
 
 export const databaseProviders = [
@@ -59,10 +56,8 @@ export const databaseProviders = [
         Photo,
         CoachProfile,
         Requestedapp,
-        PhotoProgress,
         UserProgress,
         Feedback,
-        PhotoFeedback,
         DailyRateDiet,
         DietRecomendation,
         WorkoutOnDiet,
@@ -81,8 +76,7 @@ export const databaseProviders = [
         TemplateWorkout,
         TemplateDiet,
         Servicio,
-        Article,
-        PhotoPosition
+        Article
       ]);
       await sequelize.sync({ alter: true });
       return sequelize;

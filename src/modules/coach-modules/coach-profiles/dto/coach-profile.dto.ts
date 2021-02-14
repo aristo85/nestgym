@@ -77,6 +77,15 @@ export class CoachProfileDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly submitList: string[];
+
+  @ApiProperty()
+  readonly frontPhotoHash?: string;
+
+  @ApiProperty()
+  readonly sidePhotoHash?: string;
+
+  @ApiProperty()
+  readonly backPhotoHash?: string;
 }
 export class CoachProfileUpdateDto {
   @ApiProperty()
@@ -130,4 +139,13 @@ export class CoachProfileUpdateDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly submitList: string[];
+
+  @ApiProperty()
+  readonly frontPhotoHash?: string;
+
+  @ApiProperty()
+  readonly sidePhotoHash?: string;
+
+  @ApiProperty()
+  readonly backPhotoHash?: string;
 }

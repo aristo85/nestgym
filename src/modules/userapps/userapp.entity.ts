@@ -6,12 +6,15 @@ import {
   HasMany,
   HasOne,
   ForeignKey,
+  BelongsTo,
+  AllowNull,
 } from 'sequelize-typescript';
 import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { UserWorkout } from '../user-workouts/user-workout.entity';
+import { User } from '../users/user.entity';
 import { Photo } from '../photos/photo.entity';
 
 @Table
@@ -101,13 +104,13 @@ export class Userapp extends Model<Userapp> {
   })
   dietprograms: DietProgram[];
 
-  @ForeignKey(() => CoachProfile)
+  @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
     allowNull: true,
   })
   coachId: number;
 
-  @HasMany(() => Photo, 'userappId')
-  photos: Photo[];
+  @BelongsTo(() => CoachProfile, { foreignKey: 'coachProfileId' })
+  coachProfile: CoachProfile;
 }

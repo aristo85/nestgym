@@ -39,7 +39,4 @@ export class UserProgress extends Model<UserProgress> {
   })
   calf: number;
   //
-  
-  @HasMany(() => Photo, 'progressId')
-  photos: Photo[];
 }

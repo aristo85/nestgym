@@ -79,33 +79,40 @@ export class CoachappsService {
     // check if from admin
     let updateOPtion = user.role === 'admin' ? {} : { coachId: user.id };
 
-    const list: any = await this.coachappRepository.findAll<Requestedapp>({
-      where: updateOPtion,
-      include: [{ model: Userapp, include: [
-        {
-          model: FullProgWorkout,
-          limit: 1,
-          order: [['createdAt', 'DESC']],
-          include: [{ model: WorkoutProgram }],
-        },
-        {
-          model: DietProgram,
-          limit: 1,
-          order: [['createdAt', 'DESC']],
-          include: [DietProduct],
-        },
-        { model: UserWorkout, limit: 7 },
-      ] }],
-    }).map((el) => el.get({ plain: true }));
+    const list: any = await this.coachappRepository
+      .findAll<Requestedapp>({
+        where: updateOPtion,
+        include: [
+          {
+            model: Userapp,
+            include: [
+              {
+                model: FullProgWorkout,
+                limit: 1,
+                order: [['createdAt', 'DESC']],
+                include: [{ model: WorkoutProgram }],
+              },
+              {
+                model: DietProgram,
+                limit: 1,
+                order: [['createdAt', 'DESC']],
+                include: [DietProduct],
+              },
+              { model: UserWorkout, limit: 7 },
+            ],
+          },
+        ],
+      })
+      .map((el) => el.get({ plain: true }));
     let listWithProfile = [];
     if (list.length > 0) {
       for (const request of list) {
         // add coach profile if the request been accepted by a coach
         const userProfile = await Profile.findOne({
-            where: {
-              userId: request.userId,
-            },
-          });
+          where: {
+            userId: request.userId,
+          },
+        });
         userProfile
           ? listWithProfile.push({ ...request, userProfile })
           : listWithProfile.push({ ...request });
@@ -119,34 +126,40 @@ export class CoachappsService {
     // check if from admin
     let updateOPtion = user.role === 'admin' ? {} : { coachId: user.id };
 
-    const list: any[] = await this.coachappRepository.findAll<Requestedapp>({
-      where: {...updateOPtion, status: query.status},
-      include: [{ model: Userapp, include: [
-        {
-          model: FullProgWorkout,
-          limit: 1,
-          order: [['createdAt', 'DESC']],
-          include: [{ model: WorkoutProgram }],
-        },
-        {
-          model: DietProgram,
-          limit: 1,
-          order: [['createdAt', 'DESC']],
-          include: [DietProduct],
-        },
-        { model: UserWorkout, limit: 7 },
-      ] }],
-    })
-    .map((el) => el.get({ plain: true }));
+    const list: any[] = await this.coachappRepository
+      .findAll<Requestedapp>({
+        where: { ...updateOPtion, status: query.status },
+        include: [
+          {
+            model: Userapp,
+            include: [
+              {
+                model: FullProgWorkout,
+                limit: 1,
+                order: [['createdAt', 'DESC']],
+                include: [{ model: WorkoutProgram }],
+              },
+              {
+                model: DietProgram,
+                limit: 1,
+                order: [['createdAt', 'DESC']],
+                include: [DietProduct],
+              },
+              { model: UserWorkout, limit: 7 },
+            ],
+          },
+        ],
+      })
+      .map((el) => el.get({ plain: true }));
     let listWithProfile = [];
     if (list.length > 0) {
       for (const request of list) {
         // add coach profile if the request been accepted by a coach
         const userProfile = await Profile.findOne({
-            where: {
-              userId: request.userId,
-            },
-          });
+          where: {
+            userId: request.userId,
+          },
+        });
         userProfile
           ? listWithProfile.push({ ...request, userProfile })
           : listWithProfile.push({ ...request });
@@ -163,15 +176,22 @@ export class CoachappsService {
       where: { id: userappId },
       include: [Requestedapp],
     });
-    if (!(app.status === null || app.status === 'pending')) {
-      throw new NotFoundException('Application been taken by other coach!');
-    }
+    // if (!(app.status === null || app.status === 'pending')) {
+    //   throw new NotFoundException('Application been taken by other coach!');
+    // }
     // set the answer based on coaches will
     let userapp;
     if (status === 'accept') {
       // update staus of the userapp
+      const coachProfile = await CoachProfile.findOne({
+        where: { userId: user.id },
+      });
       await Userapp.update(
-        { status: 'active', coachId: user.id },
+        {
+          status: 'active',
+          coachId: user.id,
+          coachProfileId: coachProfile.id,
+        },
         { where: { id: userappId } },
       );
       if (app.requestedapps.length > 1) {

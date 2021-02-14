@@ -43,7 +43,4 @@ export class Feedback extends Model<Feedback> {
   @BelongsTo(() => User)
   user: User;
   //
-
-  @HasMany(() => Photo, 'feedbackId')
-  photos: Photo[];
 }

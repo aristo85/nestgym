@@ -6,19 +6,35 @@ import { CoachServicesService } from '../coach-services/coach-services.service';
 import { CoachProfile } from './coach-profile.entity';
 import { CoachProfileDto } from './dto/coach-profile.dto';
 
+import { PhotosService } from 'src/modules/photos/photos.service';
+
 @Injectable()
 export class CoachProfilesService {
   constructor(
     @Inject(COATCH_PROFILE_REPOSITORY)
     private readonly coachProfileRepository: typeof CoachProfile,
     private readonly coachServiceService: CoachServicesService,
+    private readonly photoService: PhotosService,
   ) {}
   /////////////////////////////////////////////
   async create(data: CoachProfileDto, userId): Promise<any> {
+    const frontPhoto =
+      data.frontPhotoHash &&
+      (await this.photoService.findOneByHash(data.frontPhotoHash));
+    const sidePhoto =
+      data.sidePhotoHash &&
+      (await this.photoService.findOneByHash(data.sidePhotoHash));
+    const backPhoto =
+      data.backPhotoHash &&
+      (await this.photoService.findOneByHash(data.backPhotoHash));
+
     // omit the coachservices prop and create profile
     const { coachServices, ...other } = data;
     const profile = await this.coachProfileRepository.create<CoachProfile>({
       ...other,
+      frontPhotoId: frontPhoto?.id,
+      sidePhotoId: sidePhoto?.id,
+      backPhotoId: backPhoto?.id,
       userId,
     });
     // create coach services DB
@@ -43,7 +59,7 @@ export class CoachProfilesService {
 
     return await this.coachProfileRepository.findOne({
       where: whereOptions,
-      include: [CoachService],
+      include: [{ all: true }],
     });
 
     // return { profile, serviceList };
@@ -53,7 +69,7 @@ export class CoachProfilesService {
   async findMyProfile(userId): Promise<CoachProfile> {
     return await this.coachProfileRepository.findOne({
       where: { userId },
-      include: [CoachService]
+      include: [{ all: true }],
     });
   }
   /////////////////////////////////////////////
@@ -67,11 +83,27 @@ export class CoachProfilesService {
 
   async update(id, data, user) {
     let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
+
+    const frontPhoto =
+      data.frontPhotoHash &&
+      (await this.photoService.findOneByHash(data.frontPhotoHash));
+    const sidePhoto =
+      data.sidePhotoHash &&
+      (await this.photoService.findOneByHash(data.sidePhotoHash));
+    const backPhoto =
+      data.backPhotoHash &&
+      (await this.photoService.findOneByHash(data.backPhotoHash));
+
     const [
       numberOfAffectedRows,
       [updatedprofile],
     ] = await this.coachProfileRepository.update(
-      { ...data },
+      {
+        ...data,
+        frontPhotoId: frontPhoto?.id,
+        sidePhotoId: sidePhoto?.id,
+        backPhotoId: backPhoto?.id,
+      },
       { where: updateOPtion, returning: true },
     );
 
@@ -87,7 +119,7 @@ export class CoachProfilesService {
 
     const list = await this.coachProfileRepository.findAll<CoachProfile>({
       where: updateOPtion,
-      include: [CoachService],
+      include: [{ all: true }],
     });
     // const count = await this.coachProfileRepository.count();
     return list;

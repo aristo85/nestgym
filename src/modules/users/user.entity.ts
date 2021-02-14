@@ -13,7 +13,6 @@ import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
 import { TemplateDiet } from '../coach-modules/template-diets/template-diet.entity';
 import { TemplateWorkout } from '../coach-modules/template-workouts/template-workout.entity';
-import { Photo } from '../photos/photo.entity';
 import { Profile } from '../profiles/profile.entity';
 import { Article } from '../publications/publication.entity';
 import { Servicio } from '../services/service.entity';
@@ -63,9 +62,6 @@ export class User extends Model<User> {
 
   @HasMany(() => Userapp, 'userId')
   userapps: Userapp[];
-
-  @HasMany(() => Photo, 'userId')
-  photos: Photo[];
 
   @HasMany(() => CoachService, 'userId')
   coachServices: CoachService[];
