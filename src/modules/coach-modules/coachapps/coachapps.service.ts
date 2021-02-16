@@ -4,10 +4,11 @@ import { COACH_APP_REPOSITORY } from 'src/core/constants';
 import { Profile } from 'src/modules/profiles/profile.entity';
 import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
+import { DietObj } from 'src/modules/userapps/userapps.service';
 import { CoachProfile } from '../coach-profiles/coach-profile.entity';
 import { CoachService } from '../coach-services/coach-service.entity';
-import { DietProduct } from '../dietproducts/dietproduct.entity';
 import { DietProgram } from '../dietprogram/dietprogram.entity';
+import { isJson } from '../dietprogram/dietprogram.service';
 import { FullProgWorkout } from '../full-progworkouts/full.progworkout.enity';
 import { WorkoutProgram } from '../workout-programs/workout-program.entity';
 import { Requestedapp } from './coachapp.entity';
@@ -96,30 +97,40 @@ export class CoachappsService {
                 model: DietProgram,
                 limit: 1,
                 order: [['createdAt', 'DESC']],
-                include: [DietProduct],
               },
               { model: UserWorkout, limit: 7 },
             ],
           },
         ],
       })
-      .map((el) => el.get({ plain: true }));
-    let listWithProfile = [];
-    if (list.length > 0) {
-      for (const request of list) {
+      .map(async (el) => {
+        const request = el.get({ plain: true }) as Requestedapp;
+        const app = request.userapp;
+        console.log(app.dietprograms);
+        // change json days to obj
+        const diets: DietObj[] = app.dietprograms.map((diet) => {
+          let dataJson = isJson(diet.days);
+          while (isJson(dataJson)) {
+            dataJson = isJson(dataJson);
+          }
+          return { ...diet, days: dataJson };
+        });
         // add coach profile if the request been accepted by a coach
         const userProfile = await Profile.findOne({
           where: {
             userId: request.userId,
           },
         });
-        userProfile
-          ? listWithProfile.push({ ...request, userProfile })
-          : listWithProfile.push({ ...request });
-      }
-    }
+        return userProfile
+          ? {
+              ...request,
+              userapp: { ...app, dietprograms: diets },
+              userProfile,
+            }
+          : { ...request, userapp: { ...app, dietprograms: diets } };
+      });
 
-    return listWithProfile;
+    return list;
   }
 
   async findByQuery(user, query): Promise<Requestedapp[]> {
@@ -143,30 +154,40 @@ export class CoachappsService {
                 model: DietProgram,
                 limit: 1,
                 order: [['createdAt', 'DESC']],
-                include: [DietProduct],
               },
               { model: UserWorkout, limit: 7 },
             ],
           },
         ],
       })
-      .map((el) => el.get({ plain: true }));
-    let listWithProfile = [];
-    if (list.length > 0) {
-      for (const request of list) {
+      .map(async (el) => {
+        const request = el.get({ plain: true }) as Requestedapp;
+        const app = request.userapp;
+        console.log(app.dietprograms);
+        // change json days to obj
+        const diets: DietObj[] = app.dietprograms.map((diet) => {
+          let dataJson = isJson(diet.days);
+          while (isJson(dataJson)) {
+            dataJson = isJson(dataJson);
+          }
+          return { ...diet, days: dataJson };
+        });
         // add coach profile if the request been accepted by a coach
         const userProfile = await Profile.findOne({
           where: {
             userId: request.userId,
           },
         });
-        userProfile
-          ? listWithProfile.push({ ...request, userProfile })
-          : listWithProfile.push({ ...request });
-      }
-    }
+        return userProfile
+          ? {
+              ...request,
+              userapp: { ...app, dietprograms: diets },
+              userProfile,
+            }
+          : { ...request, userapp: { ...app, dietprograms: diets } };
+      });
 
-    return listWithProfile;
+    return list;
   }
 
   //
