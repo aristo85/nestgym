@@ -30,9 +30,19 @@ export class UserappsService {
   ) {}
 
   async create(userapp: UserappDto, userId): Promise<createPromise> {
+    // photos
+    const {
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    } = await this.photoService.findAllThreePostion(userapp);
+
     // create application first
     const createdUserapp = await this.userappRepository.create<Userapp>({
       ...userapp,
+      frontPhotoId: frontPhoto?.id,
+      sidePhotoId: sidePhoto?.id,
+      backPhotoId: backPhoto?.id,
       userId,
     });
     //return profile with matches
@@ -48,6 +58,7 @@ export class UserappsService {
       .findAll<Userapp>({
         where: updateOPtion,
         include: [
+          { all: true },
           Requestedapp,
           {
             model: FullProgWorkout,
@@ -90,6 +101,7 @@ export class UserappsService {
     const app = await this.userappRepository.findOne({
       where: updateOPtion,
       include: [
+        { all: true },
         Requestedapp,
         {
           model: FullProgWorkout,
@@ -139,11 +151,22 @@ export class UserappsService {
     // check if from admin
     let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
 
+    const {
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    } = await this.photoService.findAllThreePostion(data);
+
     const [
       numberOfAffectedRows,
       [updatedApplication],
     ] = await this.userappRepository.update(
-      { ...data },
+      {
+        ...data,
+        frontPhotoId: frontPhoto?.id,
+        sidePhotoId: sidePhoto?.id,
+        backPhotoId: backPhoto?.id,
+      },
       { where: updateOPtion, returning: true },
     );
 

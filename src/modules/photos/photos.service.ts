@@ -96,4 +96,15 @@ export class PhotosService {
   async findAll(): Promise<Photo[]> {
     return await this.photoRepository.findAll<Photo>();
   }
+
+  async findAllThreePostion(data) {
+    const frontPhoto =
+      data.frontPhotoHash && (await this.findOneByHash(data.frontPhotoHash));
+    const sidePhoto =
+      data.sidePhotoHash && (await this.findOneByHash(data.sidePhotoHash));
+    const backPhoto =
+      data.backPhotoHash && (await this.findOneByHash(data.backPhotoHash));
+
+    return { frontPhoto, sidePhoto, backPhoto };
+  }
 }

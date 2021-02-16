@@ -18,15 +18,11 @@ export class CoachProfilesService {
   ) {}
   /////////////////////////////////////////////
   async create(data: CoachProfileDto, userId): Promise<any> {
-    const frontPhoto =
-      data.frontPhotoHash &&
-      (await this.photoService.findOneByHash(data.frontPhotoHash));
-    const sidePhoto =
-      data.sidePhotoHash &&
-      (await this.photoService.findOneByHash(data.sidePhotoHash));
-    const backPhoto =
-      data.backPhotoHash &&
-      (await this.photoService.findOneByHash(data.backPhotoHash));
+    const {
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    } = await this.photoService.findAllThreePostion(data);
 
     // omit the coachservices prop and create profile
     const { coachServices, ...other } = data;
@@ -84,15 +80,11 @@ export class CoachProfilesService {
   async update(id, data, user) {
     let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
 
-    const frontPhoto =
-      data.frontPhotoHash &&
-      (await this.photoService.findOneByHash(data.frontPhotoHash));
-    const sidePhoto =
-      data.sidePhotoHash &&
-      (await this.photoService.findOneByHash(data.sidePhotoHash));
-    const backPhoto =
-      data.backPhotoHash &&
-      (await this.photoService.findOneByHash(data.backPhotoHash));
+    const {
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    } = await this.photoService.findAllThreePostion(data);
 
     const [
       numberOfAffectedRows,

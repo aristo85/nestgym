@@ -12,8 +12,6 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { PhotoDto } from '../photos/dto/photo.dto';
-import { Photo } from '../photos/photo.entity';
 import { ProfileDto, ProfileUpdateDto } from './dto/profile.dto';
 import { Profile } from './profile.entity';
 import { ProfilesService } from './profiles.service';
@@ -26,7 +24,10 @@ export class ProfilesController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  async create(@Body() profile: ProfileUpdateDto, @Request() req): Promise<Profile> {
+  async create(
+    @Body() profile: ProfileUpdateDto,
+    @Request() req,
+  ): Promise<Profile> {
     // check the role
     if (req.user.role !== 'user') {
       throw new NotFoundException('Your role is not a user');

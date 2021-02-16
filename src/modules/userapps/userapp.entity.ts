@@ -113,4 +113,13 @@ export class Userapp extends Model<Userapp> {
 
   @BelongsTo(() => CoachProfile, { foreignKey: 'coachProfileId' })
   coachProfile: CoachProfile;
+  
+  @BelongsTo(() => Photo, { foreignKey: 'frontPhotoId' })
+  frontPhoto: Photo;
+
+  @BelongsTo(() => Photo, { foreignKey: 'sidePhotoId' })
+  sidePhoto: Photo;
+
+  @BelongsTo(() => Photo, { foreignKey: 'backPhotoId' })
+  backPhoto: Photo;
 }

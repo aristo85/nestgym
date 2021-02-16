@@ -5,7 +5,6 @@ import {
   DataType,
   BelongsTo,
   ForeignKey,
-  HasMany,
 } from 'sequelize-typescript';
 import { Photo } from '../photos/photo.entity';
 import { User } from '../users/user.entity';

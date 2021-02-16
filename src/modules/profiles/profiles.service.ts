@@ -16,15 +16,11 @@ export class ProfilesService {
 
   async create(profile: ProfileDto, userId): Promise<Profile> {
     // photos
-    const frontPhoto =
-      profile.frontPhotoHash &&
-      (await this.photoService.findOneByHash(profile.frontPhotoHash));
-    const sidePhoto =
-      profile.sidePhotoHash &&
-      (await this.photoService.findOneByHash(profile.sidePhotoHash));
-    const backPhoto =
-      profile.backPhotoHash &&
-      (await this.photoService.findOneByHash(profile.backPhotoHash));
+    const {
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    } = await this.photoService.findAllThreePostion(profile);
 
     // create profile first
     const newProfile = (
@@ -73,15 +69,11 @@ export class ProfilesService {
   }
 
   async update(id: number, profile: ProfileUpdateDto, userId: number) {
-    const frontPhoto =
-      profile.frontPhotoHash &&
-      (await this.photoService.findOneByHash(profile.frontPhotoHash));
-    const sidePhoto =
-      profile.sidePhotoHash &&
-      (await this.photoService.findOneByHash(profile.sidePhotoHash));
-    const backPhoto =
-      profile.backPhotoHash &&
-      (await this.photoService.findOneByHash(profile.backPhotoHash));
+    const {
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    } = await this.photoService.findAllThreePostion(profile);
 
     const [
       numberOfAffectedRows,
