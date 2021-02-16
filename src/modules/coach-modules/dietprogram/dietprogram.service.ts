@@ -1,6 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { DIET_PROGRAM_REPOSITORY } from 'src/core/constants';
-import { DietProduct } from '../dietproducts/dietproduct.entity';
 import { DietproductsService } from '../dietproducts/dietproducts.service';
 import { DietProgram } from './dietprogram.entity';
 import { DietProgramDto } from './dto/dietprogram.dto';
@@ -102,7 +101,6 @@ export class DietprogramService {
   ///////////////////////////////////////
 
   async update(id, data, userId) {
-    // creating the diet program
     const { days, ...other } = data;
 
     // change dayly programs to json
@@ -115,11 +113,12 @@ export class DietprogramService {
 
     // update the program
     await this.dietProgramRepository.update(
-      { ...data, days: jsonDays },
+      { ...other, days: jsonDays },
       { where: { id }, returning: true },
     );
+
     // return the updated program with dietProducts
-    const diet: any = await this.dietProgramRepository.findOne({
+    const diet = await this.dietProgramRepository.findOne({
       raw: true,
       nest: true,
       where: { id },

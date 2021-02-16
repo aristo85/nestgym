@@ -3,8 +3,8 @@ import { APPLICATION_REPOSITORY } from 'src/core/constants';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
 import { CoachService } from '../coach-modules/coach-services/coach-service.entity';
 import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
-import { DietProduct } from '../coach-modules/dietproducts/dietproduct.entity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
+import { isJson } from '../coach-modules/dietprogram/dietprogram.service';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
 import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
 import { Photo } from '../photos/photo.entity';
@@ -18,6 +18,8 @@ export interface createPromise {
   createdUserapp: Userapp;
   matches: CoachProfile[];
 }
+
+type DietObj = DietProgram | { days: any };
 
 @Injectable()
 export class UserappsService {
@@ -42,30 +44,42 @@ export class UserappsService {
     // check if from admin
     let updateOPtion = user.role === 'admin' ? {} : { userId: user.id };
 
-    const list = await this.userappRepository.findAll<Userapp>({
-      where: updateOPtion,
-      include: [
-        Requestedapp,
-        {
-          model: FullProgWorkout,
-          limit: 1,
-          order: [['createdAt', 'DESC']],
-          include: [{ model: WorkoutProgram }],
-        },
-        {
-          model: DietProgram,
-          limit: 1,
-          order: [['createdAt', 'DESC']],
-          include: [DietProduct],
-        },
-        { model: UserWorkout, limit: 7 },
-        {
-          model: CoachProfile,
-          as: 'coachProfile',
-          include: [{ all: true }],
-        },
-      ],
-    });
+    const list: any = await this.userappRepository
+      .findAll<Userapp>({
+        where: updateOPtion,
+        include: [
+          Requestedapp,
+          {
+            model: FullProgWorkout,
+            limit: 1,
+            order: [['createdAt', 'DESC']],
+            include: [{ model: WorkoutProgram }],
+          },
+          {
+            model: DietProgram,
+            limit: 1,
+            order: [['createdAt', 'DESC']],
+          },
+          { model: UserWorkout, limit: 7 },
+          {
+            model: CoachProfile,
+            as: 'coachProfile',
+            include: [{ all: true }],
+          },
+        ],
+      })
+      .map((el: Userapp) => {
+        const app: Userapp = el.get({ plain: true }) as Userapp;
+        // change json days to obj
+        const diets: DietObj[] = app.dietprograms.map((diet) => {
+          let dataJson = isJson(diet.days);
+          while (isJson(dataJson)) {
+            dataJson = isJson(dataJson);
+          }
+          return { ...diet, days: dataJson };
+        });
+        return { ...app, dietprograms: diets };
+      });
 
     return list;
   }
@@ -81,13 +95,20 @@ export class UserappsService {
           model: FullProgWorkout,
           include: [{ model: WorkoutProgram }],
         },
-        { model: DietProgram, include: [DietProduct] },
+        DietProgram,
         { model: UserWorkout, limit: 7 },
       ],
     });
     if (app) {
       const plainAppData: Userapp = app.get({ plain: true }) as Userapp;
-
+      // change json days to obj
+      const diets: DietObj[] = plainAppData.dietprograms.map((diet) => {
+        let dataJson = isJson(diet.days);
+        while (isJson(dataJson)) {
+          dataJson = isJson(dataJson);
+        }
+        return { ...diet, days: dataJson };
+      });
       const coachProfile =
         plainAppData.coachProfile &&
         (await CoachProfile.findOne({
@@ -98,8 +119,8 @@ export class UserappsService {
         }));
 
       const returnedData = coachProfile
-        ? { ...plainAppData, coachProfile }
-        : { ...plainAppData };
+        ? { ...plainAppData, dietprograms: diets, coachProfile }
+        : { ...plainAppData, dietprograms: diets };
 
       return returnedData as Userapp;
     } else {

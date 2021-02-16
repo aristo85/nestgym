@@ -47,7 +47,7 @@ export class DietProgramDto {
     },
   })
   @IsNotEmpty()
-  readonly days: JSON;
+  readonly days: DietProd[];
 
   @ApiProperty()
   @IsNotEmpty()

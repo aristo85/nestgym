@@ -1,6 +1,17 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { PhotoData } from '../photos/dto/photo.dto';
+import { Userapp } from './userapp.entity';
+import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
+import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
+
+
+export interface createPromise {
+  createdUserapp: Userapp;
+  matches: CoachProfile[];
+}
+
+export type RetApp = Userapp | {dietprograms: any}
 
 export class UserappDto {
   @ApiProperty()
