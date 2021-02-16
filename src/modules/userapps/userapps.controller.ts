@@ -15,9 +15,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PhotoDto } from '../photos/dto/photo.dto';
 import { Photo } from '../photos/photo.entity';
-import { UserappDto } from './userapp.dto';
+import { createPromise, UserappDto } from './userapp.dto';
 import { Userapp } from './userapp.entity';
-import { createPromise, UserappsService } from './userapps.service';
+import { UserappsService } from './userapps.service';
 
 @ApiBearerAuth()
 @Controller('userapps')

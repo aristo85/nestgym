@@ -19,7 +19,6 @@ import { CoachService } from 'src/modules/coach-modules/coach-services/coach-ser
 import { DayBook } from './DB/dayBook.entity';
 import { WorkoutProgram } from 'src/modules/coach-modules/workout-programs/workout-program.entity';
 import { FullProgWorkout } from 'src/modules/coach-modules/full-progworkouts/full.progworkout.enity';
-import { DietProduct } from 'src/modules/coach-modules/dietproducts/dietproduct.entity';
 import { DietProgram } from 'src/modules/coach-modules/dietprogram/dietprogram.entity';
 import { Aim } from 'src/modules/aims/aim.entity';
 import { Sport } from 'src/modules/sports/sport.entity';
@@ -68,7 +67,6 @@ export const databaseProviders = [
         DayBook,
         WorkoutProgram,
         FullProgWorkout,
-        DietProduct,
         DietProgram,
         Aim,
         Sport,

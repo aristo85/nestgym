@@ -1,6 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { DIET_PROGRAM_REPOSITORY } from 'src/core/constants';
-import { DietProduct } from '../dietproducts/dietproduct.entity';
 import { DietproductsService } from '../dietproducts/dietproducts.service';
 import { DietProgram } from './dietprogram.entity';
 import { DietProgramDto } from './dto/dietprogram.dto';
@@ -13,11 +12,20 @@ export class DietprogramService {
     private readonly dietProductService: DietproductsService,
   ) {}
 
+  ///////////////////////////////////////
+
   async create(data: DietProgramDto, coachId, myRequests): Promise<any> {
     // creating the diet program
     const { days, userappIds, ...other } = data;
+
     // change dayly programs to json
     const jsonDays = JSON.stringify(days);
+
+    // check json correct
+    if (!isJson(jsonDays)) {
+      throw new NotFoundException('not correct data "days"');
+    }
+
     // create program for each requests
     for (const appRequest of myRequests) {
       await this.dietProgramRepository.create<DietProgram>({
@@ -31,92 +39,108 @@ export class DietprogramService {
 
     return await this.dietProgramRepository
       .findAll({
+        raw: true,
+        nest: true,
         where: {
           userappId: [...userappIds],
           coachId,
         },
       })
-      .map(async (diet: any) => {
-        // check the json
-        const checkJson = this.isJson(diet.days);
-        return checkJson
-          ? { ...diet.toJSON(), days: JSON.parse(diet.days) }
-          : diet;
+      .map((el) => {
+        let dataJson = isJson(el.days);
+        while (isJson(dataJson)) {
+          dataJson = isJson(dataJson);
+        }
+        return { ...el, days: dataJson };
       });
   }
+  ///////////////////////////////////////
 
-  async findAll(user): Promise<DietProgram[]> {
+  async findAll(user): Promise<any[]> {
     // check if from admin
     let updateOPtion = user.role === 'admin' ? {} : { coachId: user.id };
 
-    const list = await this.dietProgramRepository
+    return await this.dietProgramRepository
       .findAll<DietProgram>({
+        raw: true,
+        nest: true,
         where: updateOPtion,
       })
-      .map(async (diet: any) => {
-        // check the json
-        const checkJson = this.isJson(diet.days);
-        return checkJson
-          ? { ...diet.toJSON(), days: JSON.parse(diet.days) }
-          : diet;
+      .map((el) => {
+        let dataJson = isJson(el.days);
+        while (isJson(dataJson)) {
+          dataJson = isJson(dataJson);
+        }
+        return { ...el, days: dataJson };
       });
-    return list;
   }
+  ///////////////////////////////////////
 
-  async findOne(id, user): Promise<DietProgram> {
+  async findOne(id, user): Promise<any> {
     // check the role
     let updateOPtion =
       user.role === 'trainer' ? { id, coachId: user.id } : { id };
     const diet: any = await this.dietProgramRepository.findOne({
+      raw: true,
+      nest: true,
       where: updateOPtion,
-    }); 
+    });
     // check the json
-    const checkJson = this.isJson(diet.days);
-    return checkJson ? { ...diet.toJSON(), days: JSON.parse(diet.days) } : diet;
+    let dataJson = isJson(diet.days);
+    while (isJson(dataJson)) {
+      dataJson = isJson(dataJson);
+    }
+
+    return { ...diet, days: dataJson };
   }
+  ///////////////////////////////////////
 
   async delete(id, coachId) {
     return await this.dietProgramRepository.destroy({ where: { id, coachId } });
   }
+  ///////////////////////////////////////
 
   async update(id, data, userId) {
-    // // delete the products for this program
-    // await DietProduct.destroy({ where: { dietProgramId: id } });
-    // // recreate products for this program
-    // const { programs, ...other } = data;
-    // for (const product of programs) {
-    //   await this.dietProductService.create(product, id);
-    // }
-
-    // creating the diet program
     const { days, ...other } = data;
+
     // change dayly programs to json
     const jsonDays = JSON.stringify(days);
+
+    // check json correct
+    if (!isJson(jsonDays)) {
+      throw new NotFoundException('not correct data "days"');
+    }
+
     // update the program
     await this.dietProgramRepository.update(
-      { ...data, days: jsonDays },
+      { ...other, days: jsonDays },
       { where: { id }, returning: true },
     );
+
     // return the updated program with dietProducts
-    const diet: any = (
-      await this.dietProgramRepository.findOne({
-        where: {
-          id,
-        },
-      })
-    )// check the json
-    const checkJson = this.isJson(diet.days);
-    return checkJson ? { ...diet.toJSON(), days: JSON.parse(diet.days) } : diet;
-  }
-
-
-  // json checker
-  private isJson(str) {
-    try {
-      JSON.parse(str);
-    } catch (e) {
-      return false;
+    const diet = await this.dietProgramRepository.findOne({
+      raw: true,
+      nest: true,
+      where: { id },
+    });
+    // check the json
+    let dataJson = isJson(diet.days);
+    while (isJson(dataJson)) {
+      dataJson = isJson(dataJson);
     }
-    return true;
+
+    return { ...diet, days: dataJson };
   }
+  ///////////////////////////////////////
+  ///////////////////////////////////////
+  ///////////////////////////////////////
 }
+// json checker
+export const isJson = (str) => {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return JSON.parse(str);
+};

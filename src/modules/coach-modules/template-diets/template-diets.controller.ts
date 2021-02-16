@@ -13,6 +13,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
+  RetTemplate,
   TemplateDietDto,
   TemplateDietUpdateDto,
 } from './dto/template-diet.dto';
@@ -57,7 +58,7 @@ export class TemplateDietsController {
   async findOne(
     @Param('id') id: number,
     @Request() req,
-  ): Promise<TemplateDiet> {
+  ): Promise<RetTemplate> {
     // find the progs with this id
     const progs = await this.templateDietService.findOne(id, req.user);
 
@@ -97,7 +98,7 @@ export class TemplateDietsController {
     @Param('id') id: number,
     @Body() data: TemplateDietUpdateDto,
     @Request() req,
-  ): Promise<TemplateDiet> {
+  ): Promise<TemplateDiet | {days: any}> {
     // check the role
     if (req.user.role === 'user') {
       throw new NotFoundException('Your role is not a trainer');

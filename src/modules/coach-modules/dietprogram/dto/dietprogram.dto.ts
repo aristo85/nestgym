@@ -10,6 +10,16 @@ export interface DietProd {
   measure: string;
 }
 
+export interface FinalData {
+  title: string;
+  days: any;
+  dailyRate: number;
+  protein: number;
+  fats: number;
+  carbs: number;
+  coment: string;
+  userappIds: number[];
+}
 // export class DietJsonDto {
 //   @ApiProperty()
 //   @IsNotEmpty()
@@ -37,7 +47,7 @@ export class DietProgramDto {
     },
   })
   @IsNotEmpty()
-  readonly days: JSON;
+  readonly days: DietProd[];
 
   @ApiProperty()
   @IsNotEmpty()

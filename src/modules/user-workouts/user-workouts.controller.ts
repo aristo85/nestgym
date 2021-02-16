@@ -12,11 +12,6 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import * as moment from 'moment';
-import { where } from 'sequelize';
-import { Op } from 'sequelize';
-import { DietProduct } from '../coach-modules/dietproducts/dietproduct.entity';
-import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
 import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
 import { Userapp } from '../userapps/userapp.entity';
@@ -76,7 +71,6 @@ export class UserWorkoutsController {
         { model: WorkoutProgram, include: [UserWorkout] },
         {
           model: Userapp,
-          include: [{ model: DietProgram, include: [DietProduct] }],
         },
       ],
     });
@@ -105,7 +99,6 @@ export class UserWorkoutsController {
         { model: WorkoutProgram, include: [UserWorkout] },
         {
           model: Userapp,
-          include: [{ model: DietProgram, include: [DietProduct] }],
         },
       ],
     });

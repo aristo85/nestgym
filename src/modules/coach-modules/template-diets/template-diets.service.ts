@@ -1,8 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { TEMPLATE_DIET_REPOSITORY } from 'src/core/constants';
-import { DietProduct } from '../dietproducts/dietproduct.entity';
 import { DietproductsService } from '../dietproducts/dietproducts.service';
-import { TemplateDietDto } from './dto/template-diet.dto';
+import { isJson } from '../dietprogram/dietprogram.service';
+import { RetTemplate, TemplateDietDto } from './dto/template-diet.dto';
 import { TemplateDiet } from './template-diet.entity';
 
 @Injectable()
@@ -12,81 +12,126 @@ export class TemplateDietsService {
     private readonly templateDietRepository: typeof TemplateDiet,
     private readonly dietProductService: DietproductsService,
   ) {}
+  ///////////////////////////////////////
 
   async create(data: TemplateDietDto, userId): Promise<any> {
     // creating the template program
-    const { programs, ...other } = data;
+    const { days, ...other } = data;
+
+    // change dayly programs to json
+    const jsonDays = JSON.stringify(days);
+    console.log(jsonDays);
+
+    // check json correct
+    if (!isJson(jsonDays)) {
+      throw new NotFoundException('not correct data "days"');
+    }
+
+    // create program eith json days
     const template = await this.templateDietRepository.create<TemplateDiet>({
       ...other,
       coachId: userId,
+      days: jsonDays,
     });
-    // creating product in dietproduct table
-    let listProgs = [];
-    for (const product of data.programs) {
-      const newProg = await this.dietProductService.create(
-        product,
-        template.id,
-        'template',
-      );
-      listProgs.push(newProg);
-    }
 
-    return await this.templateDietRepository.findOne({
+    const diet: any = await this.templateDietRepository.findOne({
+      raw: true,
+      nest: true,
       where: {
         id: template.id,
       },
-      include: [DietProduct],
     });
-    // return { fullProg, programs: listProgs };
-  }
 
-  async findAll(user): Promise<TemplateDiet[]> {
+    // check the json
+    let dataJson = isJson(diet.days);
+    while (isJson(dataJson)) {
+      dataJson = isJson(dataJson);
+    }
+
+    return { ...diet, days: dataJson };
+  }
+  ///////////////////////////////////////
+
+  async findAll(user): Promise<RetTemplate[]> {
     // check if from admin
     let updateOPtion = user.role === 'admin' ? {} : { coachId: user.id };
 
-    const list = await this.templateDietRepository.findAll<TemplateDiet>({
-      where: updateOPtion,
-      include: [DietProduct],
-    });
+    const list = await this.templateDietRepository
+      .findAll<TemplateDiet>({
+        where: updateOPtion,
+        raw: true,
+        nest: true,
+      })
+      .map((el) => {
+        let dataJson = isJson(el.days);
+        while (isJson(dataJson)) {
+          dataJson = isJson(dataJson);
+        }
+        return { ...el, days: dataJson };
+      });
     return list;
   }
+  ///////////////////////////////////////
 
-  async findOne(id, user): Promise<TemplateDiet> {
+  async findOne(id, user): Promise<RetTemplate> {
     // check the role
     let updateOPtion =
       user.role === 'admin' ? { id } : { id, coachId: user.id };
-    return await this.templateDietRepository.findOne({
+    const diet = await this.templateDietRepository.findOne({
+      raw: true,
+      nest: true,
       where: updateOPtion,
-      include: [DietProduct],
     });
+    // check the json
+    let dataJson = isJson(diet.days);
+    while (isJson(dataJson)) {
+      dataJson = isJson(dataJson);
+    }
+    return { ...diet, days: dataJson };
   }
+  ///////////////////////////////////////
 
   async delete(id, coachId) {
     return await this.templateDietRepository.destroy({
       where: { id, coachId },
     });
   }
+  ///////////////////////////////////////
 
   async update(id, data, user) {
-    let updateOPtion = user.role === 'admin' ? { id } : { id, coachId: user.id };
-    // delete the products for this program
-    await DietProduct.destroy({ where: { templateDietId: id } });
-    // recreate products for this program
-    const { programs, ...other } = data;
-    for (const product of programs) {
-      await this.dietProductService.create(product, id, 'template');
+    const { days, ...other } = data;
+
+    // check role
+    let updateOPtion =
+      user.role === 'admin' ? { id } : { id, coachId: user.id };
+
+    // change dayly programs to json
+    const jsonDays = JSON.stringify(days);
+
+    // check json correct
+    if (!isJson(jsonDays)) {
+      throw new NotFoundException('not correct data "days"');
     }
+
     // update the program
     await this.templateDietRepository.update(
-      { ...other },
+      { ...other, days: jsonDays },
       { where: updateOPtion, returning: true },
     );
-    // return the updated program with dietProducts
-    return await this.templateDietRepository.findOne({
-      where: {
-        id,
-      },
-      include: [DietProduct],
+
+    // return the updated program with
+    const diet =  await this.templateDietRepository.findOne({
+      raw: true,
+      nest: true,
+      where: { id },
     });
+    // check the json
+    let dataJson = isJson(diet.days);
+    while (isJson(dataJson)) {
+      dataJson = isJson(dataJson);
+    }
+
+    return { ...diet, days: dataJson };
   }
+  ///////////////////////////////////////
 }

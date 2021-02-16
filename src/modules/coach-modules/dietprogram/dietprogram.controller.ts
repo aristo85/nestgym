@@ -13,6 +13,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Requestedapp } from '../coachapps/coachapp.entity';
+import { RetTemplate } from '../template-diets/dto/template-diet.dto';
 import { DietProgram } from './dietprogram.entity';
 import { DietprogramService } from './dietprogram.service';
 import { DietProgramDto, DietProgramUpdateDto } from './dto/dietprogram.dto';
@@ -100,7 +101,7 @@ export class DietprogramController {
     @Param('id') id: number,
     @Body() data: DietProgramUpdateDto,
     @Request() req,
-  ): Promise<DietProgram> {
+  ): Promise<RetTemplate> {
     // check id
     const prog = await this.dietProgramService.findOne(id, req.user);
     if (!prog) {

@@ -8,6 +8,8 @@ export interface DietProd {
   measure: string;
 }
 
+export type RetTemplate = TemplateDietDto | { days: any };
+
 export class TemplateDietDto {
   @ApiProperty()
   @IsNotEmpty()
@@ -29,7 +31,7 @@ export class TemplateDietDto {
     },
   })
   @IsNotEmpty()
-  readonly programs: DietProd[];
+  readonly days: DietProd[];
 
   @ApiProperty()
   @IsNotEmpty()
@@ -69,7 +71,7 @@ export class TemplateDietUpdateDto {
     },
   })
   @IsNotEmpty()
-  readonly programs: DietProd[];
+  readonly days: DietProd[];
 
   @ApiProperty()
   @IsNotEmpty()
