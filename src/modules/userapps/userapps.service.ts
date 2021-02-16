@@ -19,7 +19,7 @@ export interface createPromise {
   matches: CoachProfile[];
 }
 
-type DietObj = DietProgram | { days: any };
+export type DietObj = DietProgram | { days: any };
 
 @Injectable()
 export class UserappsService {

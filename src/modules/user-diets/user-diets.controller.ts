@@ -59,18 +59,10 @@ export class UserDietsController {
     const diet = await DietProgram.findOne({
       raw: true,
       nest: true,
-      where: { id },
+      where: { id, userId: req.user.id },
       include: [
         {
           model: Userapp,
-          // include: [
-          //   Requestedapp,
-          //   {
-          //     model: FullProgWorkout,
-          //     include: [{ model: WorkoutProgram }],
-          //   },
-          //   UserWorkout,
-          // ],
         },
       ],
     });
