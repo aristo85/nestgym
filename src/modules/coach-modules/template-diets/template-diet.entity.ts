@@ -34,6 +34,12 @@ export class TemplateDiet extends Model<TemplateDiet> {
   })
   carbs: number;
   //
+  
+  @Column({
+    type: DataType.TEXT,
+    // allowNull: false,
+  })
+  days: string;
  
   @HasMany(() => DietProduct, {
     foreignKey: 'templateDietId',
