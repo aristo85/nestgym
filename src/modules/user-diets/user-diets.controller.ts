@@ -9,16 +9,10 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
-import { CoachService } from '../coach-modules/coach-services/coach-service.entity';
-import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
-import { DietProduct } from '../coach-modules/dietproducts/dietproduct.entity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
-import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
-import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
-import { UserWorkout } from '../user-workouts/user-workout.entity';
+import { isJson } from '../coach-modules/dietprogram/dietprogram.service';
 import { Userapp } from '../userapps/userapp.entity';
-import { User } from '../users/user.entity';
-import { UserDietsService } from './user-diets.service';
+import { RetDiet, UserDietsService } from './user-diets.service';
 
 @ApiTags('client Diet programs')
 @ApiBearerAuth()
@@ -29,66 +23,75 @@ export class UserDietsController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async findAll(@Request() req) {
+  async findAll(@Request() req): Promise<RetDiet[]> {
     // get all progs in the db and filter it with the array of user ids in clientIds
-    const list: any = await DietProgram.findAll({
+    const list = await DietProgram.findAll({
+      raw: true,
+      nest: true,
       where: { userId: req.user.id },
-      include: [DietProduct, Userapp],
-    })
-    .map((el) => el.get({ plain: true }));
-
-    let listWithProfile = [];
-    for (const prog of list) {
+      include: [Userapp],
+    }).map(async (el) => {
+      // add coach profile
       const coachProfile = await CoachProfile.findOne({
         where: {
-          userId: prog.coachId,
+          userId: el.coachId,
         },
       });
-      listWithProfile.push({ ...prog, coachProfile });
-    }
-    const count = listWithProfile.length;
+      // transforming json days to object
+      let dataJson = isJson(el.days);
+      while (isJson(dataJson)) {
+        dataJson = isJson(dataJson);
+      }
+      return { ...el, days: dataJson, coachProfile };
+    });
+
+    const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
-    return listWithProfile;
+    return list;
   }
 
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  async findOne(@Param('id') id: number, @Request() req): Promise<DietProgram> {
+  async findOne(@Param('id') id: number, @Request() req): Promise<RetDiet> {
     // find the progs with this id
-    const progs = await DietProgram.findOne({
+    const diet = await DietProgram.findOne({
+      raw: true,
+      nest: true,
       where: { id },
       include: [
-        DietProduct,
         {
           model: Userapp,
-          include: [
-            Requestedapp,
-            {
-              model: FullProgWorkout,
-              include: [{ model: WorkoutProgram }],
-            },
-            UserWorkout,
-          ],
+          // include: [
+          //   Requestedapp,
+          //   {
+          //     model: FullProgWorkout,
+          //     include: [{ model: WorkoutProgram }],
+          //   },
+          //   UserWorkout,
+          // ],
         },
       ],
     });
 
-    // if the progs doesn't exit in the db, throw a 404 error
-    if (!progs) {
+    // if the diet doesn't exit in the db, throw a 404 error
+    if (!diet) {
       throw new NotFoundException("This program doesn't exist");
     }
 
-    const plainProgData: any = progs.get({ plain: true });
     const coachProfile = await CoachProfile.findOne({
       where: {
-        userId: plainProgData.coachId,
+        userId: diet.coachId,
       },
     });
-    const returnedData = { ...plainProgData, coachProfile };
 
-    // if progs exist, return progs
-    return returnedData;
+    // check the json
+    let dataJson = isJson(diet.days);
+    while (isJson(dataJson)) {
+      dataJson = isJson(dataJson);
+    }
+
+    return { ...diet, days: dataJson, coachProfile };
   }
 }

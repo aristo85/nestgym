@@ -51,10 +51,10 @@ export class DietProgram extends Model<DietProgram> {
   coment: string;
 
   @Column({
-    type: DataType.JSON,
+    type: DataType.TEXT,
     // allowNull: false,
   })
-  days: JSON;
+  days: string;
 
   @ForeignKey(() => User)
   @Column({

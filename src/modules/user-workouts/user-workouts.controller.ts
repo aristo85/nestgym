@@ -76,7 +76,6 @@ export class UserWorkoutsController {
         { model: WorkoutProgram, include: [UserWorkout] },
         {
           model: Userapp,
-          include: [{ model: DietProgram, include: [DietProduct] }],
         },
       ],
     });
@@ -105,7 +104,6 @@ export class UserWorkoutsController {
         { model: WorkoutProgram, include: [UserWorkout] },
         {
           model: Userapp,
-          include: [{ model: DietProgram, include: [DietProduct] }],
         },
       ],
     });
