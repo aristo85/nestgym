@@ -1,16 +1,21 @@
 import {
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
   NotFoundException,
   Param,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Profile } from 'src/modules/profiles/profile.entity';
 import { UserProgress } from 'src/modules/user-progress/user-progress.entity';
 import { User } from 'src/modules/users/user.entity';
+import { AuthUser } from 'src/modules/users/users.decorator';
 import { Requestedapp } from '../coachapps/coachapp.entity';
 import { CoachProgressService } from './coach-progress.service';
 
@@ -23,55 +28,54 @@ export class CoachProgressController {
   // request to hire a Trainer
   @UseGuards(AuthGuard('jwt'))
   @Get(':userId')
-  async findOne(@Req() req, @Param('userId') userId): Promise<User> {
+  async findOne(
+    @Param('userId') userId: number,
+    @AuthUser() user: User,
+  ): Promise<User> {
     // check the role
-    if (req.user.role === 'user') {
-      throw new NotFoundException(
-        "your role is 'user', users dont have access to coaches info.! ",
+    if (user.role === 'user') {
+      throw new HttpException(
+        'Forbidden, your role is user',
+        HttpStatus.FORBIDDEN,
       );
     }
-    const progress = await User.findOne({
-      where: { id: userId },
-      include: [Profile, UserProgress],
-      attributes: [],
-    });
-    if (!progress) {
-      throw new NotFoundException('insert a correct clientID');
+
+    const users = await this.coachProgressService.getUserProgress(
+      user.id,
+      user.id,
+      userId,
+    );
+
+    if (!users.length) {
+      throw new HttpException('Not found active user', HttpStatus.NOT_FOUND);
     }
 
-    return progress;
+    return users.pop();
   }
 
-  // get all my clients progress of a triner
+  // get all my clients progress of a trainer
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async findAll(@Req() req) {
+  async findAll(
+    @Req() req: Request & { res: Response },
+    @AuthUser() user: User,
+  ) {
     // check the role
-    if (req.user.role === 'user') {
+    if (user.role === 'user') {
       throw new NotFoundException(
         "your role is 'user', users dont have access to coaches info.! ",
       );
     }
-    // get all requested apps in the db
-    let myClietnIds = [];
-    const requestList = await Requestedapp.findAll<Requestedapp>({
-      where: { coachId: req.user.id },
-    });
-    requestList.forEach((app) => {
-      myClietnIds.push(app.userId);
-    });
-    // get all my clients progress and profile exclude fields of registration
-    const myProgs = await User.findAll({
-      where: {
-        id: [...myClietnIds],
-      },
-      include: [Profile, UserProgress],
-      attributes: [],
-    });
-    const count = myProgs.length;
+
+    const users = await this.coachProgressService.getUsersProgress(
+      user.id,
+      user.id,
+    );
+    const count = users.length;
+
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
-    return myProgs;
+    return users;
   }
 }
