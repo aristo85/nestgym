@@ -6,7 +6,10 @@ import { CoachServicesService } from '../coach-services/coach-services.service';
 import { CoachProfile } from './coach-profile.entity';
 import { CoachProfileDto } from './dto/coach-profile.dto';
 
-import { includePhotoOptions, PhotosService } from 'src/modules/photos/photos.service';
+import {
+  includePhotoOptions,
+  PhotosService,
+} from 'src/modules/photos/photos.service';
 
 @Injectable()
 export class CoachProfilesService {
@@ -55,7 +58,7 @@ export class CoachProfilesService {
 
     return await this.coachProfileRepository.findOne({
       where: whereOptions,
-      include: [...includePhotoOptions],
+      include: [...includePhotoOptions, CoachService],
     });
 
     // return { profile, serviceList };
@@ -65,7 +68,7 @@ export class CoachProfilesService {
   async findMyProfile(userId): Promise<CoachProfile> {
     return await this.coachProfileRepository.findOne({
       where: { userId },
-      include: [...includePhotoOptions],
+      include: [...includePhotoOptions, CoachService],
     });
   }
   /////////////////////////////////////////////
@@ -111,7 +114,7 @@ export class CoachProfilesService {
 
     const list = await this.coachProfileRepository.findAll<CoachProfile>({
       where: updateOPtion,
-      include: [...includePhotoOptions],
+      include: [...includePhotoOptions, CoachService],
     });
     // const count = await this.coachProfileRepository.count();
     return list;
