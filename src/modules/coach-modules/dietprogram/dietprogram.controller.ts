@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
@@ -11,7 +12,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { Response } from 'express';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { User } from 'src/modules/users/user.entity';
+import { AuthUser } from 'src/modules/users/users.decorator';
 import { Requestedapp } from '../coachapps/coachapp.entity';
 import { RetTemplate } from '../template-diets/dto/template-diet.dto';
 import { DietProgram } from './dietprogram.entity';
@@ -28,11 +32,11 @@ export class DietprogramController {
   @Post()
   async create(
     @Body() data: DietProgramDto,
-    @Request() req,
+    @AuthUser() user: User,
   ): Promise<DietProgram> {
     // check the role
-    if (req.user.role !== 'trainer') {
-      throw new NotFoundException('Your role is not a trainer');
+    if (user.role !== 'trainer') {
+      throw new ForbiddenException('Your role is not a trainer');
     }
     // check if the userappIds list is empty
     if (data.userappIds.length < 1) {
@@ -40,22 +44,25 @@ export class DietprogramController {
     }
     // check if applications are exists
     const myRequests = await Requestedapp.findAll({
-      where: { userappId: [...data.userappIds], coachId: req.user.id },
+      where: { userappId: [...data.userappIds], coachId: user.id },
     });
     if (myRequests.length !== data.userappIds.length) {
       throw new NotFoundException('some of the Apps are not exist');
     }
 
     // create a new prog and return the newly created progs
-    return await this.dietProgramService.create(data, req.user.id, myRequests);
+    return await this.dietProgramService.create(data, user.id, myRequests);
   }
 
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async findAll(@Request() req) {
+  async findAll(
+    @AuthUser() user: User,
+    @Request() req: Request & { res: Response },
+  ) {
     // get all progs in the db
-    const list = await this.dietProgramService.findAll(req.user);
+    const list = await this.dietProgramService.findAll(user);
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -65,9 +72,12 @@ export class DietprogramController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  async findOne(@Param('id') id: number, @Request() req): Promise<DietProgram> {
+  async findOne(
+    @AuthUser() user: User,
+    @Param('id') id: number,
+  ): Promise<DietProgram> {
     // find the progs with this id
-    const progs = await this.dietProgramService.findOne(id, req.user);
+    const progs = await this.dietProgramService.findOne(id, user);
 
     // if the progs doesn't exit in the db, throw a 404 error
     if (!progs) {
@@ -80,9 +90,9 @@ export class DietprogramController {
 
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async remove(@Param('id') id: number, @Request() req) {
+  async remove(@AuthUser() user: User, @Param('id') id: number) {
     // delete the app with this id
-    const deleted = await this.dietProgramService.delete(id, req.user.id);
+    const deleted = await this.dietProgramService.delete(id, user.id);
 
     // if the number of row affected is zero,
     // then the app doesn't exist in our db
@@ -100,14 +110,14 @@ export class DietprogramController {
   async update(
     @Param('id') id: number,
     @Body() data: DietProgramUpdateDto,
-    @Request() req,
+    @AuthUser() user: User,
   ): Promise<RetTemplate> {
     // check id
-    const prog = await this.dietProgramService.findOne(id, req.user);
+    const prog = await this.dietProgramService.findOne(id, user);
     if (!prog) {
       throw new NotFoundException("This program doesn't exist");
     }
     // get the number of row affected and the updated Prog
-    return await this.dietProgramService.update(id, data, req.user.id);
+    return await this.dietProgramService.update(id, data, user.id);
   }
 }
