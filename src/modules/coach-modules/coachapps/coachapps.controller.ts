@@ -11,14 +11,16 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
-import { Requestedapp } from './coachapp.entity';
+import { User } from 'src/modules/users/user.entity';
+import { AuthUser } from 'src/modules/users/users.decorator';
+import { ApplicationRequestStatus, Requestedapp } from './coachapp.entity';
 import { CoachappsService } from './coachapps.service';
 import { CoachAnswerDto, RequestedappDto } from './dto/coachapp.dto';
 
-type updData = [number, Userapp[]];
 interface stat {
   status: string;
 }
@@ -33,11 +35,12 @@ export class CoachappsController {
   @UseGuards(AuthGuard('jwt'))
   @Post(':coachId/:userappId')
   async create(
-    @Request() req,
+    @Request() req: Request,
     @Param('coachId') coachId: number,
     @Param('userappId') userappId: number,
+    @AuthUser() user: User,
   ): Promise<any> {
-    const app = await this.coachappService.findApp(userappId, req.user.id);
+    const app = await this.coachappService.findApp(userappId, user.id);
     if (!app) {
       throw new NotFoundException('application not found');
     }
@@ -60,7 +63,7 @@ export class CoachappsController {
     }
     // create a new apps and return the newly created apps
     let createdRequest = (
-      await this.coachappService.create(req.user.id, coachId, userappId)
+      await this.coachappService.createAppRequest(user.id, coachId, userappId)
     ).get();
 
     const returnedData = {
@@ -75,15 +78,18 @@ export class CoachappsController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async findAll(@Req() req) {
+  async findAll(
+    @AuthUser() user: User,
+    @Req() req: Request & { res: Response },
+  ) {
     // check the role
-    if (req.user.role === 'user') {
+    if (user.role === 'user') {
       throw new NotFoundException(
         "your role is 'user', users dont have access to coaches info.! ",
       );
     }
     // get all apps in the db
-    const list = await this.coachappService.findAll(req.user);
+    const list = await this.coachappService.findAllCoachAppRequest(user.id);
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -95,16 +101,23 @@ export class CoachappsController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get('query')
-  async findByQuery(@Query() query, @Req() req) {
-    console.log(query)
+  async findByQuery(
+    @AuthUser() user: User,
+    @Query() query: { status: ApplicationRequestStatus },
+    @Req() req: Request & { res: Response },
+  ) {
+    console.log(query);
     // check the role
-    if (req.user.role === 'user') {
+    if (user.role === 'user') {
       throw new NotFoundException(
         "your role is 'user', users dont have access to coaches info.! ",
       );
     }
     // get all apps in the db
-    const list = await this.coachappService.findByQuery(req.user, query);
+    const list = await this.coachappService.findCoachAppRequestByQuery(
+      user.id,
+      query.status,
+    );
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -118,12 +131,11 @@ export class CoachappsController {
   @Put(':userappId')
   async update(
     @Param('userappId') userappId: number,
-
     @Body() data: CoachAnswerDto,
-    @Request() req,
-  ): Promise<updData> {
+    @AuthUser() user: User,
+  ): Promise<Requestedapp[]> {
     // check the role
-    if (req.user.role === 'user') {
+    if (user.role === 'user') {
       throw new NotFoundException(
         "your role is 'user', users dont have access to coaches info.! ",
       );
@@ -131,7 +143,7 @@ export class CoachappsController {
     // check userappId
     const myRequest = await Requestedapp.findOne({
       where: {
-        coachId: req.user.id,
+        coachId: user.id,
         userappId,
       },
     });
@@ -141,10 +153,10 @@ export class CoachappsController {
       );
     }
     // get the number of row affected and the updated userapp
-    const userapp: updData = await this.coachappService.update(
+    const userapp = await this.coachappService.updateCoachRequest(
       userappId,
+      user.id,
       data.status,
-      req.user,
     );
 
     // return the updated app

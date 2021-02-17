@@ -3,15 +3,19 @@ import { Op } from 'sequelize';
 import { COACH_APP_REPOSITORY } from 'src/core/constants';
 import { Profile } from 'src/modules/profiles/profile.entity';
 import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
-import { Userapp } from 'src/modules/userapps/userapp.entity';
+import {
+  ApplicationStatus,
+  Userapp,
+} from 'src/modules/userapps/userapp.entity';
 import { DietObj } from 'src/modules/userapps/userapps.service';
+import { User } from 'src/modules/users/user.entity';
 import { CoachProfile } from '../coach-profiles/coach-profile.entity';
 import { CoachService } from '../coach-services/coach-service.entity';
 import { DietProgram } from '../dietprogram/dietprogram.entity';
 import { isJson } from '../dietprogram/dietprogram.service';
 import { FullProgWorkout } from '../full-progworkouts/full.progworkout.enity';
 import { WorkoutProgram } from '../workout-programs/workout-program.entity';
-import { Requestedapp } from './coachapp.entity';
+import { ApplicationRequestStatus, Requestedapp } from './coachapp.entity';
 
 @Injectable()
 export class CoachappsService {
@@ -20,7 +24,7 @@ export class CoachappsService {
     private readonly coachappRepository: typeof Requestedapp,
   ) {}
 
-  async create(
+  async createAppRequest(
     userId: number,
     coachId: number,
     userappId: number,
@@ -65,24 +69,24 @@ export class CoachappsService {
     return newRequestedApp;
   }
 
-  async findApp(id, userId): Promise<Userapp> {
-    return await Userapp.findOne({ where: { id, userId } });
+  async findApp(userappId: number, userId: number): Promise<Userapp> {
+    return await Userapp.findOne({ where: { id: userappId, userId } });
   }
 
-  async findOne(id): Promise<Requestedapp> {
+  async findOneCoachAppRequest(
+    CoachAppRequestId: number,
+  ): Promise<Requestedapp> {
     return await this.coachappRepository.findOne({
-      where: { id },
+      where: { id: CoachAppRequestId },
       include: [{ model: Userapp }],
     });
   }
 
-  async findAll(user): Promise<Requestedapp[]> {
-    // check if from admin
-    let updateOPtion = user.role === 'admin' ? {} : { coachId: user.id };
+  async findAllCoachAppRequest(coachUserId: number): Promise<Requestedapp[]> {
 
     const list: any = await this.coachappRepository
       .findAll<Requestedapp>({
-        where: updateOPtion,
+        where: { coachId: coachUserId },
         include: [
           {
             model: Userapp,
@@ -133,65 +137,43 @@ export class CoachappsService {
     return list;
   }
 
-  async findByQuery(user, query): Promise<Requestedapp[]> {
+  async findCoachAppRequestByQuery(
+    coachUserId: number,
+    status: ApplicationRequestStatus,
+  ): Promise<Requestedapp[]> {
     // check if from admin
-    let updateOPtion = user.role === 'admin' ? {} : { coachId: user.id };
-
-    const list: any[] = await this.coachappRepository
-      .findAll<Requestedapp>({
-        where: { ...updateOPtion, status: query.status },
-        include: [
-          {
-            model: Userapp,
-            include: [
-              {
-                model: FullProgWorkout,
-                limit: 1,
-                order: [['createdAt', 'DESC']],
-                include: [{ model: WorkoutProgram }],
-              },
-              {
-                model: DietProgram,
-                limit: 1,
-                order: [['createdAt', 'DESC']],
-              },
-              { model: UserWorkout, limit: 7 },
-            ],
-          },
-        ],
-      })
-      .map(async (el) => {
-        const request = el.get({ plain: true }) as Requestedapp;
-        const app = request.userapp;
-        console.log(app.dietprograms);
-        // change json days to obj
-        const diets: DietObj[] = app.dietprograms.map((diet) => {
-          let dataJson = isJson(diet.days);
-          while (isJson(dataJson)) {
-            dataJson = isJson(dataJson);
-          }
-          return { ...diet, days: dataJson };
-        });
-        // add coach profile if the request been accepted by a coach
-        const userProfile = await Profile.findOne({
-          where: {
-            userId: request.userId,
-          },
-        });
-        return userProfile
-          ? {
-              ...request,
-              userapp: { ...app, dietprograms: diets },
-              userProfile,
-            }
-          : { ...request, userapp: { ...app, dietprograms: diets } };
-      });
+    const list = await this.coachappRepository.findAll<Requestedapp>({
+      where: { coachId: coachUserId, status },
+      include: [
+        {
+          model: Userapp,
+          include: [
+            {
+              model: FullProgWorkout,
+              limit: 1,
+              order: [['createdAt', 'DESC']],
+              include: [{ model: WorkoutProgram }],
+            },
+            {
+              model: DietProgram,
+              limit: 1,
+              order: [['createdAt', 'DESC']],
+            },
+            { model: UserWorkout, limit: 7 },
+          ],
+        },
+      ],
+    });
 
     return list;
   }
 
   //
-  async update(userappId, status, user) {
+  async updateCoachRequest(
+    userappId: number,
+    coachUserId: number,
+    status: ApplicationRequestStatus,
+  ) {
     // check application status
     const app = await Userapp.findOne({
       where: { id: userappId },
@@ -201,16 +183,15 @@ export class CoachappsService {
     //   throw new NotFoundException('Application been taken by other coach!');
     // }
     // set the answer based on coaches will
-    let userapp;
     if (status === 'accept') {
       // update staus of the userapp
       const coachProfile = await CoachProfile.findOne({
-        where: { userId: user.id },
+        where: { userId: coachUserId },
       });
       await Userapp.update(
         {
           status: 'active',
-          coachId: user.id,
+          coachId: coachUserId,
           coachProfileId: coachProfile.id,
         },
         { where: { id: userappId } },
@@ -222,7 +203,7 @@ export class CoachappsService {
           {
             where: {
               coachId: {
-                [Op.notIn]: [user.id],
+                [Op.notIn]: [coachUserId],
               },
               userappId,
             },
@@ -230,17 +211,20 @@ export class CoachappsService {
         );
       }
       // update staus of this Request
-      userapp = await this.coachappRepository.update(
+      const [rows, userapp] = await this.coachappRepository.update(
         { status: 'accept' },
-        { where: { coachId: user.id, userappId }, returning: true },
+        { where: { coachId: coachUserId, userappId }, returning: true },
       );
+
+      return userapp;
     } else {
       // otherwise reject
-      userapp = await this.coachappRepository.update(
+      const [rows, userapp] = await this.coachappRepository.update(
         { status: 'reject' },
-        { where: { coachId: user.id, userappId }, returning: true },
+        { where: { coachId: coachUserId, userappId }, returning: true },
       );
+
+      return userapp;
     }
-    return userapp;
   }
 }

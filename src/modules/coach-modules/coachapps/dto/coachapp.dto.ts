@@ -1,5 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { ApplicationRequestStatus } from '../coachapp.entity';
 
 export class RequestedappDto {
   @ApiProperty()
@@ -9,5 +10,5 @@ export class RequestedappDto {
 export class CoachAnswerDto {
   @ApiProperty({ enum: ['accept', 'reject', 'archived']})
   @IsNotEmpty()
-  readonly status: string;
+  readonly status: ApplicationRequestStatus;
 }

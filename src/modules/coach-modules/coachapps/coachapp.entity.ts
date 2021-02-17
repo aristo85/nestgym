@@ -9,6 +9,8 @@ import {
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { User } from 'src/modules/users/user.entity';
 
+export type ApplicationRequestStatus = 'pending' | 'rejected' | 'accept' | 'archived'
+
 @Table
 export class Requestedapp extends Model<Requestedapp> {
   @Column({
@@ -40,11 +42,11 @@ export class Requestedapp extends Model<Requestedapp> {
   //
   @Column({
     type: DataType.STRING,
-    values: ['pending', 'rejected', 'accepted'],
+    values: ['pending', 'rejected', 'accepte', 'archived'],
     allowNull: true,
     defaultValue: 'pending',
   })
-  status: string;
+  status: ApplicationRequestStatus;
   //
   // @Column
   // @BelongsTo(() => User)
