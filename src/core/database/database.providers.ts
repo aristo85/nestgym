@@ -1,7 +1,7 @@
 import { SEQUELIZE, DEVELOPMENT, TEST, PRODUCTION } from '../constants';
 import { databaseConfig } from './database.config';
 import { User } from '../../modules/users/user.entity';
-import { Sequelize } from 'sequelize-typescript';
+import { Sequelize, SequelizeOptions } from 'sequelize-typescript';
 import { Profile } from 'src/modules/profiles/profile.entity';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { Photo } from 'src/modules/photos/photo.entity';
@@ -28,13 +28,14 @@ import { TemplateWorkout } from 'src/modules/coach-modules/template-workouts/tem
 import { TemplateDiet } from 'src/modules/coach-modules/template-diets/template-diet.entity';
 import { Servicio } from 'src/modules/services/service.entity';
 import { Article } from 'src/modules/publications/publication.entity';
+import { IDatabaseConfigAttributes } from './interfaces/dbConfig.interface';
 // import { Sequelize } from 'sequelize';
 
 export const databaseProviders = [
   {
     provide: SEQUELIZE,
     useFactory: async () => {
-      let config;
+      let config: IDatabaseConfigAttributes | undefined;
       switch (process.env.NODE_ENV) {
         case DEVELOPMENT:
           config = databaseConfig.development;
