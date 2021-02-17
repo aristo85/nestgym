@@ -1,7 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { COACH_SERVICE_REPOSITORY } from 'src/core/constants';
+import { User } from 'src/modules/users/user.entity';
 import { CoachService } from './coach-service.entity';
 import { CoachServiceDto } from './dto/coach-service.dto';
+import { CoachServicesDto } from './dto/coach-services.dto';
+import { CoachProfilesService } from '../coach-profiles/coach-profiles.service';
 
 @Injectable()
 export class CoachServicesService {
@@ -10,36 +13,45 @@ export class CoachServicesService {
     private readonly coachServiceRepository: typeof CoachService,
   ) {}
 
-  async create(
-    servicelist: CoachServiceDto[],
-    userId,
-    coachProfileId,
-  ): Promise<CoachService[]> {
-    let newList = [];
-    for (const serv of servicelist) {
-      const newService = await this.coachServiceRepository.create<CoachService>(
-        {
-          ...serv,
-          userId,
-          coachProfileId,
-        },
-      );
-      newList.push(newService);
+  async updateCoachService(
+    coachServiceId: number,
+    data: CoachServiceDto,
+    user: User,
+  ) {
+    
+    if (user.role !== 'admin') {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
 
-    return newList;
-  }
-
-  async update(id, data, user) {
-    let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
     const [
       numberOfAffectedRows,
       [updatedCoachServices],
     ] = await this.coachServiceRepository.update(
       { ...data },
-      { where: updateOPtion, returning: true },
+      { where: { id: coachServiceId }, returning: true },
     );
 
     return { numberOfAffectedRows, updatedCoachServices };
+  }
+
+  async updateMany(
+    coachProfileId: number | undefined,
+    data: CoachServiceDto[],
+  ) {
+    const updateOption = { coachProfileId };
+
+    // Remove existing
+    this.coachServiceRepository.destroy({ where: updateOption });
+
+    // Adding new
+    const coachServices = this.coachServiceRepository.bulkCreate(
+      data.map((service) => ({
+        ...service,
+        coachProfileId: updateOption.coachProfileId,
+      })),
+      { returning: true },
+    );
+
+    return { coachServices };
   }
 }

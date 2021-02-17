@@ -1,17 +1,22 @@
 import {
   Body,
   Controller,
+  createParamDecorator,
   NotFoundException,
   Param,
+  Post,
   Put,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { User } from 'src/modules/users/user.entity';
+import { AuthUser } from 'src/modules/users/users.decorator';
 import { CoachService } from './coach-service.entity';
 import { CoachServicesService } from './coach-services.service';
 import { CoachServiceDto } from './dto/coach-service.dto';
+import { CoachServicesDto } from './dto/coach-services.dto';
 
 @ApiTags('Coach Service')
 @ApiBearerAuth()
@@ -21,17 +26,18 @@ export class CoachServicesController {
 
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
-  @Put(':id')
+  @Put(':coach-service-id')
   async update(
-    @Param('id') id: number,
+    @Param('coach-service-id') coachServiceId: number,
     @Body() service: CoachServiceDto,
-    @Request() req,
+    @Request() req: Request,
+    @AuthUser() user: User
   ): Promise<CoachService> {
     // get the number of row affected and the updated services
     const {
       numberOfAffectedRows,
       updatedCoachServices,
-    } = await this.coachServiceService.update(id, service, req.user);
+    } = await this.coachServiceService.updateCoachService(coachServiceId, service, user);
 
     // if the number of row affected is zero,
     // it means the services doesn't exist in our db
@@ -42,4 +48,5 @@ export class CoachServicesController {
     // return the updated services
     return updatedCoachServices;
   }
+
 }
