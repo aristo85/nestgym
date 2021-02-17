@@ -159,7 +159,7 @@ export class CoachProfilesService {
 
     const list = await this.coachProfileRepository.findAll<CoachProfile>({
       where: updateOPtion,
-      include: [...includePhotoOptions],
+      include: [...includePhotoOptions, CoachService],
     });
     // const count = await this.coachProfileRepository.count();
     return list;
