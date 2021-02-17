@@ -2,17 +2,16 @@ import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { User } from '../users/user.entity';
 import { PHOTO_REPOSITORY } from '../../core/constants';
 import { Photo } from './photo.entity';
-import { PhotoData, PhotoDto } from './dto/photo.dto';
+import { PhotoData, PhotoDto, PhotoPositions } from './dto/photo.dto';
 import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'fs';
 import * as crypto from 'crypto';
 import { join } from 'path';
-
 
 export const includePhotoOptions = [
   { model: Photo, as: 'frontPhoto' },
   { model: Photo, as: 'sidePhoto' },
   { model: Photo, as: 'backPhoto' },
-]
+];
 
 @Injectable()
 export class PhotosService {
@@ -104,7 +103,7 @@ export class PhotosService {
     return await this.photoRepository.findAll<Photo>();
   }
 
-  async findAllThreePostion(data) {
+  async findAllThreePostion(data: PhotoPositions) {
     const frontPhoto =
       data.frontPhotoHash && (await this.findOneByHash(data.frontPhotoHash));
     const sidePhoto =
@@ -114,6 +113,4 @@ export class PhotosService {
 
     return { frontPhoto, sidePhoto, backPhoto };
   }
-
-  
 }

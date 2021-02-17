@@ -26,6 +26,13 @@ export class UpdatePhotoDto {
   readonly photosBase64: string[];
 }
 
+export interface PhotoPositions {
+  frontPhotoHash?: string;
+  sidePhotoHash?: string;
+  backPhotoHash?: string;
+
+} 
+
 export class PhotoDto {
   @ApiProperty({
     description: `photo file name`,
