@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
+import * as bcryptjs from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
+import { User } from '../users/user.entity';
+import { UserDto } from '../users/dto/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -24,16 +27,16 @@ export class AuthService {
     }
 
     // tslint:disable-next-line: no-string-literal
-    const { password, ...result } = user['dataValues'];
-    return result;
+    const { password, ...result } = user as User & { dataValues: any };
+    return result['dataValues'];
   }
 
-  public async login(user) {
+  public async login(user: User) {
     const token = await this.generateToken(user);
     return { user, token };
   }
 
-  public async create(user) {
+  public async create(user: UserDto) {
     // hash the password
     const pass = await this.hashPassword(user.password);
 
@@ -44,27 +47,27 @@ export class AuthService {
     });
 
     // tslint:disable-next-line: no-string-literal
-    const { password, ...result } = newUser['dataValues'];
+    const { password, ...result } = newUser as User & { dataValues: any };
 
     // generate token
     const token = await this.generateToken(result);
 
     // return the user and the token
-    return { user: result, token };
+    return { user: result['dataValues'], token };
   }
 
-  private async generateToken(user) {
+  private async generateToken(user: any) {
     const token = await this.jwtService.signAsync(user);
     return token;
   }
 
   private async hashPassword(password) {
-    const hash = await bcrypt.hash(password, 10);
+    const hash = await bcryptjs.hash(password, 10);
     return hash;
   }
 
   private async comparePassword(enteredPassword, dbPassword) {
-    const match = await bcrypt.compare(enteredPassword, dbPassword);
+    const match = await bcryptjs.compare(enteredPassword, dbPassword);
     return match;
   }
 }
