@@ -1,12 +1,7 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
+import { CoachServiceDto } from '../../coach-services/dto/coach-service.dto';
 
-export interface Service {
-  sportType: string;
-  serviceType: string;
-  price: number;
-  valute: string;
-}
 export class CoachProfileDto {
   @ApiProperty()
   @IsNotEmpty()
@@ -68,7 +63,7 @@ export class CoachProfileDto {
     },
   })
   @IsNotEmpty()
-  readonly coachServices: Service[];
+  readonly coachServices: CoachServiceDto[];
 
   @ApiProperty({ enum: ['female', 'male'] })
   @IsNotEmpty()
@@ -91,7 +86,7 @@ export class CoachProfileUpdateDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly fullName: string;
-  
+
   @ApiProperty()
   @IsNotEmpty()
   readonly sportTypes: string[];
@@ -139,6 +134,24 @@ export class CoachProfileUpdateDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly submitList: string[];
+
+  @ApiProperty({
+    description: ` example: [
+    {
+      sportType: 'string',
+      serviceType: 'string',
+      price: 555,
+      valute: 'string',
+    }, ...
+  ]`,
+
+    type: 'array',
+    items: {
+      type: 'object',
+    },
+  })
+  @IsNotEmpty()
+  readonly coachServices: CoachServiceDto[];
 
   @ApiProperty()
   readonly frontPhotoHash?: string;

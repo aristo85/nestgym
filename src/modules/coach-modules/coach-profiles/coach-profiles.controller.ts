@@ -10,9 +10,14 @@ import {
   UseGuards,
   Request,
   Req,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ProfileUpdateDto } from 'src/modules/profiles/dto/profile.dto';
+import { User } from 'src/modules/users/user.entity';
+import { AuthUser } from 'src/modules/users/users.decorator';
 import { CoachProfile } from './coach-profile.entity';
 import { CoachProfilesService } from './coach-profiles.service';
 import {
@@ -31,15 +36,20 @@ export class CoachProfilesController {
   @Put('admin/update/:id')
   async updateFromAdmin(
     @Param('id') id: number,
-    @Body() profile: any,
-    @Request() req,
+    @Body() profile: CoachProfileUpdateDto,
+    @Request() req: Request,
+    @AuthUser() user: User,
   ): Promise<CoachProfile> {
     // first update services
     // get the number of row affected and the updated profile
     const {
       numberOfAffectedRows,
       updatedprofile,
-    } = await this.coachProfileService.updateFromAdmin(id, profile, req.user);
+    } = await this.coachProfileService.updateCoachProfileFromAdmin(
+      id,
+      profile,
+      user,
+    );
     console.log('hi');
     // if the number of row affected is zero,
     // it means the profile doesn't exist in our db
@@ -55,13 +65,17 @@ export class CoachProfilesController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async findAll(@Req() req) {
-    if (req.user.role === 'user') {
+  async findAll(
+    @Req() req: Request & { res: Response },
+    @AuthUser() user: User,
+  ) {
+    if (user.role === 'user') {
       throw new NotFoundException('your role is "user"');
     }
     // get all profiles in the db
-    const list = await this.coachProfileService.findAll(req.user);
+    const list = await this.coachProfileService.findAllCoachProfiles(user);
     const count = list.length;
+
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
     return list;
@@ -71,12 +85,9 @@ export class CoachProfilesController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  async findOne(
-    @Param('id') id: number,
-    @Req() req,
-  ): Promise<CoachProfile> {
+  async findOne(@Param('id') id: number): Promise<CoachProfile> {
     // find the profiles with this id
-    const profile = await this.coachProfileService.findOne(req.user, id);
+    const profile = await this.coachProfileService.findOneCoachProfile(id);
 
     // if the profiles doesn't exit in the db, throw a 404 error
     if (!profile) {
@@ -91,9 +102,9 @@ export class CoachProfilesController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get('coach/myprofile')
-  async findMyProfile(@Request() req): Promise<CoachProfile> {
+  async findMyProfile(@AuthUser() user: User): Promise<CoachProfile> {
     // find the profiles with this id
-    const profile = await this.coachProfileService.findMyProfile(req.user.id);
+    const profile = await this.coachProfileService.findMyCoachProfile(user.id);
 
     // if the profiles doesn't exit in the db, throw a 404 error
     if (!profile) {
@@ -108,22 +119,27 @@ export class CoachProfilesController {
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
-    @Body() profile: CoachProfileDto,
-    @Request() req,
+    @Body() profileDto: CoachProfileDto,
+    @AuthUser() user: User,
   ): Promise<CoachProfile> {
     // check the role
-    if (req.user.role !== 'trainer') {
+    if (user.role !== 'trainer') {
       throw new NotFoundException('Your role is not a trainer');
     }
     // check if user already has a profile
     const isProfile = await CoachProfile.findOne({
-      where: { userId: req.user.id },
+      where: { userId: user.id },
     });
     if (isProfile) {
       throw new NotFoundException('This User already has a profile');
     }
     // create a new profiles and return the newly created profiles
-    return await this.coachProfileService.create(profile, req.user.id);
+    const { profile } = await this.coachProfileService.createCoachProfile(
+      profileDto,
+      user.id,
+    );
+
+    return profile;
   }
 
   @ApiTags('Coach Profile')
@@ -133,13 +149,13 @@ export class CoachProfilesController {
   async update(
     @Param('id') id: number,
     @Body() profile: CoachProfileUpdateDto,
-    @Request() req,
+    @AuthUser() user: User,
   ): Promise<CoachProfile> {
     // get the number of row affected and the updated profile
     const {
       numberOfAffectedRows,
       updatedprofile,
-    } = await this.coachProfileService.update(id, profile, req.user);
+    } = await this.coachProfileService.updateCoachProfile(id, profile, user);
     console.log('nope');
     // if the number of row affected is zero,
     // it means the profile doesn't exist in our db
@@ -154,9 +170,9 @@ export class CoachProfilesController {
   @ApiTags('Coach Profile')
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async remove(@Param('id') id: number, @Req() req) {
+  async remove(@Param('id') id: number, @AuthUser() user: User) {
     // delete the profile with this id
-    const deleted = await this.coachProfileService.delete(id, req.user);
+    const deleted = await this.coachProfileService.deleteCoachProfile(id, user);
 
     // if the number of row affected is zero,
     // then the profile doesn't exist in our db
