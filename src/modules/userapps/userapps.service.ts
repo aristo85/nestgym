@@ -8,7 +8,7 @@ import { isJson } from '../coach-modules/dietprogram/dietprogram.service';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
 import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
 import { Photo } from '../photos/photo.entity';
-import { PhotosService } from '../photos/photos.service';
+import { includePhotoOptions, PhotosService } from '../photos/photos.service';
 import { UserWorkout } from '../user-workouts/user-workout.entity';
 import { User } from '../users/user.entity';
 import { UserappDto } from './userapp.dto';
@@ -58,13 +58,13 @@ export class UserappsService {
       .findAll<Userapp>({
         where: updateOPtion,
         include: [
-          { all: true },
+          ...includePhotoOptions,
           Requestedapp,
           {
             model: FullProgWorkout,
             limit: 1,
             order: [['createdAt', 'DESC']],
-            include: [{ model: WorkoutProgram }],
+            include: [{ model: WorkoutProgram, limit: 10 }],
           },
           {
             model: DietProgram,
@@ -101,7 +101,7 @@ export class UserappsService {
     const app = await this.userappRepository.findOne({
       where: updateOPtion,
       include: [
-        { all: true },
+        ...includePhotoOptions,
         Requestedapp,
         {
           model: FullProgWorkout,
@@ -127,7 +127,7 @@ export class UserappsService {
           where: {
             userId: plainAppData.coachProfile.id,
           },
-          include: [Photo],
+          include: [{all: true}],
         }));
 
       const returnedData = coachProfile

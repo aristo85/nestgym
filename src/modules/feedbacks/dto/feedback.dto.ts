@@ -1,30 +1,18 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UserProgressDto {
+export class FeedbackDto {
   @ApiProperty()
   @IsNotEmpty()
-  readonly waist: number;
+  readonly coachId: number;
 
   @ApiProperty()
   @IsNotEmpty()
-  readonly chest: number;
+  readonly rate: number;
 
   @ApiProperty()
-  @IsNotEmpty()
-  readonly hips: number;
+  readonly text: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  readonly thigh: number;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  readonly sholder: number;
-
-  @ApiProperty()
-  readonly calf: number;
-  
   @ApiProperty()
   readonly frontPhotoHash?: string;
 

@@ -7,6 +7,13 @@ import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'fs';
 import * as crypto from 'crypto';
 import { join } from 'path';
 
+
+export const includePhotoOptions = [
+  { model: Photo, as: 'frontPhoto' },
+  { model: Photo, as: 'sidePhoto' },
+  { model: Photo, as: 'backPhoto' },
+]
+
 @Injectable()
 export class PhotosService {
   constructor(
@@ -107,4 +114,6 @@ export class PhotosService {
 
     return { frontPhoto, sidePhoto, backPhoto };
   }
+
+  
 }

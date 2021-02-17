@@ -43,4 +43,13 @@ export class Feedback extends Model<Feedback> {
   @BelongsTo(() => User)
   user: User;
   //
+   
+  @BelongsTo(() => Photo, { foreignKey: 'frontPhotoId' })
+  frontPhoto: Photo;
+
+  @BelongsTo(() => Photo, { foreignKey: 'sidePhotoId' })
+  sidePhoto: Photo;
+
+  @BelongsTo(() => Photo, { foreignKey: 'backPhotoId' })
+  backPhoto: Photo;
 }

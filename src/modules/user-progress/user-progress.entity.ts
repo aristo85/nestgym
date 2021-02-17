@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, HasMany, BelongsTo } from 'sequelize-typescript';
 import { Photo } from '../photos/photo.entity';
 
 @Table
@@ -39,4 +39,13 @@ export class UserProgress extends Model<UserProgress> {
   })
   calf: number;
   //
+  
+  @BelongsTo(() => Photo, { foreignKey: 'frontPhotoId' })
+  frontPhoto: Photo;
+
+  @BelongsTo(() => Photo, { foreignKey: 'sidePhotoId' })
+  sidePhoto: Photo;
+
+  @BelongsTo(() => Photo, { foreignKey: 'backPhotoId' })
+  backPhoto: Photo;
 }

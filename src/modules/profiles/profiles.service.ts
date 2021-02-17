@@ -1,10 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { User } from '../users/user.entity';
 import { PROFILE_REPOSITORY } from '../../core/constants';
 import { Profile } from './profile.entity';
 import { ProfileDto, ProfileUpdateDto } from './dto/profile.dto';
-import { PhotosService } from '../photos/photos.service';
-import { Photo } from '../photos/photo.entity';
+import { includePhotoOptions, PhotosService } from '../photos/photos.service';
 
 @Injectable()
 export class ProfilesService {
@@ -40,12 +38,10 @@ export class ProfilesService {
     // check if from admin
     let updateOPtion = user.role === 'admin' ? {} : { userId: user.id };
 
-    const list = await this.profileRepository
-      .findAll<Profile>({
-        where: updateOPtion,
-        include: [Photo],
-      })
-      .map((el) => el.get({ plain: true }) as Profile);
+    const list = await this.profileRepository.findAll<Profile>({
+      where: updateOPtion,
+      include: [...includePhotoOptions],
+    });
 
     return list;
   }
@@ -55,7 +51,7 @@ export class ProfilesService {
     let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
     const prof = await this.profileRepository.findOne({
       where: updateOPtion,
-      include: [{ all: true }],
+      include: [...includePhotoOptions],
     });
     return prof;
   }
@@ -63,7 +59,7 @@ export class ProfilesService {
   async findMyProfile(userId): Promise<Profile> {
     const prof = await this.profileRepository.findOne({
       where: { userId },
-      include: [{ all: true }],
+      include: [...includePhotoOptions],
     });
     return prof;
   }

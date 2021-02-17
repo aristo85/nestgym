@@ -1,7 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { HasMany, HasOne } from 'sequelize-typescript';
-import { Userapp } from 'src/modules/userapps/userapp.entity';
 
 export interface PhotoData {
   photoFileName: string;
@@ -49,13 +47,4 @@ export class PhotoDto {
   })
   @IsNotEmpty()
   readonly hashPicture: string;
-
-  // @HasMany(() => Userapp)
-  // frontPhoto: Userapp[]
-
-  // @HasMany(() => Userapp)
-  // sidePhoto: Userapp[]
-
-  // @HasMany(() => Userapp)
-  // backPhoto: Userapp[]
 }
