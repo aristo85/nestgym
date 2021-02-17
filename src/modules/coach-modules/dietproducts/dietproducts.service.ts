@@ -15,14 +15,15 @@ export class DietproductsService {
 
   async create(
     prog: DietProductDto,
-    templateOrDietprog,
+    templateOrDietprogId: number | undefined,
+    dietProgramId: number | undefined,
     template = '',
   ): Promise<DietProduct> {
     // if from template or diet program
     let options =
       template === 'template'
-        ? { ...prog, templateDietId: templateOrDietprog }
-        : { ...prog, dietProgramId: templateOrDietprog };
+        ? { ...prog, templateDietId: templateOrDietprogId }
+        : { ...prog, dietProgramId: dietProgramId };
     return await this.dietProductRepository.create<DietProduct>({
       ...options,
     });
