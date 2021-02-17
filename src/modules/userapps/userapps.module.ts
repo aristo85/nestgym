@@ -7,6 +7,7 @@ import { PhotosModule } from '../photos/photos.module';
 @Module({
   providers: [UserappsService, ...userappsProviders],
   controllers: [UserappsController],
-  imports: [PhotosModule]
+  imports: [PhotosModule],
+  exports: [UserappsService],
 })
 export class UserappsModule {}

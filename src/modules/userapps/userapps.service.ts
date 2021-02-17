@@ -9,10 +9,11 @@ import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progwor
 import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
 import { Photo } from '../photos/photo.entity';
 import { includePhotoOptions, PhotosService } from '../photos/photos.service';
+import { UserProgress } from '../user-progress/user-progress.entity';
 import { UserWorkout } from '../user-workouts/user-workout.entity';
 import { User } from '../users/user.entity';
 import { UserappDto } from './userapp.dto';
-import { Userapp } from './userapp.entity';
+import { ApplicationStatus, Userapp } from './userapp.entity';
 
 export interface createPromise {
   createdUserapp: Userapp;
@@ -127,7 +128,7 @@ export class UserappsService {
           where: {
             userId: plainAppData.coachProfile.id,
           },
-          include: [{all: true}],
+          include: [{ all: true }],
         }));
 
       const returnedData = coachProfile
@@ -218,4 +219,41 @@ export class UserappsService {
   arrFilter = (arr1: string[], arr2: string[]) => {
     return arr1.filter((el) => arr2.includes(el));
   };
+
+  async getAllCoachApps(
+    coachUserId: number,
+    applicationStatus: ApplicationStatus,
+  ) {
+    const coachUserapps = await Userapp.findAll({
+      where: { coachId: coachUserId, status: applicationStatus },
+    });
+    return coachUserapps;
+  }
+
+  async getAllCoachAppsUsers(
+    coachUserId: number,
+    applicationStatus: ApplicationStatus,
+    clientUserId: number | undefined = undefined,
+    progressLimit: number | undefined = 1,
+  ) {
+    const usersByApps = await User.findAll({
+      where: {
+        id: clientUserId,
+      },
+      include: [
+        {
+          model: Userapp,
+          required: true,
+          where: { coachId: coachUserId, status: applicationStatus },
+        },
+        {
+          model: UserProgress,
+          limit: progressLimit,
+          order: [['createdAt', 'DESC']],
+        },
+      ],
+    });
+
+    return usersByApps as (User & { userprogresses: UserProgress[] })[];
+  }
 }

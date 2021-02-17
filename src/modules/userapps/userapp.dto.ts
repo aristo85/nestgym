@@ -8,7 +8,7 @@ export interface createPromise {
   matches: CoachProfile[];
 }
 
-export type RetApp = Userapp | {dietprograms: any}
+export type RetApp = Userapp | { dietprograms: any };
 
 export class UserappDto {
   @ApiProperty()
@@ -46,9 +46,9 @@ export class UserappDto {
   @ApiProperty()
   readonly coment: string;
 
-  @ApiProperty()
+  @ApiProperty({ enum: ['active', 'pending', 'archieved', 'reject'] })
   readonly status: string;
-  
+
   @ApiProperty()
   readonly frontPhotoHash?: string;
 
@@ -57,5 +57,4 @@ export class UserappDto {
 
   @ApiProperty()
   readonly backPhotoHash?: string;
-
 }

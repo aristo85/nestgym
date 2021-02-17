@@ -17,6 +17,9 @@ import { UserWorkout } from '../user-workouts/user-workout.entity';
 import { User } from '../users/user.entity';
 import { Photo } from '../photos/photo.entity';
 
+export type ApplicationStatus = 'active' | 'pending' | 'archieved' | 'reject'
+export type ApplicationCoachGender = 'male' | 'female' | 'any'
+
 @Table
 export class Userapp extends Model<Userapp> {
   @Column({
@@ -48,7 +51,7 @@ export class Userapp extends Model<Userapp> {
     values: ['male', 'female', 'any'],
     allowNull: false,
   })
-  coachGender: string;
+  coachGender: ApplicationCoachGender;
 
   @Column({
     type: DataType.STRING,
@@ -83,8 +86,9 @@ export class Userapp extends Model<Userapp> {
   @Column({
     type: DataType.STRING,
     // allowNull: false,
+    values: ['active', 'pending', 'archieved', 'reject'],
   })
-  status: string;
+  status: ApplicationStatus;
 
   @HasMany(() => Requestedapp, { foreignKey: 'userappId', onDelete: 'CASCADE' })
   requestedapps: Requestedapp[];
