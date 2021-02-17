@@ -10,7 +10,7 @@ export class AimsService {
     private readonly aimRepository: typeof Aim,
   ) {}
 
-  async create(aim: AimDto, adminId): Promise<Aim> {
+  async create(aim: AimDto, adminId: number): Promise<Aim> {
     return await this.aimRepository.create<Aim>({
       ...aim,
       adminId,
@@ -21,25 +21,25 @@ export class AimsService {
     return await this.aimRepository.findAll<Aim>({});
   }
 
-  async findOne(id): Promise<Aim> {
+  async findOne(aimId: number): Promise<Aim> {
     return await this.aimRepository.findOne({
-      where: { id },
+      where: { id: aimId },
     });
   }
 
-  async update(id, data) {
+  async update(aimId: number, data: AimDto) {
     const [
       numberOfAffectedRows,
       [updatedAim],
     ] = await this.aimRepository.update(
       { ...data },
-      { where: { id }, returning: true },
+      { where: { id: aimId }, returning: true },
     );
 
     return { numberOfAffectedRows, updatedAim };
   }
 
-  async delete(id) {
-    return await this.aimRepository.destroy({ where: { id } });
+  async delete(aimId: number) {
+    return await this.aimRepository.destroy({ where: { id: aimId } });
   }
 }

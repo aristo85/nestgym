@@ -1,43 +1,47 @@
 import {
-    Controller,
-    Get,
-    Post,
-    Put,
-    Delete,
-    Param,
-    Body,
-    NotFoundException,
-    UseGuards,
-    Request,
-    Req,
-  } from '@nestjs/common';
-  import { AuthGuard } from '@nestjs/passport';
-  import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-  import { Aim } from '../aims/aim.entity';
-  import { AimsService } from '../aims/aims.service';
-  import { AimDto } from '../aims/dto/aim.dto';
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  NotFoundException,
+  UseGuards,
+  Request,
+  Req,
+  ForbiddenException,
+} from '@nestjs/common';
+import { Response } from 'express';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Aim } from '../aims/aim.entity';
+import { AimsService } from '../aims/aims.service';
+import { AimDto } from '../aims/dto/aim.dto';
+import { User } from '../users/user.entity';
+import { AuthUser } from '../users/users.decorator';
 
 @ApiTags('Given Aim/Goal List')
 @ApiBearerAuth()
 @Controller('aims')
 export class AimsController {
-    constructor(private readonly aimService: AimsService) {}
+  constructor(private readonly aimService: AimsService) {}
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  async create(@Body() aim: AimDto, @Request() req): Promise<Aim> {
+  async create(@Body() aim: AimDto, @AuthUser() user: User): Promise<Aim> {
     // check the role
-    if (req.user.role !== 'admin') {
-      throw new NotFoundException('Your role is not an admin');
+    if (user.role !== 'admin') {
+      throw new ForbiddenException('Your role is not an admin');
     }
     // create a new aim and return the newly created aim
-    return await this.aimService.create(aim, req.user.id);
+    return await this.aimService.create(aim, user.id);
   }
 
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async findAll(@Req() req) {
+  async findAll(@Req() req: Request & { res: Response }) {
     // get all aims in the db
     const list = await this.aimService.findAll();
     const count = list.length;
@@ -49,7 +53,7 @@ export class AimsController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  async findOne(@Param('id') id: number, @Req() req): Promise<Aim> {
+  async findOne(@Param('id') id: number): Promise<Aim> {
     // find the aim with this id
     const aim = await this.aimService.findOne(id);
 
@@ -67,12 +71,12 @@ export class AimsController {
   async update(
     @Param('id') id: number,
     @Body() aim: AimDto,
-    @Request() req,
+    @AuthUser() user: User
   ): Promise<Aim> {
-      // check the role
-    if (req.user.role !== 'admin') {
-        throw new NotFoundException('Your role is not an admin');
-      }
+    // check the role
+    if (user.role !== 'admin') {
+      throw new ForbiddenException('Your role is not an admin');
+    }
     // get the number of row affected and the updated aim
     const { numberOfAffectedRows, updatedAim } = await this.aimService.update(
       id,
@@ -91,11 +95,11 @@ export class AimsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async remove(@Param('id') id: number, @Req() req) {
-      // check the role
-    if (req.user.role !== 'admin') {
-        throw new NotFoundException('Your role is not an admin');
-      }
+  async remove(@Param('id') id: number, @AuthUser() user: User) {
+    // check the role
+    if (user.role !== 'admin') {
+      throw new ForbiddenException('Your role is not an admin');
+    }
     // delete the aim with this id
     const deleted = await this.aimService.delete(id);
 
