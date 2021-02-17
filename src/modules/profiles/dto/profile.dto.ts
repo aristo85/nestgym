@@ -1,6 +1,5 @@
 import { IsNotEmpty,  } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { PhotoData, PhotoDto } from 'src/modules/photos/dto/photo.dto';
 
 export class ProfileDto {
   @ApiProperty()

@@ -7,6 +7,13 @@ import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'fs';
 import * as crypto from 'crypto';
 import { join } from 'path';
 
+
+export const includePhotoOptions = [
+  { model: Photo, as: 'frontPhoto' },
+  { model: Photo, as: 'sidePhoto' },
+  { model: Photo, as: 'backPhoto' },
+]
+
 @Injectable()
 export class PhotosService {
   constructor(
@@ -96,4 +103,17 @@ export class PhotosService {
   async findAll(): Promise<Photo[]> {
     return await this.photoRepository.findAll<Photo>();
   }
+
+  async findAllThreePostion(data) {
+    const frontPhoto =
+      data.frontPhotoHash && (await this.findOneByHash(data.frontPhotoHash));
+    const sidePhoto =
+      data.sidePhotoHash && (await this.findOneByHash(data.sidePhotoHash));
+    const backPhoto =
+      data.backPhotoHash && (await this.findOneByHash(data.backPhotoHash));
+
+    return { frontPhoto, sidePhoto, backPhoto };
+  }
+
+  
 }

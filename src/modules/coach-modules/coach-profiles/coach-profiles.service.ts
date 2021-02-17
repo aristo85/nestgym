@@ -6,7 +6,7 @@ import { CoachServicesService } from '../coach-services/coach-services.service';
 import { CoachProfile } from './coach-profile.entity';
 import { CoachProfileDto } from './dto/coach-profile.dto';
 
-import { PhotosService } from 'src/modules/photos/photos.service';
+import { includePhotoOptions, PhotosService } from 'src/modules/photos/photos.service';
 
 @Injectable()
 export class CoachProfilesService {
@@ -18,15 +18,11 @@ export class CoachProfilesService {
   ) {}
   /////////////////////////////////////////////
   async create(data: CoachProfileDto, userId): Promise<any> {
-    const frontPhoto =
-      data.frontPhotoHash &&
-      (await this.photoService.findOneByHash(data.frontPhotoHash));
-    const sidePhoto =
-      data.sidePhotoHash &&
-      (await this.photoService.findOneByHash(data.sidePhotoHash));
-    const backPhoto =
-      data.backPhotoHash &&
-      (await this.photoService.findOneByHash(data.backPhotoHash));
+    const {
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    } = await this.photoService.findAllThreePostion(data);
 
     // omit the coachservices prop and create profile
     const { coachServices, ...other } = data;
@@ -59,7 +55,7 @@ export class CoachProfilesService {
 
     return await this.coachProfileRepository.findOne({
       where: whereOptions,
-      include: [{ all: true }],
+      include: [...includePhotoOptions],
     });
 
     // return { profile, serviceList };
@@ -69,7 +65,7 @@ export class CoachProfilesService {
   async findMyProfile(userId): Promise<CoachProfile> {
     return await this.coachProfileRepository.findOne({
       where: { userId },
-      include: [{ all: true }],
+      include: [...includePhotoOptions],
     });
   }
   /////////////////////////////////////////////
@@ -84,15 +80,11 @@ export class CoachProfilesService {
   async update(id, data, user) {
     let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
 
-    const frontPhoto =
-      data.frontPhotoHash &&
-      (await this.photoService.findOneByHash(data.frontPhotoHash));
-    const sidePhoto =
-      data.sidePhotoHash &&
-      (await this.photoService.findOneByHash(data.sidePhotoHash));
-    const backPhoto =
-      data.backPhotoHash &&
-      (await this.photoService.findOneByHash(data.backPhotoHash));
+    const {
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    } = await this.photoService.findAllThreePostion(data);
 
     const [
       numberOfAffectedRows,
@@ -119,7 +111,7 @@ export class CoachProfilesService {
 
     const list = await this.coachProfileRepository.findAll<CoachProfile>({
       where: updateOPtion,
-      include: [{ all: true }],
+      include: [...includePhotoOptions],
     });
     // const count = await this.coachProfileRepository.count();
     return list;

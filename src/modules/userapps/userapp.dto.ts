@@ -1,10 +1,7 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { PhotoData } from '../photos/dto/photo.dto';
 import { Userapp } from './userapp.entity';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
-import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
-
 
 export interface createPromise {
   createdUserapp: Userapp;
@@ -51,5 +48,14 @@ export class UserappDto {
 
   @ApiProperty()
   readonly status: string;
+  
+  @ApiProperty()
+  readonly frontPhotoHash?: string;
+
+  @ApiProperty()
+  readonly sidePhotoHash?: string;
+
+  @ApiProperty()
+  readonly backPhotoHash?: string;
 
 }

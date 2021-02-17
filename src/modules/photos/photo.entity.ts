@@ -1,4 +1,5 @@
-import { Table, Column, Model, DataType, HasOne } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, HasOne, HasMany } from 'sequelize-typescript';
+import { Feedback } from '../feedbacks/feedback.entity';
 
 @Table
 export class Photo extends Model<Photo> {
@@ -19,4 +20,13 @@ export class Photo extends Model<Photo> {
     // allowNull: false,
   })
   hashPicture: string;
+  
+  // @HasMany(() => Feedback)
+  // frontPhoto: Feedback[]
+
+  // @HasMany(() => Feedback)
+  // sidePhoto: Feedback[]
+
+  // @HasMany(() => Feedback)
+  // backPhoto: Feedback[]
 }
