@@ -19,7 +19,8 @@ import { Aim } from '../aims/aim.entity';
 import { AimsService } from '../aims/aims.service';
 import { AimDto } from '../aims/dto/aim.dto';
 import { User } from '../users/user.entity';
-import { AuthUser } from '../users/users.decorator';
+import { AuthUser, UserRole } from '../users/users.decorator';
+import { Role } from '../users/dto/user.dto';
 
 @ApiTags('Given Aim/Goal List')
 @ApiBearerAuth()
@@ -35,7 +36,7 @@ export class AimsController {
       throw new ForbiddenException('Your role is not an admin');
     }
     // create a new aim and return the newly created aim
-    return await this.aimService.create(aim, user.id);
+    return await this.aimService.createAim(aim, user.id);
   }
 
   @ApiResponse({ status: 200 })
@@ -43,7 +44,7 @@ export class AimsController {
   @Get()
   async findAll(@Req() req: Request & { res: Response }) {
     // get all aims in the db
-    const list = await this.aimService.findAll();
+    const list = await this.aimService.findAllAims();
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -55,7 +56,7 @@ export class AimsController {
   @Get(':id')
   async findOne(@Param('id') id: number): Promise<Aim> {
     // find the aim with this id
-    const aim = await this.aimService.findOne(id);
+    const aim = await this.aimService.findOneAim(id);
 
     // if the aim doesn't exit in the db, throw a 404 error
     if (!aim) {
@@ -78,7 +79,7 @@ export class AimsController {
       throw new ForbiddenException('Your role is not an admin');
     }
     // get the number of row affected and the updated aim
-    const { numberOfAffectedRows, updatedAim } = await this.aimService.update(
+    const { numberOfAffectedRows, updatedAim } = await this.aimService.updateAim(
       id,
       aim,
     );
@@ -95,13 +96,13 @@ export class AimsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async remove(@Param('id') id: number, @AuthUser() user: User) {
+  async remove(@Param('id') id: number, @UserRole() role: Role) {
     // check the role
-    if (user.role !== 'admin') {
+    if (role !== 'admin') {
       throw new ForbiddenException('Your role is not an admin');
     }
     // delete the aim with this id
-    const deleted = await this.aimService.delete(id);
+    const deleted = await this.aimService.deleteAim(id);
 
     // if the number of row affected is zero,
     // then the aim doesn't exist in our db
