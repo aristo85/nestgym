@@ -1,6 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Op } from 'sequelize';
 import { COACH_APP_REPOSITORY } from 'src/core/constants';
+import { includePhotoOptions } from 'src/modules/photos/photos.service';
 import { Profile } from 'src/modules/profiles/profile.entity';
 import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
 import {
@@ -83,7 +84,6 @@ export class CoachappsService {
   }
 
   async findAllCoachAppRequest(coachUserId: number): Promise<Requestedapp[]> {
-
     const list: any = await this.coachappRepository
       .findAll<Requestedapp>({
         where: { coachId: coachUserId },
@@ -91,6 +91,7 @@ export class CoachappsService {
           {
             model: Userapp,
             include: [
+              ...includePhotoOptions,
               {
                 model: FullProgWorkout,
                 limit: 1,
@@ -148,6 +149,7 @@ export class CoachappsService {
         {
           model: Userapp,
           include: [
+            ...includePhotoOptions,
             {
               model: FullProgWorkout,
               limit: 1,

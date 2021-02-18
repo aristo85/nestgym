@@ -11,6 +11,6 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
-    // "noImplicitAny": true
+    "noImplicitAny": true
   }
 }

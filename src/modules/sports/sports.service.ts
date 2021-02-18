@@ -5,41 +5,41 @@ import { Sport } from './sport.entity';
 
 @Injectable()
 export class SportsService {
-    constructor(
-        @Inject(SPORT_REPOSITORY)
-        private readonly sportRepository: typeof Sport,
-      ) {}
-    
-      async create(sport: SportDto, adminId): Promise<Sport> {
-        return await this.sportRepository.create<Sport>({
-          ...sport,
-          adminId,
-        });
-      }
-    
-      async findAll(): Promise<Sport[]> {
-        return await this.sportRepository.findAll<Sport>({});
-      }
-    
-      async findOne(id): Promise<Sport> {
-        return await this.sportRepository.findOne({
-          where: { id },
-        });
-      }
-    
-      async delete(id) {
-        return await this.sportRepository.destroy({ where: { id } });
-      }
-    
-      async update(id, data) {
-        const [
-          numberOfAffectedRows,
-          [updatedSport],
-        ] = await this.sportRepository.update(
-          { ...data },
-          { where: { id }, returning: true },
-        );
-    
-        return { numberOfAffectedRows, updatedSport };
-      }
+  constructor(
+    @Inject(SPORT_REPOSITORY)
+    private readonly sportRepository: typeof Sport,
+  ) {}
+
+  async createSport(sport: SportDto, adminId: number): Promise<Sport> {
+    return await this.sportRepository.create<Sport>({
+      ...sport,
+      adminId,
+    });
+  }
+
+  async findAllSports(): Promise<Sport[]> {
+    return await this.sportRepository.findAll<Sport>({});
+  }
+
+  async findOneSport(sportId: number): Promise<Sport> {
+    return await this.sportRepository.findOne({
+      where: { id: sportId },
+    });
+  }
+
+  async deleteSport(sportId: number) {
+    return await this.sportRepository.destroy({ where: { id: sportId } });
+  }
+
+  async updateSport(sportId: number, data: SportDto) {
+    const [
+      numberOfAffectedRows,
+      [updatedSport],
+    ] = await this.sportRepository.update(
+      { ...data },
+      { where: { id: sportId }, returning: true },
+    );
+
+    return { numberOfAffectedRows, updatedSport };
+  }
 }
