@@ -3,11 +3,21 @@ import { ApiProperty } from '@nestjs/swagger';
 import { DataType } from 'sequelize-typescript';
 import { DataTypes } from 'sequelize/types';
 
-export interface DietProd {
+export interface DietProduct {
   product: string;
   amount: number;
-  dayNumber: number;
   measure: string;
+}
+
+export interface Diet {
+  description: string;
+  eatingNumber: number;
+  dietproducts: DietProduct[];
+}
+
+export interface DayDietProgram {
+  dayNumber: number;
+  diet: Diet;
 }
 
 export interface FinalData {
@@ -20,11 +30,6 @@ export interface FinalData {
   coment: string;
   userappIds: number[];
 }
-// export class DietJsonDto {
-//   @ApiProperty()
-//   @IsNotEmpty()
-//   readonly days: JSON;
-// }
 
 export class DietProgramDto {
   @ApiProperty()
@@ -33,13 +38,15 @@ export class DietProgramDto {
 
   @ApiProperty({
     description: ` example: [
-    {
-        product: string,
-        amount: number,
-        dayNumber: number,
-        measure: string,
-    }, ...
-  ]`,
+      {
+          "daynumber": 1,
+          "diet": {
+              "description": "test",
+              "eatingNumer": 1,
+              "dietproducts": []
+          }
+    }
+  ], ...`,
 
     type: 'array',
     items: {
@@ -47,7 +54,7 @@ export class DietProgramDto {
     },
   })
   @IsNotEmpty()
-  readonly days: DietProd[];
+  readonly days: DayDietProgram[];
 
   @ApiProperty()
   @IsNotEmpty()
@@ -64,11 +71,10 @@ export class DietProgramDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly carbs: number;
-  
+
   @ApiProperty()
   //   @IsNotEmpty()
   readonly coment: string;
-
 
   @ApiProperty({
     type: 'array',
@@ -102,7 +108,7 @@ export class DietProgramUpdateDto {
     },
   })
   @IsNotEmpty()
-  readonly days: DietProd[];
+  readonly days: DayDietProgram[];
 
   @ApiProperty()
   @IsNotEmpty()

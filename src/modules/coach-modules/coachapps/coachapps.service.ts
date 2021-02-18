@@ -12,7 +12,6 @@ import { User } from 'src/modules/users/user.entity';
 import { CoachProfile } from '../coach-profiles/coach-profile.entity';
 import { CoachService } from '../coach-services/coach-service.entity';
 import { DietProgram } from '../dietprogram/dietprogram.entity';
-import { isJson } from '../dietprogram/dietprogram.service';
 import { FullProgWorkout } from '../full-progworkouts/full.progworkout.enity';
 import { WorkoutProgram } from '../workout-programs/workout-program.entity';
 import { ApplicationRequestStatus, Requestedapp } from './coachapp.entity';
@@ -107,32 +106,32 @@ export class CoachappsService {
           },
         ],
       })
-      .map(async (el) => {
-        const request = el.get({ plain: true }) as Requestedapp;
-        const app = request.userapp;
-        console.log(app.dietprograms);
-        // change json days to obj
-        const diets: DietObj[] = app.dietprograms.map((diet) => {
-          let dataJson = isJson(diet.days);
-          while (isJson(dataJson)) {
-            dataJson = isJson(dataJson);
-          }
-          return { ...diet, days: dataJson };
-        });
-        // add coach profile if the request been accepted by a coach
-        const userProfile = await Profile.findOne({
-          where: {
-            userId: request.userId,
-          },
-        });
-        return userProfile
-          ? {
-              ...request,
-              userapp: { ...app, dietprograms: diets },
-              userProfile,
-            }
-          : { ...request, userapp: { ...app, dietprograms: diets } };
-      });
+      // .map(async (el) => {
+      //   const request = el.get({ plain: true }) as Requestedapp;
+      //   const app = request.userapp;
+      //   console.log(app.dietprograms);
+      //   // change json days to obj
+      //   const diets: DietObj[] = app.dietprograms.map((diet) => {
+      //     let dataJson = isJson(diet.days);
+      //     while (isJson(dataJson)) {
+      //       dataJson = isJson(dataJson);
+      //     }
+      //     return { ...diet, days: dataJson };
+      //   });
+      //   // add coach profile if the request been accepted by a coach
+      //   const userProfile = await Profile.findOne({
+      //     where: {
+      //       userId: request.userId,
+      //     },
+      //   });
+      //   return userProfile
+      //     ? {
+      //         ...request,
+      //         userapp: { ...app, dietprograms: diets },
+      //         userProfile,
+      //       }
+      //     : { ...request, userapp: { ...app, dietprograms: diets } };
+      // });
 
     return list;
   }

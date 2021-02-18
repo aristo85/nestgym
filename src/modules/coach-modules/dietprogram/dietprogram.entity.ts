@@ -10,6 +10,7 @@ import {
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { User } from 'src/modules/users/user.entity';
 import { DietProduct } from '../dietproducts/dietproduct.entity';
+import { DayDietProgram } from './dto/dietprogram.dto';
 
 @Table
 export class DietProgram extends Model<DietProgram> {
@@ -51,10 +52,10 @@ export class DietProgram extends Model<DietProgram> {
   coment: string;
 
   @Column({
-    type: DataType.TEXT,
+    type: DataType.JSONB,
     // allowNull: false,
   })
-  days: string;
+  days: DayDietProgram[];
 
   @ForeignKey(() => User)
   @Column({
@@ -72,7 +73,7 @@ export class DietProgram extends Model<DietProgram> {
 
   @BelongsTo(() => User)
   user: User;
-  //
+ 
   @ForeignKey(() => Userapp)
   @Column({
     type: DataType.INTEGER,

@@ -1,7 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { TEMPLATE_DIET_REPOSITORY } from 'src/core/constants';
 import { DietproductsService } from '../dietproducts/dietproducts.service';
-import { isJson } from '../dietprogram/dietprogram.service';
 import { RetTemplate, TemplateDietDto } from './dto/template-diet.dto';
 import { TemplateDiet } from './template-diet.entity';
 
@@ -23,9 +22,9 @@ export class TemplateDietsService {
     console.log(jsonDays);
 
     // check json correct
-    if (!isJson(jsonDays)) {
-      throw new NotFoundException('not correct data "days"');
-    }
+    // if (!isJson(jsonDays)) {
+    //   throw new NotFoundException('not correct data "days"');
+    // }
 
     // create program eith json days
     const template = await this.templateDietRepository.create<TemplateDiet>({
@@ -34,7 +33,7 @@ export class TemplateDietsService {
       days: jsonDays,
     });
 
-    const diet: any = await this.templateDietRepository.findOne({
+    const diet = await this.templateDietRepository.findOne({
       raw: true,
       nest: true,
       where: {
@@ -43,12 +42,12 @@ export class TemplateDietsService {
     });
 
     // check the json
-    let dataJson = isJson(diet.days);
-    while (isJson(dataJson)) {
-      dataJson = isJson(dataJson);
-    }
+    // let dataJson = isJson(diet.days);
+    // while (isJson(dataJson)) {
+    //   dataJson = isJson(dataJson);
+    // }
 
-    return { ...diet, days: dataJson };
+    return { ...diet };
   }
   ///////////////////////////////////////
 
@@ -56,19 +55,18 @@ export class TemplateDietsService {
     // check if from admin
     let updateOPtion = user.role === 'admin' ? {} : { coachId: user.id };
 
-    const list = await this.templateDietRepository
-      .findAll<TemplateDiet>({
-        where: updateOPtion,
-        raw: true,
-        nest: true,
-      })
-      .map((el) => {
-        let dataJson = isJson(el.days);
-        while (isJson(dataJson)) {
-          dataJson = isJson(dataJson);
-        }
-        return { ...el, days: dataJson };
-      });
+    const list = await this.templateDietRepository.findAll<TemplateDiet>({
+      where: updateOPtion,
+      raw: true,
+      nest: true,
+    });
+    // .map((el) => {
+    //   let dataJson = isJson(el.days);
+    //   while (isJson(dataJson)) {
+    //     dataJson = isJson(dataJson);
+    //   }
+    //   return { ...el, days: dataJson };
+    // });
     return list;
   }
   ///////////////////////////////////////
@@ -83,11 +81,11 @@ export class TemplateDietsService {
       where: updateOPtion,
     });
     // check the json
-    let dataJson = isJson(diet.days);
-    while (isJson(dataJson)) {
-      dataJson = isJson(dataJson);
-    }
-    return { ...diet, days: dataJson };
+    // let dataJson = isJson(diet.days);
+    // while (isJson(dataJson)) {
+    //   dataJson = isJson(dataJson);
+    // }
+    return { ...diet };
   }
   ///////////////////////////////////////
 
@@ -109,29 +107,29 @@ export class TemplateDietsService {
     const jsonDays = JSON.stringify(days);
 
     // check json correct
-    if (!isJson(jsonDays)) {
-      throw new NotFoundException('not correct data "days"');
-    }
+    // if (!isJson(jsonDays)) {
+    //   throw new NotFoundException('not correct data "days"');
+    // }
 
     // update the program
     await this.templateDietRepository.update(
-      { ...other, days: jsonDays },
+      { ...other, days },
       { where: updateOPtion, returning: true },
     );
 
     // return the updated program with
-    const diet =  await this.templateDietRepository.findOne({
+    const diet = await this.templateDietRepository.findOne({
       raw: true,
       nest: true,
       where: { id },
     });
     // check the json
-    let dataJson = isJson(diet.days);
-    while (isJson(dataJson)) {
-      dataJson = isJson(dataJson);
-    }
+    // let dataJson = isJson(diet.days);
+    // while (isJson(dataJson)) {
+    //   dataJson = isJson(dataJson);
+    // }
 
-    return { ...diet, days: dataJson };
+    return { ...diet };
   }
   ///////////////////////////////////////
 }

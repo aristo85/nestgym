@@ -10,7 +10,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
-import { isJson } from '../coach-modules/dietprogram/dietprogram.service';
 import { Userapp } from '../userapps/userapp.entity';
 import { RetDiet, UserDietsService } from './user-diets.service';
 
@@ -30,20 +29,21 @@ export class UserDietsController {
       nest: true,
       where: { userId: req.user.id },
       include: [Userapp],
-    }).map(async (el) => {
-      // add coach profile
-      const coachProfile = await CoachProfile.findOne({
-        where: {
-          userId: el.coachId,
-        },
-      });
-      // transforming json days to object
-      let dataJson = isJson(el.days);
-      while (isJson(dataJson)) {
-        dataJson = isJson(dataJson);
-      }
-      return { ...el, days: dataJson, coachProfile };
     });
+    // .map(async (el) => {
+    //   // add coach profile
+    //   const coachProfile = await CoachProfile.findOne({
+    //     where: {
+    //       userId: el.coachId,
+    //     },
+    //   });
+    //   // transforming json days to object
+    //   let dataJson = isJson(el.days);
+    //   while (isJson(dataJson)) {
+    //     dataJson = isJson(dataJson);
+    //   }
+    //   return { ...el, days: dataJson, coachProfile };
+    // });
 
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
@@ -79,11 +79,11 @@ export class UserDietsController {
     });
 
     // check the json
-    let dataJson = isJson(diet.days);
-    while (isJson(dataJson)) {
-      dataJson = isJson(dataJson);
-    }
+    // let dataJson = isJson(diet.days);
+    // while (isJson(dataJson)) {
+    //   dataJson = isJson(dataJson);
+    // }
 
-    return { ...diet, days: dataJson, coachProfile };
+    return { ...diet, coachProfile };
   }
 }

@@ -15,12 +15,14 @@ import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/modules/users/user.entity';
-import { AuthUser } from 'src/modules/users/users.decorator';
+import { AuthUser, UserRole } from 'src/modules/users/users.decorator';
 import { Requestedapp } from '../coachapps/coachapp.entity';
 import { RetTemplate } from '../template-diets/dto/template-diet.dto';
 import { DietProgram } from './dietprogram.entity';
 import { DietprogramService } from './dietprogram.service';
 import { DietProgramDto, DietProgramUpdateDto } from './dto/dietprogram.dto';
+import { Userapp } from 'src/modules/userapps/userapp.entity';
+import { Role } from 'src/modules/users/dto/user.dto';
 
 @ApiTags('diet programs')
 @ApiBearerAuth()
@@ -33,7 +35,7 @@ export class DietprogramController {
   async create(
     @Body() data: DietProgramDto,
     @AuthUser() user: User,
-  ): Promise<DietProgram> {
+  ): Promise<DietProgram[]> {
     // check the role
     if (user.role !== 'trainer') {
       throw new ForbiddenException('Your role is not a trainer');
@@ -43,15 +45,20 @@ export class DietprogramController {
       throw new NotFoundException('You havent chosen any application');
     }
     // check if applications are exists
-    const myRequests = await Requestedapp.findAll({
-      where: { userappId: [...data.userappIds], coachId: user.id },
+    const myRequests = await Userapp.findAll({
+      where: { id: data.userappIds, coachId: user.id },
     });
     if (myRequests.length !== data.userappIds.length) {
       throw new NotFoundException('some of the Apps are not exist');
     }
 
     // create a new prog and return the newly created progs
-    return await this.dietProgramService.create(data, user.id, myRequests);
+    const result = await this.dietProgramService.createDietProgram(
+      data,
+      user.id,
+      myRequests,
+    );
+    return result;
   }
 
   @ApiResponse({ status: 200 })
@@ -60,9 +67,13 @@ export class DietprogramController {
   async findAll(
     @AuthUser() user: User,
     @Request() req: Request & { res: Response },
+    @UserRole() role: Role,
   ) {
+    if (role !== 'trainer') {
+      throw new ForbiddenException('User must be trainer');
+    }
     // get all progs in the db
-    const list = await this.dietProgramService.findAll(user);
+    const list = await this.dietProgramService.findAllDietProgramms(user.id);
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -75,9 +86,13 @@ export class DietprogramController {
   async findOne(
     @AuthUser() user: User,
     @Param('id') id: number,
+    @UserRole() role: Role,
   ): Promise<DietProgram> {
     // find the progs with this id
-    const progs = await this.dietProgramService.findOne(id, user);
+    if (role !== 'trainer' && role !== 'admin') {
+      throw new ForbiddenException('User must be trainer or admin');
+    }
+    const progs = await this.dietProgramService.findOneDietProgram(id, user.id);
 
     // if the progs doesn't exit in the db, throw a 404 error
     if (!progs) {
@@ -90,9 +105,19 @@ export class DietprogramController {
 
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async remove(@AuthUser() user: User, @Param('id') id: number) {
+  async remove(
+    @AuthUser() user: User,
+    @Param('id') id: number,
+    @UserRole() role: Role,
+  ) {
+    if (role !== 'trainer' && role !== 'admin') {
+      throw new ForbiddenException('User must be trainer or admin');
+    }
     // delete the app with this id
-    const deleted = await this.dietProgramService.delete(id, user.id);
+    const deleted = await this.dietProgramService.deleteDietProgram(
+      id,
+      role === 'admin' ? undefined : user.id,
+    );
 
     // if the number of row affected is zero,
     // then the app doesn't exist in our db
@@ -111,13 +136,20 @@ export class DietprogramController {
     @Param('id') id: number,
     @Body() data: DietProgramUpdateDto,
     @AuthUser() user: User,
-  ): Promise<RetTemplate> {
+    @UserRole() role: Role,
+  ): Promise<DietProgram[]> {
+    if (role !== 'trainer' && role !== 'admin') {
+      throw new ForbiddenException('User must be trainer or admin');
+    }
     // check id
-    const prog = await this.dietProgramService.findOne(id, user);
+    const prog = await this.dietProgramService.findOneDietProgram(
+      id,
+      role === 'admin' ? undefined : user.id,
+    );
     if (!prog) {
       throw new NotFoundException("This program doesn't exist");
     }
     // get the number of row affected and the updated Prog
-    return await this.dietProgramService.update(id, data, user.id);
+    return await this.dietProgramService.updateDietProgram(id, data, role === 'admin' ? undefined : user.id);
   }
 }

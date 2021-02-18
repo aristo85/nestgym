@@ -115,6 +115,13 @@ export class Userapp extends Model<Userapp> {
   })
   coachId: number;
 
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  userId: number;
+
   @BelongsTo(() => CoachProfile, { foreignKey: 'coachProfileId' })
   coachProfile: CoachProfile;
   

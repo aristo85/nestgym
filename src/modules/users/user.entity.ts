@@ -20,6 +20,10 @@ import { Sport } from '../sports/sport.entity';
 import { UserProgress } from '../user-progress/user-progress.entity';
 import { UserWorkout } from '../user-workouts/user-workout.entity';
 import { Userapp } from '../userapps/userapp.entity';
+
+
+export type Roles = 'admin' | 'user' | 'trainer'
+
 @Table
 export class User extends Model<User> {
   @Column({
@@ -40,7 +44,7 @@ export class User extends Model<User> {
     values: ['admin', 'user', 'trainer'],
     allowNull: false,
   })
-  role: string;
+  role: Roles;
 
   @Column({
     type: DataType.STRING,

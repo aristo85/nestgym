@@ -87,6 +87,12 @@ ssh-copy-id root@myenergy.stream
 git submodule init && git submodule update
 ```
 
+### Миграция на json field
+
+```SQL 
+ALTER TABLE "DietPrograms" ALTER "days" TYPE JSONB USING to_jsonb("days");
+```
+
 ### Docker
 
 * Установить docker:

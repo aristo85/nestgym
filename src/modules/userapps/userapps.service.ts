@@ -4,7 +4,6 @@ import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.enti
 import { CoachService } from '../coach-modules/coach-services/coach-service.entity';
 import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
-import { isJson } from '../coach-modules/dietprogram/dietprogram.service';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
 import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
 import { Photo } from '../photos/photo.entity';
@@ -55,43 +54,42 @@ export class UserappsService {
     // check if from admin
     let updateOPtion = user.role === 'admin' ? {} : { userId: user.id };
 
-    const list: any = await this.userappRepository
-      .findAll<Userapp>({
-        where: updateOPtion,
-        include: [
-          ...includePhotoOptions,
-          Requestedapp,
-          {
-            model: FullProgWorkout,
-            limit: 1,
-            order: [['createdAt', 'DESC']],
-            include: [{ model: WorkoutProgram, limit: 10 }],
-          },
-          {
-            model: DietProgram,
-            limit: 1,
-            order: [['createdAt', 'DESC']],
-          },
-          { model: UserWorkout, limit: 7 },
-          {
-            model: CoachProfile,
-            as: 'coachProfile',
-            include: [{ all: true }],
-          },
-        ],
-      })
-      .map((el: Userapp) => {
-        const app: Userapp = el.get({ plain: true }) as Userapp;
-        // change json days to obj
-        const diets: DietObj[] = app.dietprograms.map((diet) => {
-          let dataJson = isJson(diet.days);
-          while (isJson(dataJson)) {
-            dataJson = isJson(dataJson);
-          }
-          return { ...diet, days: dataJson };
-        });
-        return { ...app, dietprograms: diets };
-      });
+    const list: any = await this.userappRepository.findAll<Userapp>({
+      where: updateOPtion,
+      include: [
+        ...includePhotoOptions,
+        Requestedapp,
+        {
+          model: FullProgWorkout,
+          limit: 1,
+          order: [['createdAt', 'DESC']],
+          include: [{ model: WorkoutProgram, limit: 10 }],
+        },
+        {
+          model: DietProgram,
+          limit: 1,
+          order: [['createdAt', 'DESC']],
+        },
+        { model: UserWorkout, limit: 7 },
+        {
+          model: CoachProfile,
+          as: 'coachProfile',
+          include: [{ all: true }],
+        },
+      ],
+    });
+    // .map((el: Userapp) => {
+    //   const app: Userapp = el.get({ plain: true }) as Userapp;
+    //   // change json days to obj
+    //   const diets: DietObj[] = app.dietprograms.map((diet) => {
+    //     let dataJson = isJson(diet.days);
+    //     while (isJson(dataJson)) {
+    //       dataJson = isJson(dataJson);
+    //     }
+    //     return { ...diet, days: dataJson };
+    //   });
+    //   return { ...app, dietprograms: diets };
+    // });
 
     return list;
   }
@@ -112,33 +110,35 @@ export class UserappsService {
         { model: UserWorkout, limit: 7 },
       ],
     });
-    if (app) {
-      const plainAppData: Userapp = app.get({ plain: true }) as Userapp;
-      // change json days to obj
-      const diets: DietObj[] = plainAppData.dietprograms.map((diet) => {
-        let dataJson = isJson(diet.days);
-        while (isJson(dataJson)) {
-          dataJson = isJson(dataJson);
-        }
-        return { ...diet, days: dataJson };
-      });
-      const coachProfile =
-        plainAppData.coachProfile &&
-        (await CoachProfile.findOne({
-          where: {
-            userId: plainAppData.coachProfile.id,
-          },
-          include: [{ all: true }],
-        }));
 
-      const returnedData = coachProfile
-        ? { ...plainAppData, dietprograms: diets, coachProfile }
-        : { ...plainAppData, dietprograms: diets };
+    return app;
+    // if (app) {
+    //   const plainAppData: Userapp = app.get({ plain: true }) as Userapp;
+    //   // change json days to obj
+    //   const diets: DietObj[] = plainAppData.dietprograms.map((diet) => {
+    //     let dataJson = isJson(diet.days);
+    //     while (isJson(dataJson)) {
+    //       dataJson = isJson(dataJson);
+    //     }
+    //     return { ...diet, days: dataJson };
+    //   });
+    //   const coachProfile =
+    //     plainAppData.coachProfile &&
+    //     (await CoachProfile.findOne({
+    //       where: {
+    //         userId: plainAppData.coachProfile.id,
+    //       },
+    //       include: [{ all: true }],
+    //     }));
 
-      return returnedData as Userapp;
-    } else {
-      return app;
-    }
+    //   const returnedData = coachProfile
+    //     ? { ...plainAppData, dietprograms: diets, coachProfile }
+    //     : { ...plainAppData, dietprograms: diets };
+
+    //   return returnedData as Userapp;
+    // } else {
+    //   return app;
+    // }
   }
 
   async delete(id, user) {
@@ -233,13 +233,11 @@ export class UserappsService {
   async getAllCoachAppsUsers(
     coachUserId: number,
     applicationStatus: ApplicationStatus,
-    clientUserId: number | undefined = undefined,
     progressLimit: number | undefined = 1,
   ) {
-    const usersByApps = await User.findAll({
-      where: {
-        id: clientUserId,
-      },
+    const usersByApps = await User.findAll<
+      User & { userprogresses: UserProgress[] }
+    >({
       include: [
         {
           model: Userapp,
@@ -254,6 +252,6 @@ export class UserappsService {
       ],
     });
 
-    return usersByApps as (User & { userprogresses: UserProgress[] })[];
+    return usersByApps;
   }
 }
