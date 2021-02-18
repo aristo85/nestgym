@@ -156,7 +156,6 @@ export class CoachProfilesController {
       numberOfAffectedRows,
       updatedprofile,
     } = await this.coachProfileService.updateCoachProfile(id, profile, user);
-    console.log('nope');
     // if the number of row affected is zero,
     // it means the profile doesn't exist in our db
     if (numberOfAffectedRows === 0) {

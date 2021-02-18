@@ -1,6 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Op } from 'sequelize';
 import { COACH_APP_REPOSITORY } from 'src/core/constants';
+import { Photo } from 'src/modules/photos/photo.entity';
 import { includePhotoOptions } from 'src/modules/photos/photos.service';
 import { Profile } from 'src/modules/profiles/profile.entity';
 import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
@@ -83,56 +84,54 @@ export class CoachappsService {
   }
 
   async findAllCoachAppRequest(coachUserId: number): Promise<Requestedapp[]> {
-    const list: any = await this.coachappRepository
-      .findAll<Requestedapp>({
-        where: { coachId: coachUserId },
-        include: [
-          {
-            model: Userapp,
-            include: [
-              ...includePhotoOptions,
-              {
-                model: FullProgWorkout,
-                limit: 1,
-                order: [['createdAt', 'DESC']],
-                include: [{ model: WorkoutProgram }],
-              },
-              {
-                model: DietProgram,
-                limit: 1,
-                order: [['createdAt', 'DESC']],
-              },
-              { model: UserWorkout, limit: 7 },
-            ],
-          },
-        ],
-      })
-      // .map(async (el) => {
-      //   const request = el.get({ plain: true }) as Requestedapp;
-      //   const app = request.userapp;
-      //   console.log(app.dietprograms);
-      //   // change json days to obj
-      //   const diets: DietObj[] = app.dietprograms.map((diet) => {
-      //     let dataJson = isJson(diet.days);
-      //     while (isJson(dataJson)) {
-      //       dataJson = isJson(dataJson);
-      //     }
-      //     return { ...diet, days: dataJson };
-      //   });
-      //   // add coach profile if the request been accepted by a coach
-      //   const userProfile = await Profile.findOne({
-      //     where: {
-      //       userId: request.userId,
-      //     },
-      //   });
-      //   return userProfile
-      //     ? {
-      //         ...request,
-      //         userapp: { ...app, dietprograms: diets },
-      //         userProfile,
-      //       }
-      //     : { ...request, userapp: { ...app, dietprograms: diets } };
-      // });
+    const list: any = await this.coachappRepository.findAll<Requestedapp>({
+      where: { coachId: coachUserId },
+      include: [
+        {
+          model: Userapp,
+          include: [
+            ...includePhotoOptions,
+            {
+              model: User,
+              as: 'user',
+              attributes: { exclude: ['password'] },
+              include: [
+                {
+                  model: Profile,
+                  include: [{ all: true }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    // .map(async (el) => {
+    //   const request = el.get({ plain: true }) as Requestedapp;
+    //   const app = request.userapp;
+    //   console.log(app.dietprograms);
+    //   // change json days to obj
+    //   const diets: DietObj[] = app.dietprograms.map((diet) => {
+    //     let dataJson = isJson(diet.days);
+    //     while (isJson(dataJson)) {
+    //       dataJson = isJson(dataJson);
+    //     }
+    //     return { ...diet, days: dataJson };
+    //   });
+    //   // add coach profile if the request been accepted by a coach
+    //   const userProfile = await Profile.findOne({
+    //     where: {
+    //       userId: request.userId,
+    //     },
+    //   });
+    //   return userProfile
+    //     ? {
+    //         ...request,
+    //         userapp: { ...app, dietprograms: diets },
+    //         userProfile,
+    //       }
+    //     : { ...request, userapp: { ...app, dietprograms: diets } };
+    // });
 
     return list;
   }

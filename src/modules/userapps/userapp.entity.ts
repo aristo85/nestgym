@@ -122,6 +122,9 @@ export class Userapp extends Model<Userapp> {
   })
   userId: number;
 
+  @BelongsTo(() => User, {foreignKey: 'userId'})
+  user: User
+
   @BelongsTo(() => CoachProfile, { foreignKey: 'coachProfileId' })
   coachProfile: CoachProfile;
   
