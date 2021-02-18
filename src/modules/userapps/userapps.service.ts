@@ -193,7 +193,7 @@ export class UserappsService {
       throw new NotFoundException('this profile is not exist');
     }
     const coachProfiles: any = await CoachProfile.findAll<CoachProfile>({
-      include: [CoachService],
+      include: [...includePhotoOptions, CoachService],
     });
     let newList = [];
     coachProfiles.forEach((coachProfile) => {
