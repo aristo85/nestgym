@@ -22,7 +22,7 @@ export class DoesUserExist implements CanActivate {
     if (!request.body.email) {
       throw new ForbiddenException("This email doesn't provided");
     }
-    const userExist = await this.userService.findOneByEmail(request.body.email);
+    const userExist = await this.userService.findOneUserByEmail(request.body.email);
     if (userExist) {
       throw new ForbiddenException('This email already exist');
     }

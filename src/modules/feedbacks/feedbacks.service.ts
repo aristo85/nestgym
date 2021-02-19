@@ -12,7 +12,7 @@ export class FeedbacksService {
     private readonly photoService: PhotosService,
   ) {}
 
-  async create(data: FeedbackDto, userId): Promise<Feedback> {
+  async createFeedback(data: FeedbackDto, userId: number): Promise<Feedback> {
     // const test = includePhotoOptions
     // photos
     const {
@@ -30,21 +30,30 @@ export class FeedbacksService {
     });
   }
 
-  async findOne(id, userId): Promise<Feedback> {
-    return await this.feedbackRepository.findOne({
-      where: { id, userId },
-      include: [...includePhotoOptions],
-    });
-  }
-
-  async findAll(userId): Promise<Feedback[]> {
+  async findAllFeedbacks(): Promise<Feedback[]> {
     return await this.feedbackRepository.findAll<Feedback>({
-      where: { userId },
       include: [...includePhotoOptions],
     });
   }
 
-  async delete(id, userId) {
-    return await this.feedbackRepository.destroy({ where: { id, userId } });
+  async findOneFeedback(
+    feedbackId: number,
+    userId: number,
+    role: string,
+  ): Promise<Feedback> {
+    const optionCondition =
+      role === 'admin' ? { id: feedbackId } : { id: feedbackId, userId };
+    return await this.feedbackRepository.findOne({
+      where: optionCondition,
+      include: [...includePhotoOptions],
+    });
+  }
+
+  async deleteFeedback(feedbackId: number, userId: number, role: string) {
+    const optionCondition =
+      role === 'admin' ? { id: feedbackId } : { id: feedbackId, userId };
+    return await this.feedbackRepository.destroy({
+      where: optionCondition,
+    });
   }
 }

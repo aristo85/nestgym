@@ -2,16 +2,20 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
   Post,
   Put,
-  Request,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
+import { Roles, User } from 'src/modules/users/user.entity';
+import { AuthUser, UserRole } from 'src/modules/users/users.decorator';
 import { Requestedapp } from '../coachapps/coachapp.entity';
 import {
   FullProgWorkoutDto,
@@ -32,11 +36,12 @@ export class FullProgworkoutsController {
   @Post()
   async create(
     @Body() fullprog: FullProgWorkoutDto,
-    @Request() req,
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
   ): Promise<FullProgWorkout> {
     // check the role
-    if (req.user.role !== 'trainer') {
-      throw new NotFoundException('Your role is not a trainer');
+    if (role !== 'trainer') {
+      throw new ForbiddenException('Your role is not a trainer');
     }
     // check if the userappIds list is empty
     if (fullprog.userappIds.length < 1) {
@@ -44,16 +49,16 @@ export class FullProgworkoutsController {
     }
     // check if applications are exists
     const myRequests = await Requestedapp.findAll({
-      where: { userappId: [...fullprog.userappIds], coachId: req.user.id },
+      where: { userappId: [...fullprog.userappIds], coachId: user.id },
     });
     if (myRequests.length !== fullprog.userappIds.length) {
       throw new NotFoundException('some of the Apps are not exist');
     }
 
     // create a new prog and return the newly created progs
-    return await this.fullProgworkoutService.create(
+    return await this.fullProgworkoutService.createFullProgWorkout(
       fullprog,
-      req.user.id,
+      user.id,
       myRequests,
     );
   }
@@ -61,9 +66,16 @@ export class FullProgworkoutsController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async findAll(@Request() req) {
+  async findAll(
+    @Req() req: Request & { res: Response },
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
+  ) {
     // get all progs in the db
-    const list = await this.fullProgworkoutService.findAll(req.user);
+    const list = await this.fullProgworkoutService.findAllFullProgWorkouts(
+      user.id,
+      role,
+    );
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -75,10 +87,15 @@ export class FullProgworkoutsController {
   @Get(':id')
   async findOne(
     @Param('id') id: number,
-    @Request() req,
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
   ): Promise<FullProgWorkout> {
     // find the progs with this id
-    const progs = await this.fullProgworkoutService.findOne(id, req.user);
+    const progs = await this.fullProgworkoutService.findOneFullProgWorkout(
+      id,
+      user.id,
+      role,
+    );
 
     // if the progs doesn't exit in the db, throw a 404 error
     if (!progs) {
@@ -91,14 +108,27 @@ export class FullProgworkoutsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async remove(@Param('id') id: number, @Request() req) {
+  async remove(
+    @Param('id') id: number,
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
+  ) {
     // check id
-    const prog = await this.fullProgworkoutService.findOne(id, req.user);
+    const prog = await this.fullProgworkoutService.findOneFullProgWorkout(
+      id,
+      user.id,
+      role,
+    );
     if (!prog) {
-      throw new NotFoundException("This program doesn't exist or you are a user");
+      throw new NotFoundException(
+        "This program doesn't exist or you are a user",
+      );
     }
     // delete the app with this id
-    const deleted = await this.fullProgworkoutService.delete(id, req.user.id);
+    const deleted = await this.fullProgworkoutService.deleteFullProgWorkout(
+      id,
+      user.id,
+    );
 
     // if the number of row affected is zero,
     // then the app doesn't exist in our db
@@ -116,14 +146,23 @@ export class FullProgworkoutsController {
   async update(
     @Param('id') id: number,
     @Body() data: FullProgWorkoutUpdateDto,
-    @Request() req,
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
   ): Promise<FullProgWorkout> {
     // check id
-    const prog = await this.fullProgworkoutService.findOne(id, req.user);
+    const prog = await this.fullProgworkoutService.findOneFullProgWorkout(
+      id,
+      user.id,
+      role,
+    );
     if (!prog) {
       throw new NotFoundException("This program doesn't exist");
     }
     // get the number of row affected and the updated Prog
-    return await this.fullProgworkoutService.update(id, data, req.user);
+    return await this.fullProgworkoutService.updateFullProgWorkout(
+      id,
+      data,
+      user.id,
+    );
   }
 }

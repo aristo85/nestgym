@@ -8,11 +8,14 @@ import {
   Body,
   NotFoundException,
   UseGuards,
-  Request,
   Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
+import { Roles, User } from '../users/user.entity';
+import { AuthUser, UserRole } from '../users/users.decorator';
 import { createPromise, UserappDto } from './userapp.dto';
 import { Userapp } from './userapp.entity';
 import { UserappsService } from './userapps.service';
@@ -22,29 +25,33 @@ import { UserappsService } from './userapps.service';
 export class UserappsController {
   constructor(private readonly userappService: UserappsService) {}
 
-  
   @ApiTags('Client-Application')
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
     @Body() userapp: UserappDto,
-    @Request() req,
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
   ): Promise<createPromise> {
     // check the role
-    if (req.user.role !== 'user') {
-      throw new NotFoundException('Your role is not a user');
+    if (role !== 'user') {
+      throw new ForbiddenException('Your role is not a user');
     }
     // create a new apps and return the newly created apps
-    return await this.userappService.create(userapp, req.user.id);
+    return await this.userappService.createUserapp(userapp, user.id);
   }
 
   @ApiTags('Client-Application')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async findAll(@Req() req) {
+  async findAll(
+    @Req() req: Request & { res: Response },
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
+  ) {
     // get all apps in the db
-    const list = await this.userappService.findAll(req.user);
+    const list = await this.userappService.findAllUserapps(user.id, role);
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -55,9 +62,13 @@ export class UserappsController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  async findOne(@Param('id') id: number, @Req() req): Promise<Userapp> {
+  async findOne(
+    @Param('id') id: number,
+    @UserRole() role: Roles,
+    @AuthUser() user: User,
+  ): Promise<Userapp> {
     // find the app with this id
-    const apps = await this.userappService.findOne(id, req.user);
+    const apps = await this.userappService.findOneUserapp(id, user.id, role);
 
     // if the apps doesn't exit in the db, throw a 404 error
     if (!apps) {
@@ -75,11 +86,12 @@ export class UserappsController {
   async update(
     @Param('id') id: number,
     @Body() userapp: UserappDto,
-    @Request() req,
+    @UserRole() role: Roles,
+    @AuthUser() user: User,
   ): Promise<createPromise> {
     // check the role
-    if (req.user.role === 'trainer') {
-      throw new NotFoundException('Your role is not a user');
+    if (role === 'trainer') {
+      throw new ForbiddenException('Your role is not a user');
     }
     // update not allowed once the applicatin been used
     const app = await Userapp.findOne({ where: { id } });
@@ -91,7 +103,7 @@ export class UserappsController {
       numberOfAffectedRows,
       updatedApplication,
       matches,
-    } = await this.userappService.update(id, userapp, req.user);
+    } = await this.userappService.updateUserapp(id, userapp, user.id, role);
 
     // if the number of row affected is zero,
     // it means the app doesn't exist in our db
@@ -106,9 +118,13 @@ export class UserappsController {
   @ApiTags('Client-Application')
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async remove(@Param('id') id: number, @Req() req) {
+  async remove(
+    @Param('id') id: number,
+    @UserRole() role: Roles,
+    @AuthUser() user: User,
+  ) {
     // delete the app with this id
-    const deleted = await this.userappService.delete(id, req.user);
+    const deleted = await this.userappService.deleteUserapp(id, user.id, role);
 
     // if the number of row affected is zero,
     // then the app doesn't exist in our db
@@ -124,7 +140,10 @@ export class UserappsController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get('matches/:userappId')
-  async findMatches(@Param('userappId') userappId: number, @Req() req) {
+  async findMatches(
+    @Param('userappId') userappId: number,
+    @Req() req: Request & { res: Response },
+  ) {
     // get all apps in the db
     const list = await this.userappService.findMatches(userappId);
     const count = list.length;
@@ -133,7 +152,6 @@ export class UserappsController {
     return list;
   }
 
-  
   // @ApiResponse({ status: 200 })
   // @UseGuards(AuthGuard('jwt'))
   // @Get('allapps')

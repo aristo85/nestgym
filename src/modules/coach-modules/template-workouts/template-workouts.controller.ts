@@ -2,16 +2,20 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
   Post,
   Put,
-  Request,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
+import { Roles, User } from 'src/modules/users/user.entity';
+import { AuthUser, UserRole } from 'src/modules/users/users.decorator';
 import {
   TemplateWorkoutDto,
   TemplateWorkoutUpdateDto,
@@ -31,22 +35,33 @@ export class TemplateWorkoutsController {
   @Post()
   async create(
     @Body() template: TemplateWorkoutDto,
-    @Request() req,
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
   ): Promise<TemplateWorkout> {
     // check the role
-    if (req.user.role !== 'trainer') {
-      throw new NotFoundException('Your role is not a trainer');
+    if (role !== 'trainer') {
+      throw new ForbiddenException('Your role is not a trainer');
     }
     // create a new progs and return the newly created progs
-    return await this.templateworkoutService.create(template, req.user.id);
+    return await this.templateworkoutService.createWorkoutTemplate(
+      template,
+      user.id,
+    );
   }
 
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async findAll(@Request() req) {
+  async findAll(
+    @Req() req: Request & { res: Response },
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
+  ) {
     // get all progs in the db
-    const list = await this.templateworkoutService.findAll(req.user);
+    const list = await this.templateworkoutService.findAllWorkoutTemplates(
+      user.id,
+      role,
+    );
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -58,10 +73,15 @@ export class TemplateWorkoutsController {
   @Get(':id')
   async findOne(
     @Param('id') id: number,
-    @Request() req,
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
   ): Promise<TemplateWorkout> {
     // find the progs with this id
-    const progs = await this.templateworkoutService.findOne(id, req.user);
+    const progs = await this.templateworkoutService.findOneWorkoutTemplate(
+      id,
+      user.id,
+      role,
+    );
 
     // if the progs doesn't exit in the db, throw a 404 error
     if (!progs) {
@@ -74,13 +94,20 @@ export class TemplateWorkoutsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async remove(@Param('id') id: number, @Request() req) {
-     // check the role
-     if (req.user.role === 'user') {
-      throw new NotFoundException('Your role is not a trainer');
+  async remove(
+    @Param('id') id: number,
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
+  ) {
+    // check the role
+    if (role === 'user') {
+      throw new ForbiddenException('Your role is not a trainer');
     }
     // delete the app with this id
-    const deleted = await this.templateworkoutService.delete(id, req.user.id);
+    const deleted = await this.templateworkoutService.deleteWorkoutTemplate(
+      id,
+      user.id,
+    );
 
     // if the number of row affected is zero,
     // then the app doesn't exist in our db
@@ -98,13 +125,19 @@ export class TemplateWorkoutsController {
   async update(
     @Param('id') id: number,
     @Body() data: TemplateWorkoutUpdateDto,
-    @Request() req,
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
   ): Promise<TemplateWorkout> {
-     // check the role
-     if (req.user.role === 'user') {
-      throw new NotFoundException('Your role is not a trainer');
+    // check the role
+    if (role === 'user') {
+      throw new ForbiddenException('Your role is not a trainer');
     }
     // get the number of row affected and the updated Prog
-    return await this.templateworkoutService.update(id, data, req.user);
+    return await this.templateworkoutService.updateWorkoutTemplate(
+      id,
+      data,
+      user.id,
+      role,
+    );
   }
 }

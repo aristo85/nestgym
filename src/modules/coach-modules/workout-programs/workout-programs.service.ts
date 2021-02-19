@@ -10,16 +10,16 @@ export class WorkoutProgramsService {
     private readonly workoutProgramRepository: typeof WorkoutProgram,
   ) {}
 
-  async create(
+  async createWorkouts(
     prog: WorkoutProgramDto,
-    templateOrFullprog,
+    templateOrFullprogId: number,
     template = '',
   ): Promise<WorkoutProgram> {
     // if creation from full program or template
     let options =
       template === 'template'
-        ? { ...prog, templateworkoutId: templateOrFullprog }
-        : { ...prog, fullprogworkoutId: templateOrFullprog };
+        ? { ...prog, templateworkoutId: templateOrFullprogId }
+        : { ...prog, fullprogworkoutId: templateOrFullprogId };
     return await this.workoutProgramRepository.create<WorkoutProgram>({
       ...options,
     });
@@ -29,7 +29,7 @@ export class WorkoutProgramsService {
   //   return await this.workoutProgramRepository.destroy({ where: { id } });
   // }
 
-  async findAll(user): Promise<WorkoutProgram[]> {
+  async findAll(): Promise<WorkoutProgram[]> {
     // check if from admin
     // let updateOPtion = user.role === 'admin' ? {} : { coachId: user.id };
     // // if call from full program or template

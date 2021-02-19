@@ -2,9 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { FULL_PROGWORKOUT_REPOSITORY } from 'src/core/constants';
 import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
+import { Requestedapp } from '../coachapps/coachapp.entity';
 import { WorkoutProgram } from '../workout-programs/workout-program.entity';
 import { WorkoutProgramsService } from '../workout-programs/workout-programs.service';
-import { FullProgWorkoutDto } from './dto/full-progworkout.dto';
+import {
+  FullProgWorkoutDto,
+  FullProgWorkoutUpdateDto,
+} from './dto/full-progworkout.dto';
 import { FullProgWorkout } from './full.progworkout.enity';
 
 @Injectable()
@@ -15,7 +19,11 @@ export class FullProgworkoutsService {
     private readonly workoutProgramService: WorkoutProgramsService,
   ) {}
 
-  async create(data: FullProgWorkoutDto, coachId, myRequests): Promise<any> {
+  async createFullProgWorkout(
+    data: FullProgWorkoutDto,
+    coachId: number,
+    myRequests: Requestedapp[],
+  ): Promise<any> {
     // creating the  program(full program) in fullprogworkout table
     const { programs, userappIds, ...other } = data;
     for (const appRequest of myRequests) {
@@ -29,7 +37,7 @@ export class FullProgworkoutsService {
       );
       // creating workouts in workoutprogram table
       for (const workout of programs) {
-        await this.workoutProgramService.create(workout, fullProg.id);
+        await this.workoutProgramService.createWorkouts(workout, fullProg.id);
       }
     }
 
@@ -42,9 +50,12 @@ export class FullProgworkoutsService {
     });
   }
 
-  async findAll(user): Promise<FullProgWorkout[]> {
+  async findAllFullProgWorkouts(
+    coachId: number,
+    role: string,
+  ): Promise<FullProgWorkout[]> {
     // check if from admin
-    let updateOPtion = user.role === 'admin' ? {} : { coachId: user.id };
+    let updateOPtion = role === 'admin' ? {} : { coachId };
 
     const list = await this.fullProgworkoutRepository.findAll<FullProgWorkout>({
       where: updateOPtion,
@@ -53,41 +64,54 @@ export class FullProgworkoutsService {
     return list;
   }
 
-  async findOne(id, user): Promise<FullProgWorkout> {
+  async findOneFullProgWorkout(
+    fullprogworkoutId: number,
+    coachId: number,
+    role: string,
+  ): Promise<FullProgWorkout> {
     // check the role
     let updateOPtion =
-      user.role === 'admin' ? { id } : { id, coachId: user.id };
+      role === 'admin'
+        ? { id: fullprogworkoutId }
+        : { id: fullprogworkoutId, coachId };
     return await this.fullProgworkoutRepository.findOne({
       where: updateOPtion,
       include: [{ model: WorkoutProgram, include: [UserWorkout] }],
     });
   }
 
-  async delete(id, coachId) {
+  async deleteFullProgWorkout(fullprogworkoutId: number, coachId: number) {
     return await this.fullProgworkoutRepository.destroy({
-      where: { id, coachId },
+      where: { id: fullprogworkoutId, coachId },
     });
   }
 
-  async update(id, data, userId) {
+  async updateFullProgWorkout(
+    fullprogworkoutId: number,
+    data: FullProgWorkoutUpdateDto,
+    userId: number,
+  ) {
     // delete the workout-programs for this program
-    await WorkoutProgram.destroy({ where: { fullprogworkoutId: id } });
+    await WorkoutProgram.destroy({ where: { fullprogworkoutId } });
     // delete user records too
-    await UserWorkout.destroy({ where: { fullprogworkoutId: id } });
+    await UserWorkout.destroy({ where: { fullprogworkoutId } });
     // recreate products for this program
     const { programs, ...other } = data;
     for (const product of programs) {
-      await this.workoutProgramService.create(product, id);
+      await this.workoutProgramService.createWorkouts(
+        product,
+        fullprogworkoutId,
+      );
     }
     // update the program
     await this.fullProgworkoutRepository.update(
       { ...other },
-      { where: { id }, returning: true },
+      { where: { id: fullprogworkoutId }, returning: true },
     );
     // return the updated program with workouts
     return await this.fullProgworkoutRepository.findOne({
       where: {
-        id,
+        id: fullprogworkoutId,
       },
       include: [WorkoutProgram],
     });

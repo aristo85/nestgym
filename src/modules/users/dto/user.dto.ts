@@ -30,6 +30,7 @@ export class UserDto {
   @MinLength(6)
   readonly password: string;
 }
+
 export class Credential {
   @ApiProperty()
   @IsNotEmpty()
@@ -40,4 +41,18 @@ export class Credential {
   @IsNotEmpty()
   @MinLength(6)
   readonly password: string;
+}
+
+export class UserUpdateDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly name: string;
+
+  @ApiProperty({ enum: ['admin', 'user', 'trainer'] })
+  @IsNotEmpty()
+  readonly role: Role;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly phone: string;
 }

@@ -12,7 +12,10 @@ export class UserProgressService {
     private readonly photoService: PhotosService,
   ) {}
 
-  async create(progress: UserProgressDto, userId): Promise<UserProgress> {
+  async createProgress(
+    progress: UserProgressDto,
+    userId: number,
+  ): Promise<UserProgress> {
     // photos
     const {
       frontPhoto,
@@ -29,21 +32,26 @@ export class UserProgressService {
     });
   }
 
-  async findOne(id, userId): Promise<UserProgress> {
+  async findOneProgress(
+    progressId: number,
+    userId: number,
+  ): Promise<UserProgress> {
     return await this.userProgressRepository.findOne({
-      where: { id, userId },
+      where: { id: progressId, userId },
       include: [...includePhotoOptions],
     });
   }
 
-  async findAll(userId): Promise<UserProgress[]> {
+  async findAllProgresses(userId: number): Promise<UserProgress[]> {
     return await this.userProgressRepository.findAll<UserProgress>({
       where: { userId },
       include: [...includePhotoOptions],
     });
   }
 
-  async delete(id, userId) {
-    return await this.userProgressRepository.destroy({ where: { id, userId } });
+  async deleteProgress(progressId: number, userId: number) {
+    return await this.userProgressRepository.destroy({
+      where: { id: progressId, userId },
+    });
   }
 }

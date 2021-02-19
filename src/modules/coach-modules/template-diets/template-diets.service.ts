@@ -13,13 +13,15 @@ export class TemplateDietsService {
   ) {}
   ///////////////////////////////////////
 
-  async create(data: TemplateDietDto, userId): Promise<any> {
+  async createDietTemplate(
+    data: TemplateDietDto,
+    userId: number,
+  ): Promise<any> {
     // creating the template program
     const { days, ...other } = data;
 
     // change dayly programs to json
     const jsonDays = JSON.stringify(days);
-    console.log(jsonDays);
 
     // check json correct
     // if (!isJson(jsonDays)) {
@@ -51,9 +53,12 @@ export class TemplateDietsService {
   }
   ///////////////////////////////////////
 
-  async findAll(user): Promise<RetTemplate[]> {
+  async findAllDietTemplates(
+    coachId: number,
+    role: string,
+  ): Promise<RetTemplate[]> {
     // check if from admin
-    let updateOPtion = user.role === 'admin' ? {} : { coachId: user.id };
+    let updateOPtion = role === 'admin' ? {} : { coachId };
 
     const list = await this.templateDietRepository.findAll<TemplateDiet>({
       where: updateOPtion,
@@ -71,10 +76,16 @@ export class TemplateDietsService {
   }
   ///////////////////////////////////////
 
-  async findOne(id, user): Promise<RetTemplate> {
+  async findOneDietTemplate(
+    templateDietId: number,
+    coachId: number,
+    role: string,
+  ): Promise<RetTemplate> {
     // check the role
     let updateOPtion =
-      user.role === 'admin' ? { id } : { id, coachId: user.id };
+      role === 'admin'
+        ? { id: templateDietId }
+        : { id: templateDietId, coachId };
     const diet = await this.templateDietRepository.findOne({
       raw: true,
       nest: true,
@@ -89,19 +100,26 @@ export class TemplateDietsService {
   }
   ///////////////////////////////////////
 
-  async delete(id, coachId) {
+  async deleteDietTemplate(templateDietId: number, coachId: number) {
     return await this.templateDietRepository.destroy({
-      where: { id, coachId },
+      where: { id: templateDietId, coachId },
     });
   }
   ///////////////////////////////////////
 
-  async update(id, data, user) {
+  async updateDietTemplate(
+    templateDietId: number,
+    data: TemplateDietDto,
+    coachId: number,
+    role: string,
+  ) {
     const { days, ...other } = data;
 
     // check role
     let updateOPtion =
-      user.role === 'admin' ? { id } : { id, coachId: user.id };
+      role === 'admin'
+        ? { id: templateDietId }
+        : { id: templateDietId, coachId };
 
     // change dayly programs to json
     const jsonDays = JSON.stringify(days);
@@ -121,7 +139,7 @@ export class TemplateDietsService {
     const diet = await this.templateDietRepository.findOne({
       raw: true,
       nest: true,
-      where: { id },
+      where: { id: templateDietId },
     });
     // check the json
     // let dataJson = isJson(diet.days);
