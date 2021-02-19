@@ -8,7 +8,7 @@ export class CoachProfileDto {
   readonly fullName: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly sportTypes: string[];
 
   @ApiProperty()
@@ -24,19 +24,23 @@ export class CoachProfileDto {
   readonly experience: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
+  readonly workYears: number;
+
+  @ApiProperty()
+  // @IsNotEmpty()
   readonly height: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly weight: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly age: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly aim: string[];
 
   @ApiProperty()
@@ -44,7 +48,7 @@ export class CoachProfileDto {
   readonly place: string[];
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly serviceTypes: string[];
 
   @ApiProperty({
@@ -70,8 +74,8 @@ export class CoachProfileDto {
   readonly coachGender: string;
 
   @ApiProperty()
-  @IsNotEmpty()
-  readonly submitList: string[];
+  // @IsNotEmpty()
+  readonly subscribes: string[];
 
   @ApiProperty()
   readonly frontPhotoHash?: string;
@@ -82,13 +86,16 @@ export class CoachProfileDto {
   @ApiProperty()
   readonly backPhotoHash?: string;
 }
+// ///////////////
+
+
 export class CoachProfileUpdateDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly fullName: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly sportTypes: string[];
 
   @ApiProperty()
@@ -104,19 +111,23 @@ export class CoachProfileUpdateDto {
   readonly experience: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
+  readonly workYears: number;
+
+  @ApiProperty()
+  // @IsNotEmpty()
   readonly height: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly weight: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly age: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly aim: string[];
 
   @ApiProperty()
@@ -124,7 +135,7 @@ export class CoachProfileUpdateDto {
   readonly place: string[];
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   readonly serviceTypes: string[];
 
   @ApiProperty({ enum: ['female', 'male'] })
@@ -132,8 +143,8 @@ export class CoachProfileUpdateDto {
   readonly coachGender: string;
 
   @ApiProperty()
-  @IsNotEmpty()
-  readonly submitList: string[];
+  // @IsNotEmpty()
+  readonly subscribes: string[];
 
   @ApiProperty({
     description: ` example: [
