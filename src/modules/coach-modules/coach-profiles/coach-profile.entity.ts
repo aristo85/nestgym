@@ -23,13 +23,13 @@ export class CoachProfile extends Model<CoachProfile> {
 
   @Column({
     type: DataType.ARRAY(DataType.STRING),
-    allowNull: false,
+    // allowNull: false,
   })
   sportTypes: string[];
 
   @Column({
     type: DataType.ARRAY(DataType.STRING),
-    allowNull: false,
+    // allowNull: false,
   })
   aim: string[];
 
@@ -41,7 +41,7 @@ export class CoachProfile extends Model<CoachProfile> {
 
   @Column({
     type: DataType.ARRAY(DataType.STRING),
-    allowNull: false,
+    // allowNull: false,
   })
   serviceTypes: string[];
 
@@ -64,20 +64,26 @@ export class CoachProfile extends Model<CoachProfile> {
   experience: string;
 
   @Column({
+    type: DataType.TEXT,
+    // allowNull: false,
+  })
+  workYears: string;
+
+  @Column({
     type: DataType.INTEGER,
-    allowNull: false,
+    // allowNull: false,
   })
   height: number;
 
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
+    // allowNull: false,
   })
   weight: number;
 
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
+    // allowNull: false,
   })
   age: number;
 
@@ -90,7 +96,7 @@ export class CoachProfile extends Model<CoachProfile> {
 
   @Column({
     type: DataType.ARRAY(DataType.STRING),
-    allowNull: false,
+    // allowNull: false,
   })
   submitList: string[];
 
