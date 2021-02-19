@@ -29,7 +29,10 @@ export class UserappsService {
     private readonly photoService: PhotosService,
   ) {}
 
-  async create(userapp: UserappDto, userId): Promise<createPromise> {
+  async createUserapp(
+    userapp: UserappDto,
+    userId: number,
+  ): Promise<createPromise> {
     // photos
     const {
       frontPhoto,
@@ -50,12 +53,12 @@ export class UserappsService {
     return { createdUserapp: createdUserapp, matches };
   }
 
-  async findAll(user): Promise<Userapp[]> {
+  async findAllUserapps(userId: number, role: string): Promise<Userapp[]> {
     // check if from admin
-    let updateOPtion = user.role === 'admin' ? {} : { userId: user.id };
+    let conditionOption = role === 'admin' ? {} : { userId };
 
     const list: any = await this.userappRepository.findAll<Userapp>({
-      where: updateOPtion,
+      where: conditionOption,
       include: [
         ...includePhotoOptions,
         Requestedapp,
@@ -94,11 +97,16 @@ export class UserappsService {
     return list;
   }
 
-  async findOne(id, user): Promise<Userapp> {
+  async findOneUserapp(
+    userappId: number,
+    userId: number,
+    role: string,
+  ): Promise<Userapp> {
     // check the role
-    let updateOPtion = user.role !== 'admin' ? { id, userId: user.id } : { id };
+    let conditionOption =
+      role !== 'admin' ? { id: userappId, userId } : { id: userappId };
     const app = await this.userappRepository.findOne({
-      where: updateOPtion,
+      where: conditionOption,
       include: [
         ...includePhotoOptions,
         Requestedapp,
@@ -141,16 +149,23 @@ export class UserappsService {
     // }
   }
 
-  async delete(id, user) {
-    let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
+  async deleteUserapp(userappId: number, userId: number, role: string) {
+    let conditionOption =
+      role === 'admin' ? { id: userappId } : { id: userappId, userId };
 
     // then remove the app
-    return await this.userappRepository.destroy({ where: updateOPtion });
+    return await this.userappRepository.destroy({ where: conditionOption });
   }
 
-  async update(id, data, user) {
+  async updateUserapp(
+    userappId: number,
+    data: UserappDto,
+    userId: number,
+    role: string,
+  ) {
     // check if from admin
-    let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
+    let conditionOption =
+      role === 'admin' ? { id: userappId } : { id: userappId, userId };
 
     const {
       frontPhoto,
@@ -168,7 +183,7 @@ export class UserappsService {
         sidePhotoId: sidePhoto?.id,
         backPhotoId: backPhoto?.id,
       },
-      { where: updateOPtion, returning: true },
+      { where: conditionOption, returning: true },
     );
 
     let matches: CoachProfile[] = await this.coachMatches({ ...data });
@@ -176,7 +191,7 @@ export class UserappsService {
     return { numberOfAffectedRows, updatedApplication, matches };
   }
 
-  async findMatches(userappId) {
+  async findMatches(userappId: number) {
     // const list = await this.coachProfileRepository.findAll();
     const application: any = await Userapp.findOne({
       where: { id: userappId },
@@ -188,15 +203,15 @@ export class UserappsService {
 
   //////////////////////////////////////////////////////////////////////////
   // matching function
-  coachMatches = async (userapp: Userapp): Promise<CoachProfile[]> => {
+  coachMatches = async (userapp: UserappDto): Promise<CoachProfile[]> => {
     if (!userapp) {
       throw new NotFoundException('this profile is not exist');
     }
     const coachProfiles: any = await CoachProfile.findAll<CoachProfile>({
       include: [...includePhotoOptions, CoachService],
     });
-    let newList = [];
-    coachProfiles.forEach((coachProfile) => {
+    let newList: CoachProfile[] = [];
+    coachProfiles.forEach((coachProfile: CoachProfile) => {
       // const test = this.arrFilter(coachProfile.aim, ['fixing', '6']);
       if (this.arrFilter(coachProfile.aim, userapp.aim).length > 0) {
         newList.push(coachProfile);

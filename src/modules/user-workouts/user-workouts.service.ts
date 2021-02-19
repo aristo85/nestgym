@@ -13,12 +13,11 @@ export class UserWorkoutsService {
     private readonly userWorkoutRepository: typeof UserWorkout,
   ) {}
 
-  async create(
+  async createUserWorkout(
     data: UserWorkoutDto,
-    // workoutprogramId,
-    fullprogworkoutId,
-    user,
-    userappId,
+    fullprogworkoutId: number,
+    userId: number,
+    userappId: number,
   ): Promise<any> {
     // iterate and create workouts
     const { dayDone, workoutList } = data;
@@ -60,7 +59,7 @@ export class UserWorkoutsService {
           dayDone,
           workoutprogramId: workout.id,
           fullprogworkoutId,
-          userId: user.id,
+          userId,
           userappId,
         });
       }

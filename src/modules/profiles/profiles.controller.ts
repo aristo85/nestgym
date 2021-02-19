@@ -9,9 +9,12 @@ import {
   Request,
   Post,
   Delete,
+  ForbiddenException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Roles, User } from '../users/user.entity';
+import { AuthUser, UserRole } from '../users/users.decorator';
 import { ProfileDto, ProfileUpdateDto } from './dto/profile.dto';
 import { Profile } from './profile.entity';
 import { ProfilesService } from './profiles.service';
@@ -25,17 +28,18 @@ export class ProfilesController {
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
-    @Body() profile: ProfileUpdateDto,
-    @Request() req,
+    @Body() profile: ProfileDto,
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
   ): Promise<Profile> {
     // check the role
-    if (req.user.role !== 'user') {
-      throw new NotFoundException('Your role is not a user');
+    if (role !== 'user') {
+      throw new ForbiddenException('Your role is not a user');
     }
     // check if user already has a profile
     const isProfile = await Profile.findOne({
       where: {
-        userId: req.user.id,
+        userId: user.id,
       },
     });
     if (isProfile) {
@@ -43,15 +47,19 @@ export class ProfilesController {
     }
 
     // create a new profile and return the newly created profile
-    return await this.profileServise.create(profile, req.user.id);
+    return await this.profileServise.createClientProfile(profile, user.id);
   }
 
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async findAll(@Request() req): Promise<Profile[]> {
+  async findAll(@UserRole() role: Roles): Promise<Profile[]> {
+    // check the role
+    if (role !== 'admin') {
+      throw new ForbiddenException('Your role is not an admin');
+    }
     // find the profile with this id
-    const profile = await this.profileServise.findAll(req.user);
+    const profile = await this.profileServise.findAllClientProfiles();
 
     // if the profile doesn't exit in the db, throw a 404 error
     if (!profile) {
@@ -65,9 +73,9 @@ export class ProfilesController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  async findOne(@Param('id') id: number, @Request() req): Promise<Profile> {
+  async findOne(@Param('id') id: number): Promise<Profile> {
     // find the profiles with this id
-    const profiles = await this.profileServise.findOne(id, req.user);
+    const profiles = await this.profileServise.findOneClientProfile(id);
 
     // if the profiles doesn't exit in the db, throw a 404 error
     if (!profiles) {
@@ -81,9 +89,9 @@ export class ProfilesController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get('client/myprofile')
-  async findMyProfile(@Request() req): Promise<Profile> {
+  async findMyProfile(@AuthUser() user: User): Promise<Profile> {
     // find the profiles with this id
-    const profiles = await this.profileServise.findMyProfile(req.user.id);
+    const profiles = await this.profileServise.findMyClientProfile(user.id);
 
     // if the profiles doesn't exit in the db, throw a 404 error
     if (!profiles) {
@@ -100,13 +108,13 @@ export class ProfilesController {
   async update(
     @Param('id') id: number,
     @Body() profile: ProfileUpdateDto,
-    @Request() req,
+    @AuthUser() user: User,
   ): Promise<Profile> {
     // get the number of row affected and the updated profile
     const {
       numberOfAffectedRows,
       updatedProfile,
-    } = await this.profileServise.update(id, profile, req.user.id);
+    } = await this.profileServise.updateClientProfile(id, profile, user.id);
 
     // if the number of row affected is zero,
     // it means the profile doesn't exist in our db
@@ -121,8 +129,8 @@ export class ProfilesController {
   // ////////////
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async deleteProfile(@Param('id') id: number, @Request() req) {
-    const deleted = await this.profileServise.deleteProfile(id, req.user);
+  async deleteProfile(@Param('id') id: number, @AuthUser() user: User) {
+    const deleted = await this.profileServise.deleteClientProfile(id, user);
     // if the number of row affected is zero,
     // then the profile doesn't exist in our db
     if (deleted === 0) {

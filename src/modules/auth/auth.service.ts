@@ -15,7 +15,7 @@ export class AuthService {
 
   async validateUser(email: string, pass: string) {
     // find if user exist with this email
-    const user = await this.userService.findOneByEmail(email);
+    const user = await this.userService.findOneUserByEmail(email);
     if (!user) {
       return null;
     }
@@ -41,7 +41,7 @@ export class AuthService {
     const pass = await this.hashPassword(user.password);
 
     // create the user
-    const newUser = await this.userService.create({
+    const newUser = await this.userService.createUser({
       ...user,
       password: pass,
     });
@@ -61,12 +61,12 @@ export class AuthService {
     return token;
   }
 
-  private async hashPassword(password) {
+  private async hashPassword(password: string) {
     const hash = await bcryptjs.hash(password, 10);
     return hash;
   }
 
-  private async comparePassword(enteredPassword, dbPassword) {
+  private async comparePassword(enteredPassword: string, dbPassword: string) {
     const match = await bcryptjs.compare(enteredPassword, dbPassword);
     return match;
   }

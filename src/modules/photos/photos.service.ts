@@ -73,9 +73,9 @@ export class PhotosService {
     return photo;
   }
 
-  async delete(id) {
+  async deletePhoto(photoId: number) {
     // check if all Ids (profile, userapp, progress, feedback)
-    const photo = await this.findOneById(id);
+    const photo = await this.findOneById(photoId);
     // if only  belongs to source ID, then delete it from everywhere, otherwise update sourceId to null
     const localPath = this.getLocalPath(photo.photoFileName);
     try {
@@ -84,16 +84,16 @@ export class PhotosService {
     } catch (err) {
       console.error(err);
     }
-    return await this.photoRepository.destroy({ where: { id } });
+    return await this.photoRepository.destroy({ where: { id: photoId } });
   }
 
-  async update(id, data) {
+  async update(photoId: number, data: PhotoDto) {
     const [
       numberOfAffectedRows,
       [updatedPhoto],
     ] = await this.photoRepository.update(
       { ...data },
-      { where: { id }, returning: true },
+      { where: { id: photoId }, returning: true },
     );
 
     return { numberOfAffectedRows, updatedPhoto };

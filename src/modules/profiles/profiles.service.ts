@@ -3,6 +3,7 @@ import { PROFILE_REPOSITORY } from '../../core/constants';
 import { Profile } from './profile.entity';
 import { ProfileDto, ProfileUpdateDto } from './dto/profile.dto';
 import { includePhotoOptions, PhotosService } from '../photos/photos.service';
+import { User } from '../users/user.entity';
 
 @Injectable()
 export class ProfilesService {
@@ -12,7 +13,10 @@ export class ProfilesService {
     private readonly photoService: PhotosService,
   ) {}
 
-  async create(profile: ProfileDto, userId): Promise<Profile> {
+  async createClientProfile(
+    profile: ProfileDto,
+    userId: number,
+  ): Promise<Profile> {
     // photos
     const {
       frontPhoto,
@@ -34,37 +38,31 @@ export class ProfilesService {
     return newProfile as Profile;
   }
 
-  async findAll(user): Promise<Profile[]> {
-    // check if from admin
-    let updateOPtion = user.role === 'admin' ? {} : { userId: user.id };
-
-    const list = await this.profileRepository.findAll<Profile>({
-      where: updateOPtion,
+  async findAllClientProfiles(): Promise<Profile[]> {
+    return await this.profileRepository.findAll<Profile>({
       include: [...includePhotoOptions],
     });
-
-    return list;
   }
 
-  async findOne(id, user): Promise<Profile> {
-    // check the role
-    let updateOPtion = user.role === 'admin' ? { id } : { id, userId: user.id };
-    const prof = await this.profileRepository.findOne({
-      where: updateOPtion,
+  async findOneClientProfile(clientProfileId: number): Promise<Profile> {
+    return await this.profileRepository.findOne({
+      where: { id: clientProfileId },
       include: [...includePhotoOptions],
     });
-    return prof;
   }
 
-  async findMyProfile(userId): Promise<Profile> {
-    const prof = await this.profileRepository.findOne({
+  async findMyClientProfile(userId: number): Promise<Profile> {
+    return await this.profileRepository.findOne({
       where: { userId },
       include: [...includePhotoOptions],
     });
-    return prof;
   }
 
-  async update(id: number, profile: ProfileUpdateDto, userId: number) {
+  async updateClientProfile(
+    id: number,
+    profile: ProfileUpdateDto,
+    userId: number,
+  ) {
     const {
       frontPhoto,
       sidePhoto,
@@ -87,13 +85,13 @@ export class ProfilesService {
     return { numberOfAffectedRows, updatedProfile };
   }
 
-  async deleteProfile(id, user) {
+  async deleteClientProfile(clientProfileId: number, user: User) {
     // TODO: remove foreignkey photos
     // find all profile photos
 
     // delete profile with this id
     return await this.profileRepository.destroy({
-      where: { id, userId: user.id },
+      where: { id: clientProfileId, userId: user.id },
     });
   }
 }

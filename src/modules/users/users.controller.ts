@@ -6,12 +6,15 @@ import {
   Body,
   NotFoundException,
   UseGuards,
-  Request,
   Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { User } from './user.entity';
+import { Request } from 'express';
+import { UserDto, UserUpdateDto } from './dto/user.dto';
+import { Roles, User } from './user.entity';
+import { AuthUser, UserRole } from './users.decorator';
 import { UsersService } from './users.service';
 
 @ApiTags('Application')
@@ -22,13 +25,16 @@ export class UsersController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async findAll(@Request() req) {
+  async findAll(
+    @Req() req: Request & { res: Response },
+    @UserRole() role: Roles,
+  ) {
     // check the role
-    if (req.user.role !== 'admin') {
+    if (role !== 'admin') {
       throw new NotFoundException('only admin');
     }
     // get all apps in the db
-    const list = await this.userService.findAll();
+    const list = await this.userService.findAllUsers();
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -38,46 +44,44 @@ export class UsersController {
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  async findOne(@Param('id') id: number, @Req() req): Promise<User> {
+  async findOne(
+    @Param('id') id: number,
+    @UserRole() role: Roles,
+    @AuthUser() user: User,
+  ): Promise<User> {
     // check the role
-    if (req.user.role !== 'admin' && +id !== +req.user.id) {
-      throw new NotFoundException('not your account');
+    if (role !== 'admin' && +id !== +user.id) {
+      throw new ForbiddenException('not your account');
     }
     // find the users with this id
-    const user = await this.userService.findOne(id);
+    const foundUser = await this.userService.findOne(id);
 
     // if the users doesn't exit in the db, throw a 404 error
-    if (!user) {
+    if (!foundUser) {
       throw new NotFoundException("This app doesn't exist");
     }
 
     // if users exist, return users
-    return user;
+    return foundUser;
   }
-  // @UseGuards(AuthGuard('jwt'))
-  // @Post()
-  // async create(@Body() user: UserDto): Promise<User> {
-  //   // create a new users and return the newly created users
-  //   return await this.userService.create(user);
-  // }
 
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   async update(
     @Param('id') id: number,
-    @Body() user,
-    @Request() req,
+    @Body() user: UserUpdateDto,
+    @UserRole() role: Roles,
   ): Promise<User> {
     // check the role
-    if (req.user.role !== 'admin') {
+    if (role !== 'admin') {
       throw new NotFoundException('only admin');
     }
     // get the number of row affected and the updated user
     const {
       numberOfAffectedRows,
       updatedApplication,
-    } = await this.userService.update(id, user);
+    } = await this.userService.updateUser(id, user);
 
     // if the number of row affected is zero,
     // it means the app doesn't exist in our db
