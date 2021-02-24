@@ -12,11 +12,11 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
         });
     }
 
-    async validate(email: string, password: string): Promise<any>{
-        const user = await this.authService.validateUser(email, password);
+    async validate(email: string, password: string): Promise<any> {
+        const user = await this.authService.validateUser(email.toLocaleLowerCase(), password);
 
         if (!user) {
-         throw new UnauthorizedException('Invalid user credentials');
+            throw new UnauthorizedException('Invalid user credentials');
         }
         return user;
     }

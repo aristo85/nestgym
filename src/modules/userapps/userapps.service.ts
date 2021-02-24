@@ -1,4 +1,5 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Op } from 'sequelize';
 import { APPLICATION_REPOSITORY } from 'src/core/constants';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
 import { CoachService } from '../coach-modules/coach-services/coach-service.entity';
@@ -27,7 +28,7 @@ export class UserappsService {
     @Inject(APPLICATION_REPOSITORY)
     private readonly userappRepository: typeof Userapp,
     private readonly photoService: PhotosService,
-  ) {}
+  ) { }
 
   async createUserapp(
     userapp: UserappDto,
@@ -207,28 +208,40 @@ export class UserappsService {
     if (!userapp) {
       throw new NotFoundException('this profile is not exist');
     }
-    const coachProfiles: any = await CoachProfile.findAll<CoachProfile>({
-      include: [...includePhotoOptions, CoachService],
+    // mathch profiles
+    const coachProfiles: CoachProfile[] = await CoachProfile.findAll<CoachProfile>({
+      include: [...includePhotoOptions, {
+        model: CoachService, where: {
+          [Op.or]: [
+            { sportType: userapp.sportTypes },
+            { serviceType: userapp.serviceTypes }
+          ]
+        }
+      }],
     });
-    let newList: CoachProfile[] = [];
-    coachProfiles.forEach((coachProfile: CoachProfile) => {
-      // const test = this.arrFilter(coachProfile.aim, ['fixing', '6']);
-      if (this.arrFilter(coachProfile.aim, userapp.aim).length > 0) {
-        newList.push(coachProfile);
-      } else if (
-        this.arrFilter(coachProfile.sportTypes, userapp.sportTypes).length > 0
-      ) {
-        newList.push(coachProfile);
-      } else if (this.arrFilter(coachProfile.place, userapp.place).length > 0) {
-        newList.push(coachProfile);
-      } else if (
-        this.arrFilter(coachProfile.serviceTypes, userapp.serviceTypes).length >
-        0
-      ) {
-        newList.push(coachProfile);
-      }
-    });
-    return newList.length > 0 ? newList : coachProfiles;
+    // get all profiles
+    const allProfiles: CoachProfile[] = await CoachProfile.findAll<CoachProfile>({
+      include: [...includePhotoOptions, CoachService]
+    })
+    // let newList: CoachProfile[] = [];
+    // coachProfiles.forEach((coachProfile: CoachProfile) => {
+    //   // const test = this.arrFilter(coachProfile.aim, ['fixing', '6']);
+    //   if (this.arrFilter(coachProfile.aim, userapp.aim).length > 0) {
+    //     newList.push(coachProfile);
+    //   } else if (
+    //     this.arrFilter(coachProfile.sportTypes, userapp.sportTypes).length > 0
+    //   ) {
+    //     newList.push(coachProfile);
+    //   } else if (this.arrFilter(coachProfile.place, userapp.place).length > 0) {
+    //     newList.push(coachProfile);
+    //   } else if (
+    //     this.arrFilter(coachProfile.serviceTypes, userapp.serviceTypes).length >
+    //     0
+    //   ) {
+    //     newList.push(coachProfile);
+    //   }
+    // });
+    return coachProfiles.length > 0 ? coachProfiles : allProfiles;
   };
   // filter array function
   arrFilter = (arr1: string[], arr2: string[]) => {

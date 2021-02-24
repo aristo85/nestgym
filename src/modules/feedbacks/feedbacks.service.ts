@@ -10,7 +10,7 @@ export class FeedbacksService {
     @Inject(FEEDBACK_REPOSITORY)
     private readonly feedbackRepository: typeof Feedback,
     private readonly photoService: PhotosService,
-  ) {}
+  ) { }
 
   async createFeedback(data: FeedbackDto, userId: number): Promise<Feedback> {
     // const test = includePhotoOptions
@@ -54,6 +54,13 @@ export class FeedbacksService {
       role === 'admin' ? { id: feedbackId } : { id: feedbackId, userId };
     return await this.feedbackRepository.destroy({
       where: optionCondition,
+    });
+  }
+
+  async findAllCoachFeedbacks(coachId): Promise<Feedback[]> {
+    return await this.feedbackRepository.findAll<Feedback>({
+      where: { coachId },
+      include: [...includePhotoOptions],
     });
   }
 }
