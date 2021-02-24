@@ -24,6 +24,12 @@ export class UserProgressDto {
 
   @ApiProperty()
   readonly calf: number;
+
+  @ApiProperty()
+  readonly fatPercentage: number;
+  
+  @ApiProperty()
+  readonly BMI: number;
   
   @ApiProperty()
   readonly frontPhotoHash?: string;
