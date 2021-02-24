@@ -1,5 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
+import sequelize from 'sequelize';
 import { FEEDBACK_REPOSITORY } from 'src/core/constants';
+import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
 import { includePhotoOptions, PhotosService } from '../photos/photos.service';
 import { FeedbackDto } from './dto/feedback.dto';
 import { Feedback } from './feedback.entity';
@@ -21,13 +23,33 @@ export class FeedbacksService {
       backPhoto,
     } = await this.photoService.findAllThreePostion(data);
 
-    return await this.feedbackRepository.create<Feedback>({
+    const createdFeedback = await this.feedbackRepository.create<Feedback>({
       ...data,
       frontPhotoId: frontPhoto?.id,
       sidePhotoId: sidePhoto?.id,
       backPhotoId: backPhoto?.id,
       userId,
     });
+
+    // calculate coach's rating
+    if (createdFeedback) {
+      const coachFeedbacks: any[] = await Feedback.findAll({
+        raw: true,
+        nest: true,
+        where: { coachId: data.coachId },
+        attributes: [
+          [sequelize.fn('sum', sequelize.col('rate')), 'total'],
+          [sequelize.fn('count', sequelize.col('rate')), 'count'],
+        ],
+      });
+
+      const { total, count } = coachFeedbacks[0]
+      const newRating = (total / count).toFixed(2)
+      // update coach's rating
+      await CoachProfile.update({ rating: newRating }, { where: { userId: data.coachId } })
+    }
+
+    return createdFeedback;
   }
 
   async findAllFeedbacks(): Promise<Feedback[]> {
