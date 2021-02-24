@@ -22,6 +22,12 @@ export class CoachProfile extends Model<CoachProfile> {
   fullName: string;
 
   @Column({
+    type: DataType.STRING,
+    // allowNull: false,
+  })
+  rating: number;
+
+  @Column({
     type: DataType.ARRAY(DataType.STRING),
     // allowNull: false,
   })

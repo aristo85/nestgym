@@ -24,7 +24,7 @@ import { FeedbacksService } from './feedbacks.service';
 @ApiBearerAuth()
 @Controller('feedbacks')
 export class FeedbacksController {
-  constructor(private readonly feedbacksService: FeedbacksService) {}
+  constructor(private readonly feedbacksService: FeedbacksService) { }
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
@@ -100,4 +100,14 @@ export class FeedbacksController {
     // return success message
     return 'Successfully deleted';
   }
+
+
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Get('coach/feedbacks')
+  async findAllCoachFeedback(@UserRole() role: Roles, @AuthUser() user: User) {
+    // get all feedback of one user in the db
+    return await this.feedbacksService.findAllCoachFeedbacks(user.id);
+  }
+
 }

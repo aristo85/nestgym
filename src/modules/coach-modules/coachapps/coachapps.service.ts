@@ -98,7 +98,10 @@ export class CoachappsService {
               include: [
                 {
                   model: Profile,
-                  include: [{ all: true }],
+                  include: [
+                  { model: Photo, as: 'frontPhoto' }, 
+                  { model: Photo, as: 'sidePhoto' }, 
+                  { model: Photo, as: 'backPhoto' }],
                 },
               ],
             },

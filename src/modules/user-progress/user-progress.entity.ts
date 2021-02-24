@@ -39,6 +39,18 @@ export class UserProgress extends Model<UserProgress> {
   })
   calf: number;
   //
+  @Column({
+    type: DataType.INTEGER,
+    // allowNull: false,
+  })
+  fatPercentage: number;
+  //
+  @Column({
+    type: DataType.INTEGER,
+    // allowNull: false,
+  })
+  BMI: number;
+  //
   
   @BelongsTo(() => Photo, { foreignKey: 'frontPhotoId' })
   frontPhoto: Photo;
