@@ -74,7 +74,7 @@ export class UserappsService {
           limit: 1,
           order: [['createdAt', 'DESC']],
         },
-        { model: UserWorkout, limit: 7 },
+        { model: UserWorkout, limit: 7, order: [['createdAt', 'DESC']] },
         {
           model: CoachProfile,
           as: 'coachProfile',
