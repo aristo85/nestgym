@@ -67,14 +67,14 @@ export class UserappsService {
           model: FullProgWorkout,
           limit: 1,
           order: [['createdAt', 'DESC']],
-          include: [{ model: WorkoutProgram, limit: 10, order: [['createdAt', 'DESC']] }],
+          include: [{ model: WorkoutProgram, limit: 10, order: [['updatedAt', 'DESC']] }],
         },
         {
           model: DietProgram,
           limit: 1,
           order: [['createdAt', 'DESC']],
         },
-        { model: UserWorkout, limit: 7, order: [['createdAt', 'DESC']] },
+        { model: UserWorkout, limit: 7, order: [['updatedAt', 'DESC']] },
         {
           model: CoachProfile,
           as: 'coachProfile',

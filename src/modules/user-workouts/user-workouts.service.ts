@@ -36,33 +36,33 @@ export class UserWorkoutsService {
         // throw new NotFoundException('wrong workout Id/s or number of day');
       }
       // check if today any record been made
-      const today: any = new Date();
-      const workoutsToday = await UserWorkout.findOne({
-        where: {
-          fullprogworkoutId,
-          workoutprogramId: workout.id,
-          dayDone,
-          createdAt: {
-            [Op.gt]: new Date(today - 24 * 60 * 60 * 1000),
-          },
-        },
+      // const today: any = new Date();
+      // const workoutsToday = await UserWorkout.findOne({
+      //   where: {
+      //     fullprogworkoutId,
+      //     workoutprogramId: workout.id,
+      //     dayDone,
+      //     createdAt: {
+      //       [Op.gt]: new Date(today - 24 * 60 * 60 * 1000),
+      //     },
+      //   },
+      // });
+      // // create or update based on the records
+      // if (workoutsToday) {
+      //   await this.userWorkoutRepository.update(
+      //     { weight: workout.weight },
+      //     { where: { id: workoutsToday.id } },
+      //   );
+      // } else {
+      // }
+      await this.userWorkoutRepository.create<UserWorkout>({
+        weight: workout.weight,
+        dayDone,
+        workoutprogramId: workout.id,
+        fullprogworkoutId,
+        userId,
+        userappId,
       });
-      // create or update based on the records
-      if (workoutsToday) {
-        await this.userWorkoutRepository.update(
-          { weight: workout.weight },
-          { where: { id: workoutsToday.id } },
-        );
-      } else {
-        await this.userWorkoutRepository.create<UserWorkout>({
-          weight: workout.weight,
-          dayDone,
-          workoutprogramId: workout.id,
-          fullprogworkoutId,
-          userId,
-          userappId,
-        });
-      }
     }
 
     return await FullProgWorkout.findOne({
