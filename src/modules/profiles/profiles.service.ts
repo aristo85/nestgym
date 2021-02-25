@@ -94,4 +94,21 @@ export class ProfilesService {
       where: { id: clientProfileId, userId: user.id },
     });
   }
+
+  // set current userapp
+  async setCurrentUserapp(
+    profileId: number,
+    currentUserappId: number,
+    userId: number,
+  ) {
+    const [
+      numberOfAffectedRows,
+      [updatedProfile],
+    ] = await this.profileRepository.update(
+      { currentUserappId: currentUserappId },
+      { where: { id: profileId, userId }, returning: true },
+    );
+
+    return { numberOfAffectedRows, updatedProfile };
+  }
 }

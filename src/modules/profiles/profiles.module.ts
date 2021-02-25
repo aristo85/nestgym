@@ -7,6 +7,7 @@ import { PhotosModule } from '../photos/photos.module';
 @Module({
   providers: [ProfilesService, ...profilesProviders],
   controllers: [ProfilesController],
-  imports: [PhotosModule]
+  imports: [PhotosModule],
+  exports: [ProfilesService],
 })
 export class ProfilesModule {}

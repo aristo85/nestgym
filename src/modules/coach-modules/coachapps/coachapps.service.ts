@@ -9,7 +9,7 @@ import {
   ApplicationStatus,
   Userapp,
 } from 'src/modules/userapps/userapp.entity';
-import { DietObj } from 'src/modules/userapps/userapps.service';
+import { DietObj, UserappsService } from 'src/modules/userapps/userapps.service';
 import { User } from 'src/modules/users/user.entity';
 import { CoachProfile } from '../coach-profiles/coach-profile.entity';
 import { CoachService } from '../coach-services/coach-service.entity';
@@ -23,8 +23,10 @@ export class CoachappsService {
   constructor(
     @Inject(COACH_APP_REPOSITORY)
     private readonly coachappRepository: typeof Requestedapp,
-  ) {}
+    private readonly userappService: UserappsService,
+  ) { }
 
+  //////////////////////////////////////////////////
   async createAppRequest(
     userId: number,
     coachId: number,
@@ -83,6 +85,7 @@ export class CoachappsService {
     });
   }
 
+  //////////////////////////////////////////////////
   async findAllCoachAppRequest(coachUserId: number): Promise<Requestedapp[]> {
     const list: any = await this.coachappRepository.findAll<Requestedapp>({
       where: { coachId: coachUserId },
@@ -99,9 +102,9 @@ export class CoachappsService {
                 {
                   model: Profile,
                   include: [
-                  { model: Photo, as: 'frontPhoto' }, 
-                  { model: Photo, as: 'sidePhoto' }, 
-                  { model: Photo, as: 'backPhoto' }],
+                    { model: Photo, as: 'frontPhoto' },
+                    { model: Photo, as: 'sidePhoto' },
+                    { model: Photo, as: 'backPhoto' }],
                 },
               ],
             },
@@ -139,6 +142,7 @@ export class CoachappsService {
     return list;
   }
 
+  //////////////////////////////////////////////////
   async findCoachAppRequestByQuery(
     coachUserId: number,
     status: ApplicationRequestStatus,
@@ -171,7 +175,13 @@ export class CoachappsService {
     return list;
   }
 
-  //
+
+  //////////////////////////////////////////////////
+  async findCoachActiveApps(coachUserId: number): Promise<Userapp[]> {
+    return await this.userappService.getActiveCoachApps(coachUserId)
+  }
+
+  //////////////////////////////////////////////////
   async updateCoachRequest(
     userappId: number,
     coachUserId: number,
@@ -230,4 +240,5 @@ export class CoachappsService {
       return userapp;
     }
   }
+
 }
