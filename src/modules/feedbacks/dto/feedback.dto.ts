@@ -8,6 +8,10 @@ export class FeedbackDto {
 
   @ApiProperty()
   @IsNotEmpty()
+  readonly userappId: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
   readonly rate: number;
 
   @ApiProperty()

@@ -9,8 +9,9 @@ import {
 } from 'sequelize-typescript';
 import { User } from 'src/modules/users/user.entity';
 import { Photo } from '../photos/photo.entity';
+import { Userapp } from '../userapps/userapp.entity';
 
-export type RatingCounter = { total: number; count: number } | Feedback
+export type RatingCounter = { total: number; count: number } | Feedback;
 
 @Table
 export class Feedback extends Model<Feedback> {
@@ -42,6 +43,7 @@ export class Feedback extends Model<Feedback> {
   userId: number;
   //
 
+  @BelongsTo(() => Userapp, { as: 'userapp', foreignKey: 'userappId' })
   @BelongsTo(() => User)
   user: User;
   //

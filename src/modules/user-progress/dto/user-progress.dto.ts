@@ -23,16 +23,20 @@ export class UserProgressDto {
   readonly sholder: number;
 
   @ApiProperty()
+  @IsNotEmpty()
+  readonly weight: number;
+
+  @ApiProperty()
   readonly calf: number;
 
   @ApiProperty()
   readonly fatPercentage: number;
-  
-  @ApiProperty()
-  readonly BMI: number;
-  
-  @ApiProperty()
-  readonly frontPhotoHash?: string;
+
+  // @ApiProperty()
+  // readonly BMI: number;
+
+  // @ApiProperty()
+  // readonly frontPhotoHash?: string;
 
   @ApiProperty()
   readonly sidePhotoHash?: string;

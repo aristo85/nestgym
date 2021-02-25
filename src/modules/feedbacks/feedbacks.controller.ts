@@ -24,7 +24,7 @@ import { FeedbacksService } from './feedbacks.service';
 @ApiBearerAuth()
 @Controller('feedbacks')
 export class FeedbacksController {
-  constructor(private readonly feedbacksService: FeedbacksService) { }
+  constructor(private readonly feedbacksService: FeedbacksService) {}
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
@@ -36,6 +36,15 @@ export class FeedbacksController {
     // check the role
     if (role !== 'user') {
       throw new ForbiddenException('Your role is not a user');
+    }
+    // check feedback redundancy
+    const isFeedbackRedundant = await Feedback.findOne({
+      where: { userId: user.id, userappId: feedback.userappId },
+    });
+    if (isFeedbackRedundant) {
+      throw new ForbiddenException(
+        'you cant rate this coach with the same app',
+      );
     }
     // create a new feedback and return the newly created feedback
     return await this.feedbacksService.createFeedback(feedback, user.id);
@@ -101,7 +110,6 @@ export class FeedbacksController {
     return 'Successfully deleted';
   }
 
-
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get('coach/feedbacks')
@@ -109,5 +117,4 @@ export class FeedbacksController {
     // get all feedback of one user in the db
     return await this.feedbacksService.findAllCoachFeedbacks(user.id);
   }
-
 }
