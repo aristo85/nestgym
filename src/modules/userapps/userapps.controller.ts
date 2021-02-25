@@ -14,6 +14,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { Profile } from '../profiles/profile.entity';
 import { Roles, User } from '../users/user.entity';
 import { AuthUser, UserRole } from '../users/users.decorator';
 import { createPromise, UserappDto } from './userapp.dto';
@@ -37,8 +38,21 @@ export class UserappsController {
     if (role !== 'user') {
       throw new ForbiddenException('Your role is not a user');
     }
+
+    // check client profile
+    const clientProfile = await Profile.findOne({
+      where: { userId: user.id },
+    });
+    if (!clientProfile) {
+      throw new ForbiddenException('Please create a Profile first!');
+    }
+
     // create a new apps and return the newly created apps
-    return await this.userappService.createUserapp(userapp, user.id);
+    return await this.userappService.createUserapp(
+      userapp,
+      user.id,
+      clientProfile.id,
+    );
   }
 
   @ApiTags('Client-Application')
@@ -166,4 +180,86 @@ export class UserappsController {
   //   req.res.set('Content-Range', `0-${count}/${count}`);
   //   return list;
   // }
+
+  // SET active userapp in client profile
+  @ApiTags('Client-Application')
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Put('set-current-app/:id')
+  async setCurrentApp(
+    @Param('id') userappId: number,
+    @Body() userapp: UserappDto,
+    @UserRole() role: Roles,
+    @AuthUser() user: User,
+  ): Promise<{ success: boolean; result: string }> {
+    // check the role
+    if (role !== 'user') {
+      throw new ForbiddenException('Your role is not a user');
+    }
+    // check user authority
+    const app = await Userapp.findOne({
+      raw: true,
+      nest: true,
+      where: { id: userappId, userId: user.id },
+    });
+    if (!app || app.status !== 'active') {
+      throw new NotFoundException('not exist in your active apps');
+    }
+
+    // get the number of row affected
+    const numberOfAffectedRows = await this.userappService.setCurrentUserapp(
+      userappId,
+      user.id,
+    );
+
+    // if the number of row affected is zero,
+    // it means the app doesn't exist in our db
+    if (numberOfAffectedRows === 0) {
+      throw new NotFoundException("This app doesn't exist");
+    }
+
+    // return the updated app
+    return { success: true, result: 'you changed the current active App' };
+  }
+
+  @ApiTags('Client-Application')
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Get('current/active/app')
+  async findCurrentActive(
+    @UserRole() role: Roles,
+    @AuthUser() user: User,
+  ): Promise<Userapp> {
+    // check the role
+    if (role !== 'user') {
+      throw new ForbiddenException('Your role is not a user');
+    }
+    // find profile
+    const profile = await Profile.findOne({
+      where: { userId: user.id },
+      raw: true,
+      nest: true,
+      include: [Userapp],
+    });
+    if (!profile || !profile.currentUserapp) {
+      throw new NotFoundException(
+        'you should have a profile with active application in it',
+      );
+    }
+    // find the app with this id
+    const apps = await this.userappService.findOneUserapp(
+      // profile.currentUserappId,
+      profile.currentUserapp.id,
+      user.id,
+      role,
+    );
+
+    // if the apps doesn't exit in the db, throw a 404 error
+    if (!apps) {
+      throw new NotFoundException("This app doesn't exist");
+    }
+
+    // if apps exist, return apps
+    return apps;
+  }
 }

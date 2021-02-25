@@ -9,6 +9,8 @@ import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progwor
 import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
 import { Photo } from '../photos/photo.entity';
 import { includePhotoOptions, PhotosService } from '../photos/photos.service';
+import { Profile } from '../profiles/profile.entity';
+import { ProfilesService } from '../profiles/profiles.service';
 import { UserProgress } from '../user-progress/user-progress.entity';
 import { UserWorkout } from '../user-workouts/user-workout.entity';
 import { User } from '../users/user.entity';
@@ -28,11 +30,13 @@ export class UserappsService {
     @Inject(APPLICATION_REPOSITORY)
     private readonly userappRepository: typeof Userapp,
     private readonly photoService: PhotosService,
-  ) { }
+    private readonly profileService: ProfilesService,
+  ) {}
 
   async createUserapp(
     userapp: UserappDto,
     userId: number,
+    clientProfileId: number,
   ): Promise<createPromise> {
     // photos
     const {
@@ -48,6 +52,7 @@ export class UserappsService {
       sidePhotoId: sidePhoto?.id,
       backPhotoId: backPhoto?.id,
       userId,
+      clientProfileId,
     });
     //return profile with matches
     const matches: CoachProfile[] = await this.coachMatches(createdUserapp);
@@ -209,20 +214,28 @@ export class UserappsService {
       throw new NotFoundException('this profile is not exist');
     }
     // mathch profiles
-    const coachProfiles: CoachProfile[] = await CoachProfile.findAll<CoachProfile>({
-      include: [...includePhotoOptions, {
-        model: CoachService, where: {
-          [Op.or]: [
-            { sportType: userapp.sportTypes },
-            { serviceType: userapp.serviceTypes }
-          ]
-        }
-      }],
-    });
+    const coachProfiles: CoachProfile[] = await CoachProfile.findAll<CoachProfile>(
+      {
+        include: [
+          ...includePhotoOptions,
+          {
+            model: CoachService,
+            where: {
+              [Op.or]: [
+                { sportType: userapp.sportTypes },
+                { serviceType: userapp.serviceTypes },
+              ],
+            },
+          },
+        ],
+      },
+    );
     // get all profiles
-    const allProfiles: CoachProfile[] = await CoachProfile.findAll<CoachProfile>({
-      include: [...includePhotoOptions, CoachService]
-    })
+    const allProfiles: CoachProfile[] = await CoachProfile.findAll<CoachProfile>(
+      {
+        include: [...includePhotoOptions, CoachService],
+      },
+    );
     // let newList: CoachProfile[] = [];
     // coachProfiles.forEach((coachProfile: CoachProfile) => {
     //   // const test = this.arrFilter(coachProfile.aim, ['fixing', '6']);
@@ -281,5 +294,60 @@ export class UserappsService {
     });
 
     return usersByApps;
+  }
+
+  async getActiveCoachApps(
+    coachUserId: number,
+    // applicationStatus: ApplicationStatus,
+  ): Promise<Userapp[]> {
+    // check if from admin
+    // let conditionOption = role === 'admin' ? {} : { userId };
+
+    const list = await this.userappRepository.findAll<Userapp>({
+      where: { coachId: coachUserId, status: 'active' },
+      include: [
+        ...includePhotoOptions,
+        Requestedapp,
+        {
+          model: FullProgWorkout,
+          limit: 1,
+          order: [['createdAt', 'DESC']],
+          include: [{ model: WorkoutProgram, limit: 10 }],
+        },
+        {
+          model: DietProgram,
+          limit: 1,
+          order: [['createdAt', 'DESC']],
+        },
+        { model: UserWorkout, limit: 7 },
+        {
+          model: Profile,
+          as: 'clientProfile',
+          include: [{ all: true }],
+        },
+      ],
+    });
+    return list;
+  }
+
+  // update the currentUserapp in client's profile
+  async setCurrentUserapp(userappId, userId) {
+    // find profile
+    const profile = await Profile.findOne({
+      where: { userId },
+      raw: true,
+      nest: true,
+    });
+    // update profile
+    // get the number of row affected and the updated profile
+    const {
+      numberOfAffectedRows,
+      updatedProfile,
+    } = await this.profileService.setCurrentUserapp(
+      profile.id,
+      userappId,
+      userId,
+    );
+    return numberOfAffectedRows;
   }
 }

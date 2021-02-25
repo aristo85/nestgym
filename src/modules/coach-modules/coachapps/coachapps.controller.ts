@@ -106,7 +106,6 @@ export class CoachappsController {
     @Query() query: { status: ApplicationRequestStatus },
     @Req() req: Request & { res: Response },
   ) {
-    console.log(query);
     // check the role
     if (user.role === 'user') {
       throw new NotFoundException(
@@ -117,6 +116,31 @@ export class CoachappsController {
     const list = await this.coachappService.findCoachAppRequestByQuery(
       user.id,
       query.status,
+    );
+    const count = list.length;
+    req.res.set('Access-Control-Expose-Headers', 'Content-Range');
+    req.res.set('Content-Range', `0-${count}/${count}`);
+    return list;
+  }
+
+  // get all requestedapps(offers) by query
+  @ApiTags('CoachRequests')
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Get('coach/activeapps')
+  async findActiveApps(
+    @AuthUser() user: User,
+    @Req() req: Request & { res: Response },
+  ) {
+    // check the role
+    if (user.role === 'user') {
+      throw new NotFoundException(
+        "your role is 'user', users dont have access to coaches info.! ",
+      );
+    }
+    // get all apps in the db
+    const list = await this.coachappService.findCoachActiveApps(
+      user.id,
     );
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');

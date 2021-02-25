@@ -10,6 +10,8 @@ import {
 import { User } from 'src/modules/users/user.entity';
 import { Photo } from '../photos/photo.entity';
 
+export type RatingCounter = { total: number; count: number } | Feedback
+
 @Table
 export class Feedback extends Model<Feedback> {
   @Column({
@@ -43,7 +45,7 @@ export class Feedback extends Model<Feedback> {
   @BelongsTo(() => User)
   user: User;
   //
-   
+
   @BelongsTo(() => Photo, { foreignKey: 'frontPhotoId' })
   frontPhoto: Photo;
 

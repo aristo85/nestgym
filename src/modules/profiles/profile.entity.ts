@@ -7,6 +7,7 @@ import {
   ForeignKey,
 } from 'sequelize-typescript';
 import { Photo } from '../photos/photo.entity';
+import { Userapp } from '../userapps/userapp.entity';
 import { User } from '../users/user.entity';
 
 @Table
@@ -60,4 +61,10 @@ export class Profile extends Model<Profile> {
 
   @BelongsTo(() => Photo, { foreignKey: 'backPhotoId' })
   backPhoto: Photo;
+
+  @BelongsTo(() => Userapp, {
+    foreignKey: 'currentUserappId',
+    constraints: false,
+  })
+  currentUserapp: Userapp;
 }
