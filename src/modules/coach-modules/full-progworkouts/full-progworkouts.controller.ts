@@ -39,7 +39,7 @@ export class FullProgworkoutsController {
     @Body() fullprog: FullProgWorkoutDto,
     @AuthUser() user: User,
     @UserRole() role: Roles,
-  ): Promise<FullProgWorkout> {
+  ): Promise<FullProgWorkout[]> {
     // check the role
     if (role !== 'trainer') {
       throw new ForbiddenException('Your role is not a trainer');

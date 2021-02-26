@@ -2,7 +2,7 @@ import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export interface Workout {
-  id: number;
+  workoutNumber: number;
   weight: number;
 }
 export class UserWorkoutDto {
@@ -13,11 +13,11 @@ export class UserWorkoutDto {
   @ApiProperty({
     description: ` example: [
     {
-      id: 1,
+      workoutNumber: 1,
       weight: 55,
     },
     {
-      id: 2,
+      workoutNumber: 2,
       weight: 60,
     }, ...
   ]`,
@@ -39,15 +39,15 @@ export class WorkoutProgUpdateDto {
 
   @ApiProperty({
     description: ` example: [
-    {
-      id: 1,
-      weight: 55,
-    },
-    {
-      id: 2,
-      weight: 60,
-    }, ...
-  ]`,
+      {
+        workoutNumber: 1,
+        weight: 55,
+      },
+      {
+        workoutNumber: 2,
+        weight: 60,
+      }, ...
+    ]`,
 
     type: 'array',
     items: {

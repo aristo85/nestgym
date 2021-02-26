@@ -40,20 +40,16 @@ export class FullProgWorkoutDto {
     description: ` example: [
       {
         "dayNumber": 1,
-        "workout": [
-            {
-                "description": "",
-                "workoutNumber": 1,
-                "exercises": [
-                    {
-                        "exerciseName":"",
-                        "sets": 0,
-                        "reps": 0,
-                        "value": 0
-                    }, ...
-                ]
-            }, ...
-        ]
+            "workouts": [
+                {
+                    "description": "",
+                    "workoutNumber": 1,
+                    "exerciseName":"Планка",
+                    "sets": 4,
+                    "reps": 4,
+                    "value": 4
+                }
+            ]
    }, ...
   ]`,
 
@@ -95,14 +91,19 @@ export class FullProgWorkoutUpdateDto {
 
   @ApiProperty({
     description: ` example: [
-    {
-        workout: string,
-        sets: number,
-        reps: number,
-        value: number,
-        dayNumber: number,
-        coment: string,
-    }, ...
+      {
+        "dayNumber": 1,
+            "workouts": [
+                {
+                    "description": "",
+                    "workoutNumber": 1,
+                    "exerciseName":"Планка",
+                    "sets": 4,
+                    "reps": 4,
+                    "value": 4
+                }
+            ]
+   }, ...
   ]`,
 
     type: 'array',

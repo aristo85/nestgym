@@ -3,7 +3,7 @@ import { FULL_PROGWORKOUT_REPOSITORY } from 'src/core/constants';
 import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { Requestedapp } from '../coachapps/coachapp.entity';
-import { WorkoutProgram } from '../workout-programs/workout-program.entity';
+// import { WorkoutProgram } from '../workout-programs/workout-program.entity';
 import { WorkoutProgramsService } from '../workout-programs/workout-programs.service';
 import {
   FullProgWorkoutDto,
@@ -23,23 +23,9 @@ export class FullProgworkoutsService {
     data: FullProgWorkoutDto,
     coachId: number,
     userapps: Userapp[],
-  ): Promise<any> {
+  ): Promise<FullProgWorkout[]> {
     // creating the  program(full program) in fullprogworkout table
     const { workoutProgram, userappIds, ...other } = data;
-    // for (const appRequest of myRequests) {
-    //   const fullProg = await this.fullProgworkoutRepository.create<FullProgWorkout>(
-    //     {
-    //       ...other,
-    //       coachId,
-    //       userappId: appRequest.userappId,
-    //       userId: appRequest.userId,
-    //     },
-    //   );
-    //   // creating workouts in workoutprogram table
-    //   for (const workout of workoutProgram) {
-    //     await this.workoutProgramService.createWorkouts(workout, fullProg.id);
-    //   }
-    // }
 
     return await this.fullProgworkoutRepository.bulkCreate<FullProgWorkout>(
       userapps.map(
@@ -56,38 +42,38 @@ export class FullProgworkoutsService {
   }
 
   async findAllFullProgWorkouts(
-    coachId: number,
+    coachUserId: number,
     role: string,
   ): Promise<FullProgWorkout[]> {
     // check if from admin
-    let updateOPtion = role === 'admin' ? {} : { coachId };
+    // let updateOPtion = role === 'admin' ? {} : { coachId };
 
     const list = await this.fullProgworkoutRepository.findAll<FullProgWorkout>({
-      where: updateOPtion,
-      include: [WorkoutProgram],
+      where: { coachId: coachUserId },
+      // include: [WorkoutProgram],
     });
     return list;
   }
 
   async findOneFullProgWorkout(
     fullprogworkoutId: number,
-    coachId: number,
+    coachUserId: number,
     role: string,
   ): Promise<FullProgWorkout> {
     // check the role
-    let updateOPtion =
-      role === 'admin'
-        ? { id: fullprogworkoutId }
-        : { id: fullprogworkoutId, coachId };
+    // let updateOPtion =
+    // role === 'admin'
+    //   ? { id: fullprogworkoutId }
+    //   : { id: fullprogworkoutId, coachId: coachUserId };
     return await this.fullProgworkoutRepository.findOne({
-      where: updateOPtion,
-      include: [{ model: WorkoutProgram, include: [UserWorkout] }],
+      where: { id: fullprogworkoutId, coachId: coachUserId },
+      include: [UserWorkout],
     });
   }
 
-  async deleteFullProgWorkout(fullprogworkoutId: number, coachId: number) {
+  async deleteFullProgWorkout(fullprogworkoutId: number, coachUserId: number) {
     return await this.fullProgworkoutRepository.destroy({
-      where: { id: fullprogworkoutId, coachId },
+      where: { id: fullprogworkoutId, coachId: coachUserId },
     });
   }
 

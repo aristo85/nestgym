@@ -43,7 +43,7 @@ export class TemplateWorkoutsService {
       where: {
         id: template.id,
       },
-      include: [WorkoutProgram],
+      // include: [WorkoutProgram],
     });
     // return { fullProg, programs: listProgs };
   }
@@ -57,7 +57,7 @@ export class TemplateWorkoutsService {
 
     const list = await this.templateworkoutRepository.findAll<TemplateWorkout>({
       where: updateOPtion,
-      include: [WorkoutProgram],
+      // include: [WorkoutProgram],
     });
     return list;
   }
@@ -74,7 +74,7 @@ export class TemplateWorkoutsService {
         : { id: templateworkoutId, coachId };
     return await this.templateworkoutRepository.findOne({
       where: updateOPtion,
-      include: [WorkoutProgram],
+      // include: [WorkoutProgram],
     });
   }
 
@@ -115,7 +115,7 @@ export class TemplateWorkoutsService {
       where: {
         id: templateworkoutId,
       },
-      include: [WorkoutProgram],
+      // include: [WorkoutProgram],
     });
   }
 }

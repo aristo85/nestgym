@@ -15,7 +15,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
-import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
+// import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
 import { Userapp } from '../userapps/userapp.entity';
 import { Roles, User } from '../users/user.entity';
 import { AuthUser, UserRole } from '../users/users.decorator';
@@ -37,7 +37,7 @@ export class UserWorkoutsController {
     @Param('fullprogworkoutId') fullprogworkoutId: number,
     @Body() data: UserWorkoutDto,
     @AuthUser() user: User,
-  ): Promise<FullProgWorkout> {
+  ): Promise<UserWorkout> {
     // check id
     const prog: any = (
       await FullProgWorkout.findOne({
@@ -76,7 +76,7 @@ export class UserWorkoutsController {
     const list = await FullProgWorkout.findAll({
       where: { userId: user.id },
       include: [
-        { model: WorkoutProgram, include: [UserWorkout] },
+        { model: UserWorkout },
         {
           model: Userapp,
         },
@@ -104,7 +104,7 @@ export class UserWorkoutsController {
         userId: user.id,
       },
       include: [
-        { model: WorkoutProgram, include: [UserWorkout] },
+        { model: UserWorkout },
         {
           model: Userapp,
         },

@@ -6,7 +6,7 @@ import { CoachService } from '../coach-modules/coach-services/coach-service.enti
 import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
-import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
+// import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
 import { Photo } from '../photos/photo.entity';
 import { includePhotoOptions, PhotosService } from '../photos/photos.service';
 import { Profile } from '../profiles/profile.entity';
@@ -72,7 +72,7 @@ export class UserappsService {
           model: FullProgWorkout,
           limit: 1,
           order: [['createdAt', 'DESC']],
-          include: [{ model: WorkoutProgram, limit: 10 }],
+          // include: [{ model: WorkoutProgram, limit: 10 }],
         },
         {
           model: DietProgram,
@@ -118,7 +118,7 @@ export class UserappsService {
         Requestedapp,
         {
           model: FullProgWorkout,
-          include: [{ model: WorkoutProgram }],
+          // include: [{ model: WorkoutProgram }],
         },
         DietProgram,
         { model: UserWorkout, limit: 7 },
@@ -312,7 +312,7 @@ export class UserappsService {
           model: FullProgWorkout,
           limit: 1,
           order: [['createdAt', 'DESC']],
-          include: [{ model: WorkoutProgram, limit: 10 }],
+          // include: [{ model: WorkoutProgram, limit: 10 }],
         },
         {
           model: DietProgram,

@@ -1,13 +1,5 @@
-import {
-  Table,
-  Column,
-  Model,
-  DataType,
-  ForeignKey,
-  BelongsTo,
-} from 'sequelize-typescript';
-import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
-import { User } from '../users/user.entity';
+import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import { Workout } from './dto/user-workout.dto';
 
 @Table
 export class UserWorkout extends Model<UserWorkout> {
@@ -15,23 +7,12 @@ export class UserWorkout extends Model<UserWorkout> {
     type: DataType.INTEGER,
     // allowNull: false,
   })
-  weight: number;
-  //
-  @Column({
-    type: DataType.INTEGER,
-    // allowNull: false,
-  })
   dayDone: number;
   //
-  @ForeignKey(() => WorkoutProgram)
   @Column({
-    type: DataType.INTEGER,
+    type: DataType.JSONB,
     // allowNull: false,
   })
-  workoutprogramId: WorkoutProgram;
-  //
-
-  @BelongsTo(() => WorkoutProgram)
-  workoutprogram: WorkoutProgram;
+  workoutList: Workout[];
   //
 }

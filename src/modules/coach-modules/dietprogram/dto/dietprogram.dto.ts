@@ -12,7 +12,9 @@ export interface DietProduct {
 export interface Diet {
   description: string;
   eatingNumber: number;
-  dietproducts: DietProduct[];
+  dietproducts: string;
+  amount: number;
+  measure: string;
 }
 
 export interface DayDietProgram {
@@ -43,7 +45,9 @@ export class DietProgramDto {
           "eating": {
               "description": "test",
               "eatingNumer": 1,
-              "dietproducts": []
+              "dietproduct": "chicken",
+              "amount": 600,
+              "measure": "g"
           }
     }
   ], ...`,
@@ -99,7 +103,9 @@ export class DietProgramUpdateDto {
           "eating": {
               "description": "test",
               "eatingNumer": 1,
-              "dietproducts": []
+              "dietproduct": "chicken",
+              "amount": 600,
+              "measure": "g"
           }
     }
   ], ...`,
