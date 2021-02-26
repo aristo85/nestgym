@@ -1,4 +1,11 @@
-import { Table, Column, Model, DataType, HasMany, BelongsTo } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  HasMany,
+  BelongsTo,
+} from 'sequelize-typescript';
 import { Photo } from '../photos/photo.entity';
 
 @Table
@@ -43,15 +50,21 @@ export class UserProgress extends Model<UserProgress> {
     type: DataType.INTEGER,
     // allowNull: false,
   })
-  fatPercentage: number;
+  weight: number;
   //
   @Column({
-    type: DataType.INTEGER,
+    type: DataType.STRING,
     // allowNull: false,
   })
-  BMI: number;
+  fatPercentage: string;
   //
-  
+  @Column({
+    type: DataType.STRING,
+    // allowNull: false,
+  })
+  BMI: String;
+  //
+
   @BelongsTo(() => Photo, { foreignKey: 'frontPhotoId' })
   frontPhoto: Photo;
 
