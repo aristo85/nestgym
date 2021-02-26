@@ -16,23 +16,15 @@ export class TemplateDietsService {
   async createDietTemplate(
     data: TemplateDietDto,
     userId: number,
-  ): Promise<any> {
+  ): Promise<TemplateDiet> {
     // creating the template program
     const { days, ...other } = data;
-
-    // change dayly programs to json
-    const jsonDays = JSON.stringify(days);
-
-    // check json correct
-    // if (!isJson(jsonDays)) {
-    //   throw new NotFoundException('not correct data "days"');
-    // }
 
     // create program eith json days
     const template = await this.templateDietRepository.create<TemplateDiet>({
       ...other,
       coachId: userId,
-      days: jsonDays,
+      days,
     });
 
     const diet = await this.templateDietRepository.findOne({
@@ -49,7 +41,7 @@ export class TemplateDietsService {
     //   dataJson = isJson(dataJson);
     // }
 
-    return { ...diet };
+    return diet;
   }
   ///////////////////////////////////////
 
@@ -120,9 +112,6 @@ export class TemplateDietsService {
       role === 'admin'
         ? { id: templateDietId }
         : { id: templateDietId, coachId };
-
-    // change dayly programs to json
-    const jsonDays = JSON.stringify(days);
 
     // check json correct
     // if (!isJson(jsonDays)) {
