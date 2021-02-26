@@ -10,7 +10,8 @@ import {
 import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { User } from 'src/modules/users/user.entity';
-import { WorkoutProgram } from '../workout-programs/workout-program.entity';
+import { WorkoutProgram } from './dto/full-progworkout.dto';
+// import { WorkoutProgram } from '../workout-programs/workout-program.entity';
 
 @Table
 export class FullProgWorkout extends Model<FullProgWorkout> {
@@ -31,6 +32,12 @@ export class FullProgWorkout extends Model<FullProgWorkout> {
     // allowNull: false,
   })
   coment: string;
+  //
+  @Column({
+    type: DataType.JSONB,
+    // allowNull: false,
+  })
+  workoutProgram: WorkoutProgram[];
 
   @ForeignKey(() => User)
   @Column({
@@ -53,12 +60,12 @@ export class FullProgWorkout extends Model<FullProgWorkout> {
   @BelongsTo(() => Userapp)
   userapp: Userapp;
 
-  //
-  @HasMany(() => WorkoutProgram, {
-    foreignKey: 'fullprogworkoutId',
-    onDelete: 'CASCADE',
-  })
-  workoutprograms: WorkoutProgram[];
+  // //
+  // @HasMany(() => WorkoutProgram, {
+  //   foreignKey: 'fullprogworkoutId',
+  //   onDelete: 'CASCADE',
+  // })
+  // workoutprograms: WorkoutProgram[];
 
   @HasMany(() => UserWorkout, {
     foreignKey: 'fullprogworkoutId',

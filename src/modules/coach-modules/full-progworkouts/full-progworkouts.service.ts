@@ -22,32 +22,37 @@ export class FullProgworkoutsService {
   async createFullProgWorkout(
     data: FullProgWorkoutDto,
     coachId: number,
-    myRequests: Requestedapp[],
+    userapps: Userapp[],
   ): Promise<any> {
     // creating the  program(full program) in fullprogworkout table
-    const { programs, userappIds, ...other } = data;
-    for (const appRequest of myRequests) {
-      const fullProg = await this.fullProgworkoutRepository.create<FullProgWorkout>(
-        {
+    const { workoutProgram, userappIds, ...other } = data;
+    // for (const appRequest of myRequests) {
+    //   const fullProg = await this.fullProgworkoutRepository.create<FullProgWorkout>(
+    //     {
+    //       ...other,
+    //       coachId,
+    //       userappId: appRequest.userappId,
+    //       userId: appRequest.userId,
+    //     },
+    //   );
+    //   // creating workouts in workoutprogram table
+    //   for (const workout of workoutProgram) {
+    //     await this.workoutProgramService.createWorkouts(workout, fullProg.id);
+    //   }
+    // }
+
+    return await this.fullProgworkoutRepository.bulkCreate<FullProgWorkout>(
+      userapps.map(
+        (userapp) => ({
           ...other,
           coachId,
-          userappId: appRequest.userappId,
-          userId: appRequest.userId,
-        },
-      );
-      // creating workouts in workoutprogram table
-      for (const workout of programs) {
-        await this.workoutProgramService.createWorkouts(workout, fullProg.id);
-      }
-    }
-
-    return await this.fullProgworkoutRepository.findAll({
-      where: {
-        userappId: [...userappIds],
-        coachId,
-      },
-      include: [WorkoutProgram],
-    });
+          userappId: userapp.id,
+          userId: userapp.userId,
+          workoutProgram,
+        }),
+        { returning: true },
+      ),
+    );
   }
 
   async findAllFullProgWorkouts(
@@ -89,31 +94,32 @@ export class FullProgworkoutsService {
   async updateFullProgWorkout(
     fullprogworkoutId: number,
     data: FullProgWorkoutUpdateDto,
-    userId: number,
+    coachUserId: number,
   ) {
-    // delete the workout-programs for this program
-    await WorkoutProgram.destroy({ where: { fullprogworkoutId } });
-    // delete user records too
-    await UserWorkout.destroy({ where: { fullprogworkoutId } });
-    // recreate products for this program
-    const { programs, ...other } = data;
-    for (const product of programs) {
-      await this.workoutProgramService.createWorkouts(
-        product,
-        fullprogworkoutId,
-      );
-    }
+    // // delete the workout-programs for this program
+    // await WorkoutProgram.destroy({ where: { fullprogworkoutId } });
+    // // delete user records too
+    // await UserWorkout.destroy({ where: { fullprogworkoutId } });
+    // // recreate products for this program
+    const { workoutProgram, ...other } = data;
+    // for (const product of programs) {
+    //   await this.workoutProgramService.createWorkouts(
+    //     product,
+    //     fullprogworkoutId,
+    //   );
+    // }
     // update the program
-    await this.fullProgworkoutRepository.update(
-      { ...other },
-      { where: { id: fullprogworkoutId }, returning: true },
+    const [
+      affectedRows,
+      workouts,
+    ] = await this.fullProgworkoutRepository.update(
+      { ...other, workoutProgram },
+      {
+        where: { id: fullprogworkoutId, coachId: coachUserId },
+        returning: true,
+      },
     );
     // return the updated program with workouts
-    return await this.fullProgworkoutRepository.findOne({
-      where: {
-        id: fullprogworkoutId,
-      },
-      include: [WorkoutProgram],
-    });
+    return workouts;
   }
 }

@@ -1,13 +1,22 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export interface WorkoutProg {
-  workout: string;
+export interface Exercise {
+  exerciseName: string;
   sets: number;
   reps: number;
   value: number;
+}
+
+export interface Workout {
+  description: string;
+  workoutNumber: number;
+  exercises: Exercise[];
+}
+
+export interface WorkoutProgram {
   dayNumber: number;
-  coment: string;
+  workout: Workout[];
 }
 
 export class FullProgWorkoutDto {
@@ -18,7 +27,7 @@ export class FullProgWorkoutDto {
   @ApiProperty()
   // @IsNotEmpty()
   readonly dayDone: number;
-  
+
   @ApiProperty()
   // @IsNotEmpty()
   readonly workoutsPerWeek: number;
@@ -29,14 +38,23 @@ export class FullProgWorkoutDto {
 
   @ApiProperty({
     description: ` example: [
-    {
-        workout: string,
-        sets: number,
-        reps: number,
-        value: number,
-        dayNumber: number,
-        coment: string,
-    }, ...
+      {
+        "dayNumber": 1,
+        "workout": [
+            {
+                "description": "",
+                "workoutNumber": 1,
+                "exercises": [
+                    {
+                        "exerciseName":"",
+                        "sets": 0,
+                        "reps": 0,
+                        "value": 0
+                    }, ...
+                ]
+            }, ...
+        ]
+   }, ...
   ]`,
 
     type: 'array',
@@ -45,7 +63,7 @@ export class FullProgWorkoutDto {
     },
   })
   @IsNotEmpty()
-  readonly programs: WorkoutProg[];
+  readonly workoutProgram: WorkoutProgram[];
 
   @ApiProperty({
     type: 'array',
@@ -93,5 +111,5 @@ export class FullProgWorkoutUpdateDto {
     },
   })
   @IsNotEmpty()
-  readonly programs: WorkoutProg[];
+  readonly workoutProgram: WorkoutProgram[];
 }

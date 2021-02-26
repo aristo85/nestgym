@@ -17,7 +17,7 @@ export interface Diet {
 
 export interface DayDietProgram {
   dayNumber: number;
-  diet: Diet;
+  eating: Diet[];
 }
 
 export interface FinalData {
@@ -40,7 +40,7 @@ export class DietProgramDto {
     description: ` example: [
       {
           "daynumber": 1,
-          "diet": {
+          "eating": {
               "description": "test",
               "eatingNumer": 1,
               "dietproducts": []
@@ -94,13 +94,15 @@ export class DietProgramUpdateDto {
 
   @ApiProperty({
     description: ` example: [
-    {
-        product: string,
-        amount: number,
-        dayNumber: number,
-        measure: string,
-    }, ...
-  ]`,
+      {
+          "daynumber": 1,
+          "eating": {
+              "description": "test",
+              "eatingNumer": 1,
+              "dietproducts": []
+          }
+    }
+  ], ...`,
 
     type: 'array',
     items: {
@@ -125,4 +127,8 @@ export class DietProgramUpdateDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly carbs: number;
+
+  @ApiProperty()
+  //   @IsNotEmpty()
+  readonly coment: string;
 }
