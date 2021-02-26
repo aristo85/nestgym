@@ -16,6 +16,7 @@ import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { UserWorkout } from '../user-workouts/user-workout.entity';
 import { User } from '../users/user.entity';
 import { Photo } from '../photos/photo.entity';
+import { Profile } from '../profiles/profile.entity';
 
 export type ApplicationStatus = 'active' | 'pending' | 'archieved' | 'reject'
 export type ApplicationCoachGender = 'male' | 'female' | 'any'
@@ -128,6 +129,10 @@ export class Userapp extends Model<Userapp> {
   @BelongsTo(() => CoachProfile, { foreignKey: 'coachProfileId' })
   coachProfile: CoachProfile;
   
+
+  @BelongsTo(() => Profile, { foreignKey: 'clientProfileId' })
+  clientProfile: Profile;
+  
   @BelongsTo(() => Photo, { foreignKey: 'frontPhotoId' })
   frontPhoto: Photo;
 
@@ -136,4 +141,8 @@ export class Userapp extends Model<Userapp> {
 
   @BelongsTo(() => Photo, { foreignKey: 'backPhotoId' })
   backPhoto: Photo;
+
+  // @HasOne(() => Profile, {as: "currentUserapp", foreignKey: "userappId"})
+  // profile: Profile;
+
 }
