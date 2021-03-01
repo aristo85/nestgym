@@ -9,13 +9,16 @@ import {
   ApplicationStatus,
   Userapp,
 } from 'src/modules/userapps/userapp.entity';
-import { DietObj, UserappsService } from 'src/modules/userapps/userapps.service';
+import {
+  DietObj,
+  UserappsService,
+} from 'src/modules/userapps/userapps.service';
 import { User } from 'src/modules/users/user.entity';
 import { CoachProfile } from '../coach-profiles/coach-profile.entity';
 import { CoachService } from '../coach-services/coach-service.entity';
 import { DietProgram } from '../dietprogram/dietprogram.entity';
 import { FullProgWorkout } from '../full-progworkouts/full.progworkout.enity';
-import { WorkoutProgram } from '../workout-programs/workout-program.entity';
+// import { WorkoutProgram } from '../workout-programs/workout-program.entity';
 import { ApplicationRequestStatus, Requestedapp } from './coachapp.entity';
 
 @Injectable()
@@ -24,7 +27,7 @@ export class CoachappsService {
     @Inject(COACH_APP_REPOSITORY)
     private readonly coachappRepository: typeof Requestedapp,
     private readonly userappService: UserappsService,
-  ) { }
+  ) {}
 
   //////////////////////////////////////////////////
   async createAppRequest(
@@ -104,7 +107,8 @@ export class CoachappsService {
                   include: [
                     { model: Photo, as: 'frontPhoto' },
                     { model: Photo, as: 'sidePhoto' },
-                    { model: Photo, as: 'backPhoto' }],
+                    { model: Photo, as: 'backPhoto' },
+                  ],
                 },
               ],
             },
@@ -159,7 +163,7 @@ export class CoachappsService {
               model: FullProgWorkout,
               limit: 1,
               order: [['createdAt', 'DESC']],
-              include: [{ model: WorkoutProgram }],
+              // include: [{ model: WorkoutProgram }],
             },
             {
               model: DietProgram,
@@ -175,10 +179,9 @@ export class CoachappsService {
     return list;
   }
 
-
   //////////////////////////////////////////////////
   async findCoachActiveApps(coachUserId: number): Promise<Userapp[]> {
-    return await this.userappService.getActiveCoachApps(coachUserId)
+    return await this.userappService.getActiveCoachApps(coachUserId);
   }
 
   //////////////////////////////////////////////////
@@ -240,5 +243,4 @@ export class CoachappsService {
       return userapp;
     }
   }
-
 }

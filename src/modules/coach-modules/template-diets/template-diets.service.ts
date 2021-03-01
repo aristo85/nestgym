@@ -15,86 +15,47 @@ export class TemplateDietsService {
 
   async createDietTemplate(
     data: TemplateDietDto,
-    userId: number,
+    coachUserId: number,
   ): Promise<TemplateDiet> {
     // creating the template program
-    const { days, ...other } = data;
-
-    // create program eith json days
-    const template = await this.templateDietRepository.create<TemplateDiet>({
-      ...other,
-      coachId: userId,
-      days,
+    return await this.templateDietRepository.create<TemplateDiet>({
+      ...data,
+      coachId: coachUserId,
     });
-
-    const diet = await this.templateDietRepository.findOne({
-      raw: true,
-      nest: true,
-      where: {
-        id: template.id,
-      },
-    });
-
-    // check the json
-    // let dataJson = isJson(diet.days);
-    // while (isJson(dataJson)) {
-    //   dataJson = isJson(dataJson);
-    // }
-
-    return diet;
   }
   ///////////////////////////////////////
 
-  async findAllDietTemplates(
-    coachId: number,
-    role: string,
-  ): Promise<RetTemplate[]> {
-    // check if from admin
-    let updateOPtion = role === 'admin' ? {} : { coachId };
-
-    const list = await this.templateDietRepository.findAll<TemplateDiet>({
-      where: updateOPtion,
+  async findAllDietTemplates(coachUserId?: number): Promise<RetTemplate[]> {
+    let dataOPtions = coachUserId ? { coachId: coachUserId } : {};
+    return await this.templateDietRepository.findAll<TemplateDiet>({
+      where: dataOPtions,
       raw: true,
       nest: true,
     });
-    // .map((el) => {
-    //   let dataJson = isJson(el.days);
-    //   while (isJson(dataJson)) {
-    //     dataJson = isJson(dataJson);
-    //   }
-    //   return { ...el, days: dataJson };
-    // });
-    return list;
   }
   ///////////////////////////////////////
 
   async findOneDietTemplate(
     templateDietId: number,
-    coachId: number,
-    role: string,
+    coachUserId?: number,
   ): Promise<RetTemplate> {
-    // check the role
-    let updateOPtion =
-      role === 'admin'
-        ? { id: templateDietId }
-        : { id: templateDietId, coachId };
-    const diet = await this.templateDietRepository.findOne({
+    let dataOPtions = coachUserId
+      ? { id: templateDietId, coachId: coachUserId }
+      : { id: templateDietId };
+    return await this.templateDietRepository.findOne({
       raw: true,
       nest: true,
-      where: updateOPtion,
+      where: dataOPtions,
     });
-    // check the json
-    // let dataJson = isJson(diet.days);
-    // while (isJson(dataJson)) {
-    //   dataJson = isJson(dataJson);
-    // }
-    return { ...diet };
   }
   ///////////////////////////////////////
 
-  async deleteDietTemplate(templateDietId: number, coachId: number) {
+  async deleteDietTemplate(templateDietId: number, coachUserId?: number) {
+    let dataOPtions = coachUserId
+      ? { id: templateDietId, coachId: coachUserId }
+      : { id: templateDietId };
     return await this.templateDietRepository.destroy({
-      where: { id: templateDietId, coachId },
+      where: dataOPtions,
     });
   }
   ///////////////////////////////////////
@@ -102,41 +63,20 @@ export class TemplateDietsService {
   async updateDietTemplate(
     templateDietId: number,
     data: TemplateDietDto,
-    coachId: number,
-    role: string,
+    coachUserId?: number,
   ) {
-    const { days, ...other } = data;
-
-    // check role
-    let updateOPtion =
-      role === 'admin'
-        ? { id: templateDietId }
-        : { id: templateDietId, coachId };
-
-    // check json correct
-    // if (!isJson(jsonDays)) {
-    //   throw new NotFoundException('not correct data "days"');
-    // }
-
     // update the program
-    await this.templateDietRepository.update(
-      { ...other, days },
+    let updateOPtion = coachUserId
+      ? { id: templateDietId, coachId: coachUserId }
+      : { id: templateDietId };
+    const [
+      affectedRows,
+      dietTemplate,
+    ] = await this.templateDietRepository.update(
+      { ...data },
       { where: updateOPtion, returning: true },
     );
-
-    // return the updated program with
-    const diet = await this.templateDietRepository.findOne({
-      raw: true,
-      nest: true,
-      where: { id: templateDietId },
-    });
-    // check the json
-    // let dataJson = isJson(diet.days);
-    // while (isJson(dataJson)) {
-    //   dataJson = isJson(dataJson);
-    // }
-
-    return { ...diet };
+    return dietTemplate;
   }
   ///////////////////////////////////////
 }

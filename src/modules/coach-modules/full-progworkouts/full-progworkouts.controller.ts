@@ -14,6 +14,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { Roles, User } from 'src/modules/users/user.entity';
 import { AuthUser, UserRole } from 'src/modules/users/users.decorator';
 import { Requestedapp } from '../coachapps/coachapp.entity';
@@ -38,7 +39,7 @@ export class FullProgworkoutsController {
     @Body() fullprog: FullProgWorkoutDto,
     @AuthUser() user: User,
     @UserRole() role: Roles,
-  ): Promise<FullProgWorkout> {
+  ): Promise<FullProgWorkout[]> {
     // check the role
     if (role !== 'trainer') {
       throw new ForbiddenException('Your role is not a trainer');
@@ -48,8 +49,8 @@ export class FullProgworkoutsController {
       throw new NotFoundException('You havent chosen any application');
     }
     // check if applications are exists
-    const myRequests = await Requestedapp.findAll({
-      where: { userappId: [...fullprog.userappIds], coachId: user.id },
+    const myRequests = await Userapp.findAll({
+      where: { id: fullprog.userappIds, coachId: user.id },
     });
     if (myRequests.length !== fullprog.userappIds.length) {
       throw new NotFoundException('some of the Apps are not exist');
@@ -148,7 +149,7 @@ export class FullProgworkoutsController {
     @Body() data: FullProgWorkoutUpdateDto,
     @AuthUser() user: User,
     @UserRole() role: Roles,
-  ): Promise<FullProgWorkout> {
+  ): Promise<FullProgWorkout[]> {
     // check id
     const prog = await this.fullProgworkoutService.findOneFullProgWorkout(
       id,

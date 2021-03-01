@@ -18,104 +18,63 @@ export class TemplateWorkoutsService {
 
   async createWorkoutTemplate(
     data: TemplateWorkoutDto,
-    userId: number,
-  ): Promise<any> {
+    coachUserId: number,
+  ): Promise<TemplateWorkout> {
     // creating the template program
-    const { programs, ...other } = data;
-    const template = await this.templateworkoutRepository.create<TemplateWorkout>(
-      {
-        ...other,
-        coachId: userId,
-      },
-    );
-    // creating workouts in workoutprogram table
-    let listProgs = [];
-    for (const workout of data.programs) {
-      const newProg = await this.workoutProgramService.createWorkouts(
-        workout,
-        template.id,
-        'template',
-      );
-      listProgs.push(newProg);
-    }
-
-    return await this.templateworkoutRepository.findOne({
-      where: {
-        id: template.id,
-      },
-      include: [WorkoutProgram],
+    return await this.templateworkoutRepository.create<TemplateWorkout>({
+      ...data,
+      coachId: coachUserId,
     });
-    // return { fullProg, programs: listProgs };
   }
 
   async findAllWorkoutTemplates(
-    coachId: number,
-    role: string,
+    coachUserId?: number,
   ): Promise<TemplateWorkout[]> {
-    // check if from admin
-    let updateOPtion = role === 'admin' ? {} : { coachId };
+    let dataOPtions = coachUserId ? { coachId: coachUserId } : {};
 
-    const list = await this.templateworkoutRepository.findAll<TemplateWorkout>({
-      where: updateOPtion,
-      include: [WorkoutProgram],
+    return await this.templateworkoutRepository.findAll<TemplateWorkout>({
+      where: dataOPtions,
     });
-    return list;
   }
 
   async findOneWorkoutTemplate(
     templateworkoutId: number,
-    coachId: number,
-    role: string,
+    coachUserId?: number,
   ): Promise<TemplateWorkout> {
-    // check the role
-    let updateOPtion =
-      role === 'admin'
-        ? { id: templateworkoutId }
-        : { id: templateworkoutId, coachId };
+    let dataOPtions = coachUserId
+      ? { id: templateworkoutId, coachId: coachUserId }
+      : { id: templateworkoutId };
     return await this.templateworkoutRepository.findOne({
-      where: updateOPtion,
-      include: [WorkoutProgram],
+      where: dataOPtions,
     });
   }
 
-  async deleteWorkoutTemplate(templateworkoutId: number, coachId: number) {
+  async deleteWorkoutTemplate(templateworkoutId: number, coachUserId?: number) {
+    let dataOPtions = coachUserId
+      ? { id: templateworkoutId, coachId: coachUserId }
+      : { id: templateworkoutId };
     return await this.templateworkoutRepository.destroy({
-      where: { id: templateworkoutId, coachId },
+      where: dataOPtions,
     });
   }
 
   async updateWorkoutTemplate(
     templateworkoutId: number,
     data: TemplateWorkoutUpdateDto,
-    coachId: number,
-    role: string,
+    coachUserId?: number,
   ) {
-    let updateOPtion =
-      role === 'admin'
-        ? { id: templateworkoutId }
-        : { id: templateworkoutId, coachId };
-    // delete the workouts for this program
-    await WorkoutProgram.destroy({ where: { templateworkoutId } });
-    // recreate workouts for this program
-    const { programs, ...other } = data;
-    for (const workout of programs) {
-      await this.workoutProgramService.createWorkouts(
-        workout,
-        templateworkoutId,
-        'template',
-      );
-    }
+    let updateOPtion = coachUserId
+      ? { id: templateworkoutId, coachId: coachUserId }
+      : { id: templateworkoutId };
     // update the program
-    await this.templateworkoutRepository.update(
-      { ...other },
+    const [
+      affectedRows,
+      workoutTemplate,
+    ] = await this.templateworkoutRepository.update(
+      { ...data },
       { where: updateOPtion, returning: true },
     );
     // return the updated program with workouts
-    return await this.templateworkoutRepository.findOne({
-      where: {
-        id: templateworkoutId,
-      },
-      include: [WorkoutProgram],
-    });
+    return workoutTemplate;
   }
 }

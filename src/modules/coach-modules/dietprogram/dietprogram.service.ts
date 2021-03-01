@@ -22,16 +22,7 @@ export class DietprogramService {
   ) {
     // creating the diet program
     const { days, userappIds, ...other } = data;
-
-    // change dayly programs to json
-    // const jsonDays = JSON.stringify(days);
-
-    // check json correct
-    // if (!isJson(jsonDays)) {
-    //   throw new NotFoundException('not correct data "days"');
-    // }
-
-    // create program for each requests
+    // create program for each application
     return await this.dietProgramRepository.bulkCreate<DietProgram>(
       userapps.map(
         (userapp) => ({
@@ -51,47 +42,32 @@ export class DietprogramService {
     // check if from admin
     // let updateOPtion = user.role === 'admin' ? {} : { coachId: user.id };
 
-    const diets = await this.dietProgramRepository.findAll<DietProgram>({
+    return await this.dietProgramRepository.findAll<DietProgram>({
       raw: true,
       nest: true,
       where: { coachId: coachUserId },
     });
-
-    return diets;
-    // .map((el) => {
-    //   let dataJson = isJson(el.days);
-    //   while (isJson(dataJson)) {
-    //     dataJson = isJson(dataJson);
-    //   }
-    //   return { ...el, days: dataJson };
-    // });
   }
   ///////////////////////////////////////
 
   async findOneDietProgram(dietProgramId: number, coachUserId?: number) {
-    // check the role
-    // let updateOPtion =
-    //   user.role === 'trainer' ? { id, coachId: user.id } : { id };
-    const diets = await this.dietProgramRepository.findOne({
+    let dataOPtions = coachUserId
+      ? { id: dietProgramId, coachId: coachUserId }
+      : { id: dietProgramId };
+    return await this.dietProgramRepository.findOne({
       raw: true,
       nest: true,
-      where: { id: dietProgramId, coachId: coachUserId },
+      where: dataOPtions,
     });
-
-    return diets;
-    // check the json
-    // let dataJson = isJson(diet.days);
-    // while (isJson(dataJson)) {
-    //   dataJson = isJson(dataJson);
-    // }
-
-    // return { ...diet, days: dataJson };
   }
   ///////////////////////////////////////
 
   async deleteDietProgram(dietProgramId: number, coachUserId?: number) {
+    let dataOPtions = coachUserId
+      ? { id: dietProgramId, coachId: coachUserId }
+      : { id: dietProgramId };
     return await this.dietProgramRepository.destroy({
-      where: { id: dietProgramId, coachId: coachUserId },
+      where: dataOPtions,
     });
   }
   ///////////////////////////////////////
@@ -99,52 +75,17 @@ export class DietprogramService {
   async updateDietProgram(
     dietProgramId: number,
     data: DietProgramUpdateDto,
-    coachUserId: number,
+    coachUserId?: number,
   ) {
-    // const { days, ...other } = data;
-
-    // // change dayly programs to json
-    // const jsonDays = JSON.stringify(days);
-
-    // // check json correct
-    // if (!isJson(jsonDays)) {
-    //   throw new NotFoundException('not correct data "days"');
-    // }
-
-    const { days, ...other } = data;
-
     // update the program
+    let dataOPtions = coachUserId
+      ? { id: dietProgramId, coachId: coachUserId }
+      : { id: dietProgramId };
     const [affectedRows, diets] = await this.dietProgramRepository.update(
-      { ...other, days },
-      { where: { id: dietProgramId, coachId: coachUserId }, returning: true },
+      { ...data },
+      { where: dataOPtions, returning: true },
     );
-
     return diets;
-
-    // return the updated program with dietProducts
-    // const diet = await this.dietProgramRepository.findOne({
-    //   raw: true,
-    //   nest: true,
-    //   where: { id },
-    // });
-    // // check the json
-    // let dataJson = isJson(diet.days);
-    // while (isJson(dataJson)) {
-    //   dataJson = isJson(dataJson);
-    // }
-
-    // return { ...diet, days: dataJson };
   }
   ///////////////////////////////////////
-  ///////////////////////////////////////
-  ///////////////////////////////////////
 }
-// json checker
-// export const isJson = (str) => {
-//   try {
-//     JSON.parse(str);
-//   } catch (e) {
-//     return false;
-//   }
-//   return JSON.parse(str);
-// };

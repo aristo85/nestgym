@@ -14,7 +14,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { User } from 'src/modules/users/user.entity';
+import { Roles, User } from 'src/modules/users/user.entity';
 import { AuthUser, UserRole } from 'src/modules/users/users.decorator';
 import { Requestedapp } from '../coachapps/coachapp.entity';
 import { RetTemplate } from '../template-diets/dto/template-diet.dto';
@@ -35,9 +35,10 @@ export class DietprogramController {
   async create(
     @Body() data: DietProgramDto,
     @AuthUser() user: User,
+    @UserRole() role: Roles,
   ): Promise<DietProgram[]> {
     // check the role
-    if (user.role !== 'trainer') {
+    if (role !== 'trainer') {
       throw new ForbiddenException('Your role is not a trainer');
     }
     // check if the userappIds list is empty
@@ -92,7 +93,10 @@ export class DietprogramController {
     if (role !== 'trainer' && role !== 'admin') {
       throw new ForbiddenException('User must be trainer or admin');
     }
-    const progs = await this.dietProgramService.findOneDietProgram(id, user.id);
+    const progs = await this.dietProgramService.findOneDietProgram(
+      id,
+      role === 'admin' ? null : user.id,
+    );
 
     // if the progs doesn't exit in the db, throw a 404 error
     if (!progs) {
@@ -150,6 +154,10 @@ export class DietprogramController {
       throw new NotFoundException("This program doesn't exist");
     }
     // get the number of row affected and the updated Prog
-    return await this.dietProgramService.updateDietProgram(id, data, role === 'admin' ? undefined : user.id);
+    return await this.dietProgramService.updateDietProgram(
+      id,
+      data,
+      role === 'admin' ? undefined : user.id,
+    );
   }
 }

@@ -9,7 +9,6 @@ import {
 } from 'sequelize-typescript';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { User } from 'src/modules/users/user.entity';
-import { DietProduct } from '../dietproducts/dietproduct.entity';
 import { DayDietProgram } from './dto/dietprogram.dto';
 
 @Table
@@ -73,7 +72,7 @@ export class DietProgram extends Model<DietProgram> {
 
   @BelongsTo(() => User)
   user: User;
- 
+
   @ForeignKey(() => Userapp)
   @Column({
     type: DataType.INTEGER,
@@ -83,10 +82,4 @@ export class DietProgram extends Model<DietProgram> {
 
   @BelongsTo(() => Userapp)
   userapp: Userapp;
-
-  @HasMany(() => DietProduct, {
-    foreignKey: 'dietProgramId',
-    onDelete: 'CASCADE',
-  })
-  dietproducts: DietProduct[];
 }
