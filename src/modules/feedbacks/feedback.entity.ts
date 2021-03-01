@@ -27,6 +27,20 @@ export class Feedback extends Model<Feedback> {
   })
   text: string;
   //
+  //
+  @Column({
+    type: DataType.STRING,
+    // allowNull: false,
+  })
+  clientName: string;
+  //
+  //
+  @Column({
+    type: DataType.STRING,
+    // allowNull: false,
+  })
+  coachName: string;
+  //
 
   @ForeignKey(() => User)
   @Column({
