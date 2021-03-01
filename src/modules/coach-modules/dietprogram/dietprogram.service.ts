@@ -1,7 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { DIET_PROGRAM_REPOSITORY } from 'src/core/constants';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
-import { DietproductsService } from '../dietproducts/dietproducts.service';
 import { DietProgram } from './dietprogram.entity';
 import { DietProgramDto, DietProgramUpdateDto } from './dto/dietprogram.dto';
 
@@ -10,7 +9,6 @@ export class DietprogramService {
   constructor(
     @Inject(DIET_PROGRAM_REPOSITORY)
     private readonly dietProgramRepository: typeof DietProgram,
-    private readonly dietProductService: DietproductsService,
   ) {}
 
   ///////////////////////////////////////

@@ -3,6 +3,7 @@ import sequelize from 'sequelize';
 import { FEEDBACK_REPOSITORY } from 'src/core/constants';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
 import { includePhotoOptions, PhotosService } from '../photos/photos.service';
+import { Profile } from '../profiles/profile.entity';
 import { FeedbackDto } from './dto/feedback.dto';
 import { Feedback, RatingCounter } from './feedback.entity';
 
@@ -12,9 +13,10 @@ export class FeedbacksService {
     @Inject(FEEDBACK_REPOSITORY)
     private readonly feedbackRepository: typeof Feedback,
     private readonly photoService: PhotosService,
-  ) { }
+  ) {}
 
   async createFeedback(data: FeedbackDto, userId: number): Promise<Feedback> {
+    const { coachId } = data;
     // const test = includePhotoOptions
     // photos
     const {
@@ -22,13 +24,27 @@ export class FeedbacksService {
       sidePhoto,
       backPhoto,
     } = await this.photoService.findAllThreePostion(data);
-
+    // client name
+    const clientName = await Profile.findOne({
+      where: { userId },
+      attributes: ['fullName'],
+      raw: true,
+    });
+    // coach name
+    const coachName = await CoachProfile.findOne({
+      where: { userId: coachId },
+      attributes: ['fullName'],
+      raw: true,
+    });
+    // create feedback
     const createdFeedback = await this.feedbackRepository.create<Feedback>({
       ...data,
       frontPhotoId: frontPhoto?.id,
       sidePhotoId: sidePhoto?.id,
       backPhotoId: backPhoto?.id,
       userId,
+      clientName: clientName.fullName,
+      coachName: coachName.fullName,
     });
 
     // calculate coach's rating
@@ -44,10 +60,13 @@ export class FeedbacksService {
       });
 
       // const test: number = coachFeedbacks[0]
-      const { total, count }: any = coachFeedbacks[0]
-      const newRating = (total / count).toFixed(2)
+      const { total, count }: any = coachFeedbacks[0];
+      const newRating = (total / count).toFixed(2);
       // update coach's rating
-      await CoachProfile.update({ rating: newRating }, { where: { userId: data.coachId } })
+      await CoachProfile.update(
+        { rating: newRating },
+        { where: { userId: data.coachId } },
+      );
     }
 
     return createdFeedback;

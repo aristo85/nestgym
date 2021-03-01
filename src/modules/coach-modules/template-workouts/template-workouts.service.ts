@@ -1,7 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { TEMPLATE_WORKOUT_REPOSITORY } from 'src/core/constants';
-import { WorkoutProgram } from '../workout-programs/workout-program.entity';
-import { WorkoutProgramsService } from '../workout-programs/workout-programs.service';
 import {
   TemplateWorkoutDto,
   TemplateWorkoutUpdateDto,
@@ -13,7 +11,6 @@ export class TemplateWorkoutsService {
   constructor(
     @Inject(TEMPLATE_WORKOUT_REPOSITORY)
     private readonly templateworkoutRepository: typeof TemplateWorkout,
-    private readonly workoutProgramService: WorkoutProgramsService,
   ) {}
 
   async createWorkoutTemplate(

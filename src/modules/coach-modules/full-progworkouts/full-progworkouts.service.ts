@@ -2,9 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { FULL_PROGWORKOUT_REPOSITORY } from 'src/core/constants';
 import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
-import { Requestedapp } from '../coachapps/coachapp.entity';
-// import { WorkoutProgram } from '../workout-programs/workout-program.entity';
-import { WorkoutProgramsService } from '../workout-programs/workout-programs.service';
 import {
   FullProgWorkoutDto,
   FullProgWorkoutUpdateDto,
@@ -16,7 +13,6 @@ export class FullProgworkoutsService {
   constructor(
     @Inject(FULL_PROGWORKOUT_REPOSITORY)
     private readonly fullProgworkoutRepository: typeof FullProgWorkout,
-    private readonly workoutProgramService: WorkoutProgramsService,
   ) {}
 
   async createFullProgWorkout(
