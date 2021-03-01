@@ -17,9 +17,7 @@ import { CoachPayment } from './DB/transaction/coachPayment.entity';
 import { UserTransaction } from './DB/transaction/userTransaction.entity';
 import { CoachService } from 'src/modules/coach-modules/coach-services/coach-service.entity';
 import { DayBook } from './DB/dayBook.entity';
-import { WorkoutProgram } from 'src/modules/coach-modules/workout-programs/workout-program.entity';
 import { FullProgWorkout } from 'src/modules/coach-modules/full-progworkouts/full.progworkout.enity';
-import { DietProduct } from 'src/modules/coach-modules/dietproducts/dietproduct.entity';
 import { DietProgram } from 'src/modules/coach-modules/dietprogram/dietprogram.entity';
 import { Aim } from 'src/modules/aims/aim.entity';
 import { Sport } from 'src/modules/sports/sport.entity';
@@ -29,7 +27,6 @@ import { TemplateDiet } from 'src/modules/coach-modules/template-diets/template-
 import { Servicio } from 'src/modules/services/service.entity';
 import { Article } from 'src/modules/publications/publication.entity';
 import { IDatabaseConfigAttributes } from './interfaces/dbConfig.interface';
-// import { Sequelize } from 'sequelize';
 
 export const databaseProviders = [
   {
@@ -67,9 +64,7 @@ export const databaseProviders = [
         UserTransaction,
         CoachService,
         DayBook,
-        WorkoutProgram,
         FullProgWorkout,
-        DietProduct,
         DietProgram,
         Aim,
         Sport,
@@ -77,7 +72,7 @@ export const databaseProviders = [
         TemplateWorkout,
         TemplateDiet,
         Servicio,
-        Article
+        Article,
       ]);
       await sequelize.sync({ alter: true });
       return sequelize;

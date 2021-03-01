@@ -1,6 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { TEMPLATE_DIET_REPOSITORY } from 'src/core/constants';
-import { DietproductsService } from '../dietproducts/dietproducts.service';
 import { RetTemplate, TemplateDietDto } from './dto/template-diet.dto';
 import { TemplateDiet } from './template-diet.entity';
 
@@ -9,7 +8,6 @@ export class TemplateDietsService {
   constructor(
     @Inject(TEMPLATE_DIET_REPOSITORY)
     private readonly templateDietRepository: typeof TemplateDiet,
-    private readonly dietProductService: DietproductsService,
   ) {}
   ///////////////////////////////////////
 
