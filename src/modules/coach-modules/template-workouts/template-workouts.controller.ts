@@ -57,10 +57,13 @@ export class TemplateWorkoutsController {
     @AuthUser() user: User,
     @UserRole() role: Roles,
   ) {
+    // check the role
+    if (role !== 'trainer' && role !== 'admin') {
+      throw new ForbiddenException('User must be trainer or admin');
+    }
     // get all progs in the db
     const list = await this.templateworkoutService.findAllWorkoutTemplates(
-      user.id,
-      role,
+      role === 'admin' ? null : user.id,
     );
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
@@ -76,11 +79,14 @@ export class TemplateWorkoutsController {
     @AuthUser() user: User,
     @UserRole() role: Roles,
   ): Promise<TemplateWorkout> {
+    // check the role
+    if (role !== 'trainer' && role !== 'admin') {
+      throw new ForbiddenException('User must be trainer or admin');
+    }
     // find the progs with this id
     const progs = await this.templateworkoutService.findOneWorkoutTemplate(
       id,
-      user.id,
-      role,
+      role === 'admin' ? null : user.id,
     );
 
     // if the progs doesn't exit in the db, throw a 404 error
@@ -100,13 +106,13 @@ export class TemplateWorkoutsController {
     @UserRole() role: Roles,
   ) {
     // check the role
-    if (role === 'user') {
-      throw new ForbiddenException('Your role is not a trainer');
+    if (role !== 'trainer' && role !== 'admin') {
+      throw new ForbiddenException('User must be trainer or admin');
     }
     // delete the app with this id
     const deleted = await this.templateworkoutService.deleteWorkoutTemplate(
       id,
-      user.id,
+      role === 'admin' ? null : user.id,
     );
 
     // if the number of row affected is zero,
@@ -127,17 +133,24 @@ export class TemplateWorkoutsController {
     @Body() data: TemplateWorkoutUpdateDto,
     @AuthUser() user: User,
     @UserRole() role: Roles,
-  ): Promise<TemplateWorkout> {
+  ): Promise<TemplateWorkout[]> {
     // check the role
-    if (role === 'user') {
-      throw new ForbiddenException('Your role is not a trainer');
+    if (role !== 'trainer' && role !== 'admin') {
+      throw new ForbiddenException('User must be trainer or admin');
+    }
+    // check id
+    const prog = await this.templateworkoutService.findOneWorkoutTemplate(
+      id,
+      role === 'admin' ? undefined : user.id,
+    );
+    if (!prog) {
+      throw new NotFoundException("This program doesn't exist");
     }
     // get the number of row affected and the updated Prog
     return await this.templateworkoutService.updateWorkoutTemplate(
       id,
       data,
-      user.id,
-      role,
+      role === 'admin' ? undefined : user.id,
     );
   }
 }

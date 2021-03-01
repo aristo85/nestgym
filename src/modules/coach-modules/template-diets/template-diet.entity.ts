@@ -1,6 +1,5 @@
-import { Table, Column, Model, DataType, HasMany, ForeignKey, BelongsTo } from 'sequelize-typescript';
-import { User } from 'src/modules/users/user.entity';
-import { DietProduct } from '../dietproducts/dietproduct.entity';
+import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import { DayDietProgram } from '../dietprogram/dto/dietprogram.dto';
 
 @Table
 export class TemplateDiet extends Model<TemplateDiet> {
@@ -34,16 +33,10 @@ export class TemplateDiet extends Model<TemplateDiet> {
   })
   carbs: number;
   //
-  
+
   @Column({
-    type: DataType.TEXT,
+    type: DataType.JSONB,
     // allowNull: false,
   })
-  days: string;
- 
-  @HasMany(() => DietProduct, {
-    foreignKey: 'templateDietId',
-    onDelete: 'CASCADE',
-  })
-  dietproducts: DietProduct[];
+  days: DayDietProgram[];
 }

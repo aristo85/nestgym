@@ -17,13 +17,19 @@ export class TemplateDietDto {
 
   @ApiProperty({
     description: ` example: [
-    {
-        product: string,
-        amount: number,
-        dayNumber: number,
-        measure: string,
-    }, ...
-  ]`,
+      {
+        "dayNumber": 1,
+        "eating": [
+            {
+                "description": "Поесть куриное филе 500гр. в обед, стакан молока",
+                "eatingNumber": 1,
+                "dietproduct": "any",
+                "amount": 500,
+                "measure": "гр"
+            }, ...
+        ] 
+      }, ...
+   ]`,
 
     type: 'array',
     items: {
@@ -57,13 +63,19 @@ export class TemplateDietUpdateDto {
 
   @ApiProperty({
     description: ` example: [
-    {
-        product: string,
-        amount: number,
-        dayNumber: number,
-        measure: string,
-    }, ...
-  ]`,
+      {
+        "dayNumber": 1,
+        "eating": [
+            {
+                "description": "Поесть куриное филе 500гр. в обед, стакан молока",
+                "eatingNumber": 1,
+                "dietproduct": "any",
+                "amount": 500,
+                "measure": "гр"
+            }, ...
+        ] 
+      }, ...
+   ]`,
 
     type: 'array',
     items: {

@@ -19,13 +19,19 @@ export class TemplateWorkoutDto {
 
   @ApiProperty({
     description: ` example: [
-    {
-        workout: string,
-        sets: number,
-        reps: number,
-        value: number,
-        dayNumber: number,
-    }, ...
+      {
+        "dayNumber": 1,
+            "workouts": [
+                {
+                    "description": "",
+                    "workoutNumber": 1,
+                    "exerciseName":"Планка",
+                    "sets": 4,
+                    "reps": 4,
+                    "value": 4
+                }
+            ]
+   }, ...
   ]`,
 
     type: 'array',
@@ -34,7 +40,7 @@ export class TemplateWorkoutDto {
     },
   })
   @IsNotEmpty()
-  readonly programs: WorkoutProg[];
+  readonly workoutProgram: WorkoutProg[];
 }
 // ///////
 export class TemplateWorkoutUpdateDto {
@@ -47,13 +53,19 @@ export class TemplateWorkoutUpdateDto {
 
   @ApiProperty({
     description: ` example: [
-    {
-        workout: string,
-        sets: number,
-        reps: number,
-        value: number,
-        dayNumber: number,
-    }, ...
+      {
+        "dayNumber": 1,
+            "workouts": [
+                {
+                    "description": "",
+                    "workoutNumber": 1,
+                    "exerciseName":"Планка",
+                    "sets": 4,
+                    "reps": 4,
+                    "value": 4
+                }
+            ]
+   }, ...
   ]`,
 
     type: 'array',
@@ -62,5 +74,5 @@ export class TemplateWorkoutUpdateDto {
     },
   })
   @IsNotEmpty()
-  readonly programs: WorkoutProg[];
+  readonly workoutProgram: WorkoutProg[];
 }

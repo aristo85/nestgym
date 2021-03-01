@@ -53,10 +53,13 @@ export class TemplateDietsController {
     @AuthUser() user: User,
     @UserRole() role: Roles,
   ) {
+    // check the role
+    if (role !== 'trainer' && role !== 'admin') {
+      throw new ForbiddenException('User must be trainer or admin');
+    }
     // get all progs in the db
     const list = await this.templateDietService.findAllDietTemplates(
-      user.id,
-      role,
+      role === 'admin' ? null : user.id,
     );
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
@@ -72,11 +75,14 @@ export class TemplateDietsController {
     @AuthUser() user: User,
     @UserRole() role: Roles,
   ): Promise<RetTemplate> {
+    // check the role
+    if (role !== 'trainer' && role !== 'admin') {
+      throw new ForbiddenException('User must be trainer or admin');
+    }
     // find the progs with this id
     const progs = await this.templateDietService.findOneDietTemplate(
       id,
-      user.id,
-      role,
+      role === 'admin' ? null : user.id,
     );
 
     // if the progs doesn't exit in the db, throw a 404 error
@@ -96,13 +102,13 @@ export class TemplateDietsController {
     @UserRole() role: Roles,
   ) {
     // check the role
-    if (role === 'user') {
-      throw new ForbiddenException('Your role is not a trainer');
+    if (role !== 'trainer' && role !== 'admin') {
+      throw new ForbiddenException('User must be trainer or admin');
     }
     // delete the app with this id
     const deleted = await this.templateDietService.deleteDietTemplate(
       id,
-      user.id,
+      role === 'admin' ? null : user.id,
     );
 
     // if the number of row affected is zero,
@@ -123,17 +129,24 @@ export class TemplateDietsController {
     @Body() data: TemplateDietUpdateDto,
     @AuthUser() user: User,
     @UserRole() role: Roles,
-  ): Promise<TemplateDiet | { days: any }> {
+  ): Promise<TemplateDiet[]> {
     // check the role
-    if (role === 'user') {
-      throw new ForbiddenException('Your role is not a trainer');
+    if (role !== 'trainer' && role !== 'admin') {
+      throw new ForbiddenException('User must be trainer or admin');
+    }
+    // check id
+    const prog = await this.templateDietService.findOneDietTemplate(
+      id,
+      role === 'admin' ? undefined : user.id,
+    );
+    if (!prog) {
+      throw new NotFoundException("This program doesn't exist");
     }
     // get the number of row affected and the updated Prog
     return await this.templateDietService.updateDietTemplate(
       id,
       data,
-      user.id,
-      role,
+      role === 'admin' ? undefined : user.id,
     );
   }
 }

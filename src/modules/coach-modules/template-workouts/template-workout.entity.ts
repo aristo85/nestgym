@@ -1,4 +1,5 @@
 import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
+import { WorkoutProgram } from '../full-progworkouts/dto/full-progworkout.dto';
 // import { WorkoutProgram } from '../workout-programs/workout-program.entity';
 
 @Table
@@ -13,11 +14,10 @@ export class TemplateWorkout extends Model<TemplateWorkout> {
     // allowNull: false,
   })
   workoutsPerWeek: number;
-
-  // //
-  // @HasMany(() => WorkoutProgram, {
-  //   foreignKey: 'templateworkoutId',
-  //   onDelete: 'CASCADE',
-  // })
-  // workoutprograms: WorkoutProgram[];
+  //
+  @Column({
+    type: DataType.JSONB,
+    // allowNull: false,
+  })
+  workoutProgram: WorkoutProgram[];
 }
