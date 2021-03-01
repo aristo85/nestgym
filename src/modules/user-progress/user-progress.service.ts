@@ -45,18 +45,18 @@ export class UserProgressService {
         // calculate %fat
         const fatPercentage =
           gender === 'male' && age > 40
-            ? (1.2 * +BMI + 0.23 * age - 16.2).toFixed(1) + '%'
+            ? (1.2 * +BMI + 0.23 * age - 16.2).toFixed(1)
             : gender === 'female' && age > 40
-            ? (1.2 * +BMI + 0.23 * age - 5.4).toFixed(1) + '%'
+            ? (1.2 * +BMI + 0.23 * age - 5.4).toFixed(1)
             : gender === 'male' && age < 40
-            ? (1.51 * +BMI - 0.7 * age - 2.2).toFixed(1) + '%'
+            ? (1.51 * +BMI - 0.7 * age - 2.2).toFixed(1)
             : gender === 'female' && age < 40
-            ? (1.51 * +BMI - 0.7 * age + 1.4).toFixed(1) + '%'
+            ? (1.51 * +BMI - 0.7 * age + 1.4).toFixed(1)
             : +BMI < 21
-            ? '13,5-24%'
+            ? '13,5-24'
             : +BMI < 31
-            ? '25,5-39%'
-            : '40,5-54%';
+            ? '25,5-39'
+            : '40,5-54';
 
         return await this.userProgressRepository.create<UserProgress>({
           ...progress,

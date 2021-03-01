@@ -64,7 +64,7 @@ export class FeedbacksService {
       const newRating = (total / count).toFixed(2);
       // update coach's rating
       await CoachProfile.update(
-        { rating: newRating },
+        { rating: newRating, ratingQuantity: count },
         { where: { userId: data.coachId } },
       );
     }
