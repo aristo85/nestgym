@@ -22,7 +22,7 @@ export class Feedback extends Model<Feedback> {
   rate: number;
   //
   @Column({
-    type: DataType.STRING,
+    type: DataType.TEXT,
     allowNull: false,
   })
   text: string;
