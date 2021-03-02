@@ -31,6 +31,9 @@ export class CoachProfilesController {
   constructor(private readonly coachProfileService: CoachProfilesService) {}
 
   // for the admin
+  @ApiTags(
+    'Coach Profile (Редактирование профиля тренера и услуги тренера, только для админа)',
+  )
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Put('admin/update/:id')
@@ -61,7 +64,7 @@ export class CoachProfilesController {
     return updatedprofile;
   }
 
-  @ApiTags('Coach Profile')
+  @ApiTags('Coach Profile (Профиль тренера)')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
@@ -81,7 +84,7 @@ export class CoachProfilesController {
     return list;
   }
 
-  @ApiTags('Coach Profile')
+  @ApiTags('Coach Profile (Профиль тренера)')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
@@ -98,7 +101,7 @@ export class CoachProfilesController {
     return profile;
   }
 
-  @ApiTags('Coach Profile')
+  @ApiTags('Coach Profile (Профиль тренера)')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get('coach/myprofile')
@@ -115,7 +118,7 @@ export class CoachProfilesController {
     return profile;
   }
 
-  @ApiTags('Coach Profile')
+  @ApiTags('Coach Profile (Профиль тренера)')
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
@@ -142,7 +145,7 @@ export class CoachProfilesController {
     return profile;
   }
 
-  @ApiTags('Coach Profile')
+  @ApiTags('Coach Profile (Профиль тренера)')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
@@ -166,7 +169,7 @@ export class CoachProfilesController {
     return updatedprofile;
   }
 
-  @ApiTags('Coach Profile')
+  @ApiTags('Coach Profile (Профиль тренера)')
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(@Param('id') id: number, @AuthUser() user: User) {

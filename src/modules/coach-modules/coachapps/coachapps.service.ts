@@ -89,9 +89,10 @@ export class CoachappsService {
   }
 
   //////////////////////////////////////////////////
-  async findAllCoachAppRequest(coachUserId: number): Promise<Requestedapp[]> {
+  async findAllCoachAppRequest(coachUserId?: number): Promise<Requestedapp[]> {
+    const dataOptions = coachUserId ? { coachId: coachUserId } : {};
     const list: any = await this.coachappRepository.findAll<Requestedapp>({
-      where: { coachId: coachUserId },
+      where: dataOptions,
       include: [
         {
           model: Userapp,
@@ -116,33 +117,6 @@ export class CoachappsService {
         },
       ],
     });
-    // .map(async (el) => {
-    //   const request = el.get({ plain: true }) as Requestedapp;
-    //   const app = request.userapp;
-    //   console.log(app.dietprograms);
-    //   // change json days to obj
-    //   const diets: DietObj[] = app.dietprograms.map((diet) => {
-    //     let dataJson = isJson(diet.days);
-    //     while (isJson(dataJson)) {
-    //       dataJson = isJson(dataJson);
-    //     }
-    //     return { ...diet, days: dataJson };
-    //   });
-    //   // add coach profile if the request been accepted by a coach
-    //   const userProfile = await Profile.findOne({
-    //     where: {
-    //       userId: request.userId,
-    //     },
-    //   });
-    //   return userProfile
-    //     ? {
-    //         ...request,
-    //         userapp: { ...app, dietprograms: diets },
-    //         userProfile,
-    //       }
-    //     : { ...request, userapp: { ...app, dietprograms: diets } };
-    // });
-
     return list;
   }
 

@@ -23,7 +23,7 @@ import { UserWorkoutDto, WorkoutProgUpdateDto } from './dto/user-workout.dto';
 import { UserWorkout } from './user-workout.entity';
 import { UserWorkoutsService } from './user-workouts.service';
 
-@ApiTags('client workout programs')
+@ApiTags('client workout programs (Программы тренировок клиента)')
 @ApiBearerAuth()
 @Controller('user-workouts')
 export class UserWorkoutsController {

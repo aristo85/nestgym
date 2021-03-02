@@ -24,7 +24,7 @@ import {
 import { TemplateDiet } from './template-diet.entity';
 import { TemplateDietsService } from './template-diets.service';
 
-@ApiTags('Template Diet Programs')
+@ApiTags('Template Diet Programs (Шаблоны для программ диет)')
 @ApiBearerAuth()
 @Controller('template-diets')
 export class TemplateDietsController {

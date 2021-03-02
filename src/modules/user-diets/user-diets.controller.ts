@@ -16,7 +16,7 @@ import { User } from '../users/user.entity';
 import { AuthUser } from '../users/users.decorator';
 import { RetDiet, UserDietsService } from './user-diets.service';
 
-@ApiTags('client Diet programs')
+@ApiTags('client Diet programs (Программы диеты клиента)')
 @ApiBearerAuth()
 @Controller('user-diets')
 export class UserDietsController {

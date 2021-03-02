@@ -25,7 +25,7 @@ import {
 import { FullProgworkoutsService } from './full-progworkouts.service';
 import { FullProgWorkout } from './full.progworkout.enity';
 
-@ApiTags('workout full programs')
+@ApiTags('workout programs (Программы тренировок, созданные тренером)')
 @ApiBearerAuth()
 @Controller('full-progworkouts')
 export class FullProgworkoutsController {

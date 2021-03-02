@@ -26,6 +26,7 @@ import { PublicationsModule } from './modules/publications/publications.module';
 import { FeedbacksModule } from './modules/feedbacks/feedbacks.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { PlacesModule } from './modules/places/places.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'images'),
       exclude: ['/api/gym*'],
     }),
+    PlacesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

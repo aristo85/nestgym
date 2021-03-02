@@ -19,7 +19,7 @@ import { ProfileDto, ProfileUpdateDto } from './dto/profile.dto';
 import { Profile } from './profile.entity';
 import { ProfilesService } from './profiles.service';
 
-@ApiTags('Client-Profile')
+@ApiTags('Client-Profile (Профиль клиента)')
 @ApiBearerAuth()
 @Controller('profiles')
 export class ProfilesController {
