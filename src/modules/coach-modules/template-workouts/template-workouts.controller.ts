@@ -23,7 +23,7 @@ import {
 import { TemplateWorkout } from './template-workout.entity';
 import { TemplateWorkoutsService } from './template-workouts.service';
 
-@ApiTags('Template Workout Programs')
+@ApiTags('Template Workout Programs (Шаблоны для программ тренеровок)')
 @ApiBearerAuth()
 @Controller('template-workouts')
 export class TemplateWorkoutsController {

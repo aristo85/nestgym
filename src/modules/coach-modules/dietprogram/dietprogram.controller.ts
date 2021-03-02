@@ -24,7 +24,7 @@ import { DietProgramDto, DietProgramUpdateDto } from './dto/dietprogram.dto';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { Role } from 'src/modules/users/dto/user.dto';
 
-@ApiTags('diet programs')
+@ApiTags('diet programs (Программы диет, созданые тренером)')
 @ApiBearerAuth()
 @Controller('dietprogram')
 export class DietprogramController {

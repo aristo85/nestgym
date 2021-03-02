@@ -16,37 +16,37 @@ import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles, User } from '../users/user.entity';
 import { AuthUser, UserRole } from '../users/users.decorator';
-import { ServicioDto } from './dto/service.dto';
-import { Servicio } from './service.entity';
-import { ServicesService } from './services.service';
+import { PlaceDto } from './dto/place.dto';
+import { Place } from './place.entity';
+import { PlacesService } from './places.service';
 
-@ApiTags('Service List (Список услуги)')
+@ApiTags('Given Place List (Места занятий спортом)')
 @ApiBearerAuth()
-@Controller('services')
-export class ServicesController {
-  constructor(private readonly serviceService: ServicesService) {}
+@Controller('places')
+export class PlacesController {
+  constructor(private readonly placeService: PlacesService) {}
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
-    @Body() data: ServicioDto,
+    @Body() place: PlaceDto,
     @AuthUser() user: User,
     @UserRole() role: Roles,
-  ): Promise<Servicio> {
+  ): Promise<Place> {
     // check the role
     if (role !== 'admin') {
       throw new ForbiddenException('Your role is not an admin');
     }
-    // create a new service and return the newly created service
-    return await this.serviceService.createService(data, user.id);
+    // create a new place and return the newly created place
+    return await this.placeService.createPlace(place, user.id);
   }
 
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@Req() req: Request & { res: Response }) {
-    // get all services in the db
-    const list = await this.serviceService.findAllServices();
+    // get all places in the db
+    const list = await this.placeService.findAllPlaces();
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -59,20 +59,20 @@ export class ServicesController {
   async findOne(
     @Param('id') id: number,
     @UserRole() role: Roles,
-  ): Promise<Servicio> {
+  ): Promise<Place> {
     // check the role
     if (role !== 'admin') {
       throw new ForbiddenException('Your role is not an admin');
     }
-    // find the service with this id
-    const service = await this.serviceService.findOneService(id);
+    // find the place with this id
+    const place = await this.placeService.findOnePlace(id);
 
-    // if the service doesn't exit in the db, throw a 404 error
-    if (!service) {
-      throw new NotFoundException("This service doesn't exist");
+    // if the place doesn't exit in the db, throw a 404 error
+    if (!place) {
+      throw new NotFoundException("This place doesn't exist");
     }
-    // if service exist, return service
-    return service;
+    // if place exist, return place
+    return place;
   }
 
   @ApiResponse({ status: 200 })
@@ -80,27 +80,27 @@ export class ServicesController {
   @Put(':id')
   async update(
     @Param('id') id: number,
-    @Body() data: ServicioDto,
+    @Body() place: PlaceDto,
     @UserRole() role: Roles,
-  ): Promise<Servicio> {
+  ): Promise<Place> {
     // check the role
     if (role !== 'admin') {
       throw new ForbiddenException('Your role is not an admin');
     }
-    // get the number of row affected and the updated service
+    // get the number of row affected and the updated place
     const {
       numberOfAffectedRows,
-      updatedServicio,
-    } = await this.serviceService.updateService(id, data);
+      updatedPlace,
+    } = await this.placeService.updatePlace(id, place);
 
     // if the number of row affected is zero,
-    // it means the service doesn't exist in our db
+    // it means the place doesn't exist in our db
     if (numberOfAffectedRows === 0) {
-      throw new NotFoundException("This service doesn't exist");
+      throw new NotFoundException("This place doesn't exist");
     }
 
-    // return the updated service
-    return updatedServicio;
+    // return the updated place
+    return updatedPlace;
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -108,15 +108,15 @@ export class ServicesController {
   async remove(@Param('id') id: number, @UserRole() role: Roles) {
     // check the role
     if (role !== 'admin') {
-      throw new ForbiddenException('Your role is not an admin');
+      throw new NotFoundException('Your role is not an admin');
     }
-    // delete the service with this id
-    const deleted = await this.serviceService.deleteService(id);
+    // delete the place with this id
+    const deleted = await this.placeService.deletePlace(id);
 
     // if the number of row affected is zero,
-    // then the service doesn't exist in our db
+    // then the place doesn't exist in our db
     if (deleted === 0) {
-      throw new NotFoundException("This service doesn't exist");
+      throw new NotFoundException("This place doesn't exist");
     }
 
     // return success message

@@ -22,11 +22,11 @@ import { CoachServicesService } from './coach-services.service';
 import { CoachServiceDto } from './dto/coach-service.dto';
 import { CoachServicesDto } from './dto/coach-services.dto';
 
-@ApiTags('Coach Service')
+@ApiTags('Coach Service (Услуги тренера)')
 @ApiBearerAuth()
 @Controller('coach-services')
 export class CoachServicesController {
-  constructor(private readonly coachServiceService: CoachServicesService) { }
+  constructor(private readonly coachServiceService: CoachServicesService) {}
 
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
@@ -80,9 +80,9 @@ export class CoachServicesController {
   //       }
   //     }],
   //   });
-    // const count = list.length;
-    // req.res.set('Access-Control-Expose-Headers', 'Content-Range');
-    // req.res.set('Content-Range', `0-${count}/${count}`);
-    // return list;
+  // const count = list.length;
+  // req.res.set('Access-Control-Expose-Headers', 'Content-Range');
+  // req.res.set('Content-Range', `0-${count}/${count}`);
+  // return list;
   // }
 }

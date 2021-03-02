@@ -26,7 +26,7 @@ import { UserappsService } from './userapps.service';
 export class UserappsController {
   constructor(private readonly userappService: UserappsService) {}
 
-  @ApiTags('Client-Application')
+  @ApiTags('Client-Application (Заявки клиента)')
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
@@ -55,7 +55,7 @@ export class UserappsController {
     );
   }
 
-  @ApiTags('Client-Application')
+  @ApiTags('Client-Application (Заявки клиента)')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
@@ -72,7 +72,7 @@ export class UserappsController {
     return list;
   }
 
-  @ApiTags('Client-Application')
+  @ApiTags('Client-Application (Заявки клиента)')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
@@ -93,7 +93,7 @@ export class UserappsController {
     return apps;
   }
 
-  @ApiTags('Client-Application')
+  @ApiTags('Client-Application (Заявки клиента)')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
@@ -129,7 +129,7 @@ export class UserappsController {
     return { createdUserapp: updatedApplication, matches };
   }
 
-  @ApiTags('Client-Application')
+  @ApiTags('Client-Application (Заявки клиента)')
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(
@@ -150,7 +150,7 @@ export class UserappsController {
     return 'Successfully deleted';
   }
 
-  @ApiTags('Get all matches')
+  @ApiTags('Get all matches (Матчинг профилей тренеров с заявкой клиента)')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get('matches/:userappId')
@@ -182,7 +182,7 @@ export class UserappsController {
   // }
 
   // SET active userapp in client profile
-  @ApiTags('Client-Application')
+  @ApiTags('Client-Application (Текущая заявка клиента)')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Put('set-current-app/:id')
@@ -222,7 +222,7 @@ export class UserappsController {
     return { success: true, result: 'you changed the current active App' };
   }
 
-  @ApiTags('Client-Application')
+  @ApiTags('Client-Application (Текущая заявка клиента)')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get('current/active/app')

@@ -22,7 +22,7 @@ import { User } from '../users/user.entity';
 import { AuthUser, UserRole } from '../users/users.decorator';
 import { Role } from '../users/dto/user.dto';
 
-@ApiTags('Given Aim/Goal List')
+@ApiTags('Given Aim/Goal List (Цели)')
 @ApiBearerAuth()
 @Controller('aims')
 export class AimsController {
@@ -72,17 +72,17 @@ export class AimsController {
   async update(
     @Param('id') id: number,
     @Body() aim: AimDto,
-    @AuthUser() user: User
+    @AuthUser() user: User,
   ): Promise<Aim> {
     // check the role
     if (user.role !== 'admin') {
       throw new ForbiddenException('Your role is not an admin');
     }
     // get the number of row affected and the updated aim
-    const { numberOfAffectedRows, updatedAim } = await this.aimService.updateAim(
-      id,
-      aim,
-    );
+    const {
+      numberOfAffectedRows,
+      updatedAim,
+    } = await this.aimService.updateAim(id, aim);
 
     // if the number of row affected is zero,
     // it means the aim doesn't exist in our db

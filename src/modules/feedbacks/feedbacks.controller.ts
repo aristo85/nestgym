@@ -17,7 +17,7 @@ import { FeedbackDto } from './dto/feedback.dto';
 import { Feedback } from './feedback.entity';
 import { FeedbacksService } from './feedbacks.service';
 
-@ApiTags('Client Feedback')
+@ApiTags('Client Feedback (Отзывы)')
 @ApiBearerAuth()
 @Controller('feedbacks')
 export class FeedbacksController {

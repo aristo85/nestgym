@@ -18,7 +18,7 @@ import { UserProgressDto } from './dto/user-progress.dto';
 import { UserProgress } from './user-progress.entity';
 import { UserProgressService } from './user-progress.service';
 
-@ApiTags('Client Progress')
+@ApiTags('Client Progress (Прогресс клиента)')
 @ApiBearerAuth()
 @Controller('user-progress')
 export class UserProgressController {

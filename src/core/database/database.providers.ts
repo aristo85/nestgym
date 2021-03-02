@@ -27,6 +27,7 @@ import { TemplateDiet } from 'src/modules/coach-modules/template-diets/template-
 import { Servicio } from 'src/modules/services/service.entity';
 import { Article } from 'src/modules/publications/publication.entity';
 import { IDatabaseConfigAttributes } from './interfaces/dbConfig.interface';
+import { Place } from 'src/modules/places/place.entity';
 
 export const databaseProviders = [
   {
@@ -73,6 +74,7 @@ export const databaseProviders = [
         TemplateDiet,
         Servicio,
         Article,
+        Place,
       ]);
       await sequelize.sync({ alter: true });
       return sequelize;

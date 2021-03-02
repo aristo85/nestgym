@@ -20,7 +20,7 @@ import { ArticleDto } from './dto/publication.dto';
 import { Article } from './publication.entity';
 import { PublicationsService } from './publications.service';
 
-@ApiTags('Publications/Articles')
+@ApiTags('Publications/Articles (Статьи)')
 @ApiBearerAuth()
 @Controller('publications')
 export class PublicationsController {

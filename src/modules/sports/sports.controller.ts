@@ -20,7 +20,7 @@ import { SportDto } from './dto/sport.dto';
 import { Sport } from './sport.entity';
 import { SportsService } from './sports.service';
 
-@ApiTags('Given SportType List')
+@ApiTags('Given SportType List (Виды спорта)')
 @ApiBearerAuth()
 @Controller('sports')
 export class SportsController {
@@ -105,10 +105,7 @@ export class SportsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async remove(
-    @Param('id') id: number,
-    @UserRole() role: Roles,
-  ) {
+  async remove(@Param('id') id: number, @UserRole() role: Roles) {
     // check the role
     if (role !== 'admin') {
       throw new NotFoundException('Your role is not an admin');

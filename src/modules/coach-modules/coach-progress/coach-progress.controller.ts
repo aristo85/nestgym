@@ -19,7 +19,7 @@ import { AuthUser } from 'src/modules/users/users.decorator';
 import { Requestedapp } from '../coachapps/coachapp.entity';
 import { CoachProgressService } from './coach-progress.service';
 
-@ApiTags('Coach reads his clients progress')
+@ApiTags('Coach reads their clients progress (Прогресс клиента у тренера)')
 @ApiBearerAuth()
 @Controller('coach-progress')
 export class CoachProgressController {

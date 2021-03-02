@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
@@ -15,8 +16,8 @@ import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
-import { User } from 'src/modules/users/user.entity';
-import { AuthUser } from 'src/modules/users/users.decorator';
+import { Roles, User } from 'src/modules/users/user.entity';
+import { AuthUser, UserRole } from 'src/modules/users/users.decorator';
 import { ApplicationRequestStatus, Requestedapp } from './coachapp.entity';
 import { CoachappsService } from './coachapps.service';
 import { CoachAnswerDto, RequestedappDto } from './dto/coachapp.dto';
@@ -31,7 +32,9 @@ export class CoachappsController {
   constructor(private readonly coachappService: CoachappsService) {}
 
   // request to hire a Trainer
-  @ApiTags('ClientRequest-ChosenCoach')
+  @ApiTags(
+    'ClientRequest-ChosenCoach (Выбор тренера из списка матчинга клиентом)',
+  )
   @UseGuards(AuthGuard('jwt'))
   @Post(':coachId/:userappId')
   async create(
@@ -74,22 +77,25 @@ export class CoachappsController {
   }
 
   // get all requestedapps(offers) of a trainer
-  @ApiTags('CoachRequests')
+  @ApiTags('CoachRequests (Запросы приходящие тренеру)')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(
     @AuthUser() user: User,
+    @UserRole() role: Roles,
     @Req() req: Request & { res: Response },
   ) {
     // check the role
-    if (user.role === 'user') {
-      throw new NotFoundException(
+    if (role === 'user') {
+      throw new ForbiddenException(
         "your role is 'user', users dont have access to coaches info.! ",
       );
     }
     // get all apps in the db
-    const list = await this.coachappService.findAllCoachAppRequest(user.id);
+    const list = await this.coachappService.findAllCoachAppRequest(
+      role === 'admin' ? null : user.id,
+    );
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -97,7 +103,7 @@ export class CoachappsController {
   }
 
   // get all requestedapps(offers) by query
-  @ApiTags('CoachRequests')
+  @ApiTags('CoachRequests (Запросы приходящие тренеру)')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get('query')
@@ -108,7 +114,7 @@ export class CoachappsController {
   ) {
     // check the role
     if (user.role === 'user') {
-      throw new NotFoundException(
+      throw new ForbiddenException(
         "your role is 'user', users dont have access to coaches info.! ",
       );
     }
@@ -124,7 +130,7 @@ export class CoachappsController {
   }
 
   // get all requestedapps(offers) by query
-  @ApiTags('CoachRequests')
+  @ApiTags('CoachRequests (Запросы приходящие тренеру)')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get('coach/activeapps')
@@ -139,9 +145,7 @@ export class CoachappsController {
       );
     }
     // get all apps in the db
-    const list = await this.coachappService.findCoachActiveApps(
-      user.id,
-    );
+    const list = await this.coachappService.findCoachActiveApps(user.id);
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
@@ -149,7 +153,7 @@ export class CoachappsController {
   }
 
   //
-  @ApiTags('CoachResponse-(Accept, Reject) Application')
+  @ApiTags("Coach's response on request (Ответ тренера на запрос)")
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Put(':userappId')
