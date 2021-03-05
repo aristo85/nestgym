@@ -6,7 +6,7 @@ import { CoachService } from '../coach-modules/coach-services/coach-service.enti
 import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
-// import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
+import { photoPositionTypes } from '../photos/dto/photo.dto';
 import { Photo } from '../photos/photo.entity';
 import { includePhotoOptions, PhotosService } from '../photos/photos.service';
 import { Profile } from '../profiles/profile.entity';
@@ -87,19 +87,6 @@ export class UserappsService {
         },
       ],
     });
-    // .map((el: Userapp) => {
-    //   const app: Userapp = el.get({ plain: true }) as Userapp;
-    //   // change json days to obj
-    //   const diets: DietObj[] = app.dietprograms.map((diet) => {
-    //     let dataJson = isJson(diet.days);
-    //     while (isJson(dataJson)) {
-    //       dataJson = isJson(dataJson);
-    //     }
-    //     return { ...diet, days: dataJson };
-    //   });
-    //   return { ...app, dietprograms: diets };
-    // });
-
     return list;
   }
 
@@ -123,44 +110,41 @@ export class UserappsService {
         DietProgram,
         { model: UserWorkout, limit: 7 },
       ],
+      raw: true,
+      nest: true,
     });
 
     return app;
-    // if (app) {
-    //   const plainAppData: Userapp = app.get({ plain: true }) as Userapp;
-    //   // change json days to obj
-    //   const diets: DietObj[] = plainAppData.dietprograms.map((diet) => {
-    //     let dataJson = isJson(diet.days);
-    //     while (isJson(dataJson)) {
-    //       dataJson = isJson(dataJson);
-    //     }
-    //     return { ...diet, days: dataJson };
-    //   });
-    //   const coachProfile =
-    //     plainAppData.coachProfile &&
-    //     (await CoachProfile.findOne({
-    //       where: {
-    //         userId: plainAppData.coachProfile.id,
-    //       },
-    //       include: [{ all: true }],
-    //     }));
-
-    //   const returnedData = coachProfile
-    //     ? { ...plainAppData, dietprograms: diets, coachProfile }
-    //     : { ...plainAppData, dietprograms: diets };
-
-    //   return returnedData as Userapp;
-    // } else {
-    //   return app;
-    // }
   }
 
   async deleteUserapp(userappId: number, userId: number, role: string) {
     let conditionOption =
       role === 'admin' ? { id: userappId } : { id: userappId, userId };
 
+    // find all photos in app
+    const { frontPhoto, sidePhoto, backPhoto } = await this.findOneUserapp(
+      userappId,
+      userId,
+      role,
+    );
+
     // then remove the app
-    return await this.userappRepository.destroy({ where: conditionOption });
+    const deleted = await this.userappRepository.destroy({
+      where: conditionOption,
+    });
+    // if nothing to delete
+    if (deleted === 0) {
+      return deleted;
+    }
+
+    //remove photos from DB if was last module
+    await this.photoService.checkPhotoPositionsAndDelete(
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    );
+
+    return deleted;
   }
 
   async updateUserapp(
@@ -236,24 +220,6 @@ export class UserappsService {
         include: [...includePhotoOptions, CoachService],
       },
     );
-    // let newList: CoachProfile[] = [];
-    // coachProfiles.forEach((coachProfile: CoachProfile) => {
-    //   // const test = this.arrFilter(coachProfile.aim, ['fixing', '6']);
-    //   if (this.arrFilter(coachProfile.aim, userapp.aim).length > 0) {
-    //     newList.push(coachProfile);
-    //   } else if (
-    //     this.arrFilter(coachProfile.sportTypes, userapp.sportTypes).length > 0
-    //   ) {
-    //     newList.push(coachProfile);
-    //   } else if (this.arrFilter(coachProfile.place, userapp.place).length > 0) {
-    //     newList.push(coachProfile);
-    //   } else if (
-    //     this.arrFilter(coachProfile.serviceTypes, userapp.serviceTypes).length >
-    //     0
-    //   ) {
-    //     newList.push(coachProfile);
-    //   }
-    // });
     return coachProfiles.length > 0 ? coachProfiles : allProfiles;
   };
   // filter array function
@@ -350,4 +316,46 @@ export class UserappsService {
     );
     return numberOfAffectedRows;
   }
+  /////////////////////////////////////////////
+
+  async deleteUserappPhoto(
+    userappId: number,
+    photoPosition: photoPositionTypes,
+    photoId: number,
+    photoFileName: string,
+    userId,
+  ) {
+    const updateOptions =
+      photoPosition === 'front'
+        ? { frontPhotoId: null }
+        : photoPosition === 'side'
+        ? { sidePhotoId: null }
+        : { backPhotoId: null };
+    // update profile
+    await this.userappRepository.update(updateOptions, {
+      where: { id: userappId, userId: userId },
+    });
+
+    // delete the photo with this id
+    const deleted = await this.photoService.deletePhoto(photoId, photoFileName);
+    return deleted;
+  }
+
+  async findUserappByPhotoPosition(
+    userappId: number,
+    photoPosition: string,
+    photoId: number,
+    userId: number,
+  ) {
+    const dataOptions =
+      photoPosition === 'front'
+        ? { frontPhotoId: photoId }
+        : photoPosition === 'side'
+        ? { sidePhotoId: photoId }
+        : { backPhotoId: photoId };
+    return await this.userappRepository.findOne({
+      where: { ...dataOptions, userId: userId, id: userappId },
+    });
+  }
+  /////////////////////////////////////////////
 }

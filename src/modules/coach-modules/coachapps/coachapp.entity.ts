@@ -9,7 +9,12 @@ import {
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { User } from 'src/modules/users/user.entity';
 
-export type ApplicationRequestStatus = 'pending' | 'rejected' | 'accept' | 'archived'
+export enum ApplicationRequestStatus {
+  pending = 'pending',
+  rejected = 'rejected',
+  accept = 'accept',
+  archived = 'archived',
+}
 
 @Table
 export class Requestedapp extends Model<Requestedapp> {

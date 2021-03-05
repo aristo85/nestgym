@@ -10,9 +10,12 @@ import {
   Post,
   Delete,
   ForbiddenException,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { photoPositionTypes } from '../photos/dto/photo.dto';
+import { Photo } from '../photos/photo.entity';
 import { Roles, User } from '../users/user.entity';
 import { AuthUser, UserRole } from '../users/users.decorator';
 import { ProfileDto, ProfileUpdateDto } from './dto/profile.dto';
@@ -107,14 +110,14 @@ export class ProfilesController {
   @Put(':id')
   async update(
     @Param('id') id: number,
-    @Body() profile: ProfileUpdateDto,
+    @Body() data: ProfileUpdateDto,
     @AuthUser() user: User,
   ): Promise<Profile> {
     // get the number of row affected and the updated profile
     const {
       numberOfAffectedRows,
       updatedProfile,
-    } = await this.profileServise.updateClientProfile(id, profile, user.id);
+    } = await this.profileServise.updateClientProfile(id, data, user.id);
 
     // if the number of row affected is zero,
     // it means the profile doesn't exist in our db
@@ -130,11 +133,64 @@ export class ProfilesController {
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async deleteProfile(@Param('id') id: number, @AuthUser() user: User) {
+    const isProfile = await Profile.findOne({ where: { id, userId: user.id } });
+    if (!isProfile) {
+      throw new NotFoundException("This profile doesn't exist");
+    }
     const deleted = await this.profileServise.deleteClientProfile(id, user);
     // if the number of row affected is zero,
     // then the profile doesn't exist in our db
     if (deleted === 0) {
       throw new NotFoundException("This profile doesn't exist");
+    }
+
+    // return success message
+    return 'Successfully deleted';
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @ApiQuery({ name: 'photoPosition', enum: photoPositionTypes })
+  @ApiQuery({ name: 'photoId', type: 'number' })
+  @Delete('photo/:profileId')
+  async deleteProfilePhoto(
+    @Param('profileId') profileId: number,
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
+    @Query() query: { photoPosition: photoPositionTypes; photoId: number },
+  ) {
+    // check the role
+    if (role !== 'user') {
+      throw new ForbiddenException('Your role is not a user');
+    }
+    // check photo position
+    const profile = await this.profileServise.findProfileByPhotoPosition(
+      profileId,
+      query.photoPosition,
+      query.photoId,
+      user.id,
+    );
+    // check the photoId
+    const photo: Photo = await Photo.findOne({
+      where: { id: query.photoId },
+      raw: true,
+      nest: true,
+    });
+    if (!photo || !profile) {
+      throw new NotFoundException("This photo or profile doesn't exist");
+    }
+    // delete the photo with this id
+    const deleted = await this.profileServise.deleteProfilePhoto(
+      profileId,
+      query.photoPosition,
+      query.photoId,
+      photo.photoFileName,
+      user.id,
+    );
+
+    // if the number of row affected is zero,
+    // then the photo is exist in multiple modules
+    if (deleted === 0) {
+      return 'Successfully deleted from profile';
     }
 
     // return success message

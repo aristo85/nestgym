@@ -68,13 +68,17 @@ export class PhotosController {
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(@Param('id') id: number) {
-    const photo: any = await Photo.findOne<Photo>({ where: { id } });
+    const photo: any = (await this.photoService.findOneById(id)).get({
+      plain: true,
+    });
     if (!photo) {
       throw new NotFoundException("This photo doesn't exist");
     }
-    const plainPhoto = photo.get({ plain: true });
     // delete the photo with this id
-    const deleted = await this.photoService.deletePhoto(id);
+    const deleted = await this.photoService.deletePhoto(
+      id,
+      photo.photoFileName,
+    );
 
     // if the number of row affected is zero,
     // then the photo doesn't exist in our db

@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { Roles, User } from 'src/modules/users/user.entity';
 import { AuthUser, UserRole } from 'src/modules/users/users.decorator';
@@ -104,6 +104,7 @@ export class CoachappsController {
 
   // get all requestedapps(offers) by query
   @ApiTags('CoachRequests (Запросы приходящие тренеру)')
+  @ApiQuery({ name: 'status', enum: ApplicationRequestStatus })
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get('query')

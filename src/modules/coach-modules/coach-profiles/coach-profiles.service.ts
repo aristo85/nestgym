@@ -13,6 +13,7 @@ import {
   includePhotoOptions,
   PhotosService,
 } from 'src/modules/photos/photos.service';
+import { photoPositionTypes } from 'src/modules/photos/dto/photo.dto';
 
 @Injectable()
 export class CoachProfilesService {
@@ -23,7 +24,7 @@ export class CoachProfilesService {
     private readonly photoService: PhotosService,
   ) {}
   /////////////////////////////////////////////
-  
+
   async createCoachProfile(
     data: CoachProfileDto,
     userId: number,
@@ -58,6 +59,8 @@ export class CoachProfilesService {
     return await this.coachProfileRepository.findOne({
       where: { id: coachProfileId },
       include: [...includePhotoOptions, CoachService],
+      raw: true,
+      nest: true,
     });
 
     // return { profile, serviceList };
@@ -98,11 +101,28 @@ export class CoachProfilesService {
     if (user.role !== 'admin' && profileOwner.id !== user.id) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
+    // find all photos in profile
+    const { frontPhoto, sidePhoto, backPhoto } = await this.findOneCoachProfile(
+      coachProfileId,
+    );
 
-    // delete also the coach services (CASCADE)
-    return await this.coachProfileRepository.destroy({
+    // delete profile
+    const deleted = await this.coachProfileRepository.destroy({
       where: { id: coachProfileId },
     });
+    // if nothing to delete
+    if (deleted === 0) {
+      return deleted;
+    }
+
+    //remove photos from DB if was last module
+    await this.photoService.checkPhotoPositionsAndDelete(
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    );
+
+    return deleted;
   }
   /////////////////////////////////////////////
 
@@ -201,4 +221,46 @@ export class CoachProfilesService {
 
     return { numberOfAffectedRows, updatedprofile };
   }
+  /////////////////////////////////////////////
+
+  async deleteCoachProfilePhoto(
+    coachProfileId: number,
+    photoPosition: photoPositionTypes,
+    photoId: number,
+    photoFileName: string,
+    coachUserId,
+  ) {
+    const updateOptions =
+      photoPosition === 'front'
+        ? { frontPhotoId: null }
+        : photoPosition === 'side'
+        ? { sidePhotoId: null }
+        : { backPhotoId: null };
+    // update profile
+    await this.coachProfileRepository.update(updateOptions, {
+      where: { id: coachProfileId, userId: coachUserId },
+    });
+
+    // delete the photo with this id
+    const deleted = await this.photoService.deletePhoto(photoId, photoFileName);
+    return deleted;
+  }
+
+  async findCoachProfileByPhotoPosition(
+    coachProfileId: number,
+    photoPosition: string,
+    photoId: number,
+    coachUserId: number,
+  ) {
+    const dataOptions =
+      photoPosition === 'front'
+        ? { frontPhotoId: photoId }
+        : photoPosition === 'side'
+        ? { sidePhotoId: photoId }
+        : { backPhotoId: photoId };
+    return await this.coachProfileRepository.findOne({
+      where: { ...dataOptions, userId: coachUserId, id: coachProfileId },
+    });
+  }
+  /////////////////////////////////////////////
 }

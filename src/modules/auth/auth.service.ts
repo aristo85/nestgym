@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
-import * as bcryptjs from 'bcryptjs'
+import * as bcryptjs from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/user.entity';
@@ -47,13 +47,14 @@ export class AuthService {
     });
 
     // tslint:disable-next-line: no-string-literal
-    const { password, ...result } = newUser as User & { dataValues: any };
+    const { password, ...result } = newUser['dataValues'];
+    // as User & { dataValues: any };
 
     // generate token
     const token = await this.generateToken(result);
 
     // return the user and the token
-    return { user: result['dataValues'], token };
+    return { user: result, token };
   }
 
   private async generateToken(user: any) {

@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import sequelize from 'sequelize';
 import { FEEDBACK_REPOSITORY } from 'src/core/constants';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
+import { photoPositionTypes } from '../photos/dto/photo.dto';
 import { includePhotoOptions, PhotosService } from '../photos/photos.service';
 import { Profile } from '../profiles/profile.entity';
 import { FeedbackDto } from './dto/feedback.dto';
@@ -94,9 +95,30 @@ export class FeedbacksService {
   async deleteFeedback(feedbackId: number, userId: number, role: string) {
     const optionCondition =
       role === 'admin' ? { id: feedbackId } : { id: feedbackId, userId };
-    return await this.feedbackRepository.destroy({
+    // find all photos in profile
+    const { frontPhoto, sidePhoto, backPhoto } = await this.findOneFeedback(
+      feedbackId,
+      userId,
+      role,
+    );
+
+    // delete profile with this id
+    const deleted = await this.feedbackRepository.destroy({
       where: optionCondition,
     });
+    // if nothing to delete
+    if (deleted === 0) {
+      return deleted;
+    }
+
+    //remove photos from DB if was last module
+    await this.photoService.checkPhotoPositionsAndDelete(
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    );
+
+    return deleted;
   }
 
   async findAllCoachFeedbacks(coachId): Promise<Feedback[]> {
@@ -105,4 +127,46 @@ export class FeedbacksService {
       include: [...includePhotoOptions],
     });
   }
+  /////////////////////////////////////////////
+
+  async deleteFeedbackPhoto(
+    feedbackId: number,
+    photoPosition: photoPositionTypes,
+    photoId: number,
+    photoFileName: string,
+    userId,
+  ) {
+    const updateOptions =
+      photoPosition === 'front'
+        ? { frontPhotoId: null }
+        : photoPosition === 'side'
+        ? { sidePhotoId: null }
+        : { backPhotoId: null };
+    // update profile
+    await this.feedbackRepository.update(updateOptions, {
+      where: { id: feedbackId, userId: userId },
+    });
+
+    // delete the photo with this id
+    const deleted = await this.photoService.deletePhoto(photoId, photoFileName);
+    return deleted;
+  }
+
+  async findFeedbackByPhotoPosition(
+    feedbackId: number,
+    photoPosition: string,
+    photoId: number,
+    userId: number,
+  ) {
+    const dataOptions =
+      photoPosition === 'front'
+        ? { frontPhotoId: photoId }
+        : photoPosition === 'side'
+        ? { sidePhotoId: photoId }
+        : { backPhotoId: photoId };
+    return await this.feedbackRepository.findOne({
+      where: { ...dataOptions, userId: userId, id: feedbackId },
+    });
+  }
+  /////////////////////////////////////////////
 }

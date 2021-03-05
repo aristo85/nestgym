@@ -7,6 +7,12 @@ export interface PhotoData {
   photoURL: string;
 }
 
+export enum photoPositionTypes {
+  front = 'front',
+  side = 'side',
+  back = 'back',
+}
+
 export interface PhotoList {
   photo: string;
 }
@@ -30,8 +36,7 @@ export interface PhotoPositions {
   frontPhotoHash?: string;
   sidePhotoHash?: string;
   backPhotoHash?: string;
-
-} 
+}
 
 export class PhotoDto {
   @ApiProperty({
