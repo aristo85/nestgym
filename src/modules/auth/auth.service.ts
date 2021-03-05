@@ -37,6 +37,7 @@ export class AuthService {
   }
 
   public async create(user: UserDto) {
+    const { email } = user;
     // hash the password
     const pass = await this.hashPassword(user.password);
 
@@ -44,6 +45,7 @@ export class AuthService {
     const newUser = await this.userService.createUser({
       ...user,
       password: pass,
+      // email: email.toLowerCase(),
     });
 
     // tslint:disable-next-line: no-string-literal

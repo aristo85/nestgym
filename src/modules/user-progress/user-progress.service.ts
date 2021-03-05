@@ -87,8 +87,6 @@ export class UserProgressService {
     return await this.userProgressRepository.findOne({
       where: { id: progressId, userId },
       include: [...includePhotoOptions],
-      // raw: true,
-      // nest: true,
     });
   }
 
@@ -101,10 +99,11 @@ export class UserProgressService {
 
   async deleteProgress(progressId: number, userId: number) {
     // find all photos in profile
-    const { frontPhoto, sidePhoto, backPhoto } = await this.findOneProgress(
-      progressId,
-      userId,
-    );
+    const {
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    } = await this.findProgressWithPhotosForDeletion(progressId);
 
     // delete progress with this id
     const deleted = await this.userProgressRepository.destroy({
@@ -115,12 +114,12 @@ export class UserProgressService {
       return deleted;
     }
 
-    // //remove photos from DB if was last module
-    // await this.photoService.checkPhotoPositionsAndDelete(
-    //   frontPhoto,
-    //   sidePhoto,
-    //   backPhoto,
-    // );
+    //remove photos from DB if was last module
+    await this.photoService.checkPhotoPositionsAndDelete(
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    );
 
     return deleted;
   }
@@ -166,4 +165,13 @@ export class UserProgressService {
     });
   }
   /////////////////////////////////////////////
+
+  async findProgressWithPhotosForDeletion(progressId: number) {
+    return await this.userProgressRepository.findOne({
+      where: { id: progressId },
+      include: [...includePhotoOptions],
+      raw: true,
+      nest: true,
+    });
+  }
 }

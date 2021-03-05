@@ -98,11 +98,11 @@ export class FeedbacksService {
     const optionCondition =
       role === 'admin' ? { id: feedbackId } : { id: feedbackId, userId };
     // find all photos in profile
-    const { frontPhoto, sidePhoto, backPhoto } = await this.findOneFeedback(
-      feedbackId,
-      userId,
-      role,
-    );
+    const {
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    } = await this.findFeedbackWithPhotosForDeletion(feedbackId);
 
     // delete profile with this id
     const deleted = await this.feedbackRepository.destroy({
@@ -113,12 +113,12 @@ export class FeedbacksService {
       return deleted;
     }
 
-    // //remove photos from DB if was last module
-    // await this.photoService.checkPhotoPositionsAndDelete(
-    //   frontPhoto,
-    //   sidePhoto,
-    //   backPhoto,
-    // );
+    //remove photos from DB if was last module
+    await this.photoService.checkPhotoPositionsAndDelete(
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    );
 
     return deleted;
   }
@@ -171,4 +171,13 @@ export class FeedbacksService {
     });
   }
   /////////////////////////////////////////////
+
+  async findFeedbackWithPhotosForDeletion(feedbackId: number) {
+    return await this.feedbackRepository.findOne({
+      where: { id: feedbackId },
+      include: [...includePhotoOptions],
+      raw: true,
+      nest: true,
+    });
+  }
 }
