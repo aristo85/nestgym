@@ -49,8 +49,8 @@ export class ProfilesService {
     return await this.profileRepository.findOne({
       where: { id: clientProfileId },
       include: [...includePhotoOptions],
-      raw: true,
-      nest: true,
+      // raw: true,
+      // nest: true,
     });
   }
 
@@ -93,12 +93,12 @@ export class ProfilesService {
       return { numberOfAffectedRows, updatedProfile };
     }
 
-    //remove photos from DB if was last module
-    await this.photoService.checkPhotoPositionsAndDelete(
-      beforeUpdate.frontPhoto,
-      beforeUpdate.sidePhoto,
-      beforeUpdate.backPhoto,
-    );
+    // //remove photos from DB if was last module
+    // await this.photoService.checkPhotoPositionsAndDelete(
+    //   beforeUpdate.frontPhoto,
+    //   beforeUpdate.sidePhoto,
+    //   beforeUpdate.backPhoto,
+    // );
 
     return { numberOfAffectedRows, updatedProfile };
   }
@@ -120,12 +120,12 @@ export class ProfilesService {
       return deleted;
     }
 
-    //remove photos from DB if was last module
-    await this.photoService.checkPhotoPositionsAndDelete(
-      frontPhoto,
-      sidePhoto,
-      backPhoto,
-    );
+    // //remove photos from DB if was last module
+    // await this.photoService.checkPhotoPositionsAndDelete(
+    //   frontPhoto,
+    //   sidePhoto,
+    //   backPhoto,
+    // );
 
     return deleted;
   }

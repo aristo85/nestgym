@@ -59,8 +59,8 @@ export class CoachProfilesService {
     return await this.coachProfileRepository.findOne({
       where: { id: coachProfileId },
       include: [...includePhotoOptions, CoachService],
-      raw: true,
-      nest: true,
+      // raw: true,
+      // nest: true,
     });
 
     // return { profile, serviceList };
@@ -115,12 +115,12 @@ export class CoachProfilesService {
       return deleted;
     }
 
-    //remove photos from DB if was last module
-    await this.photoService.checkPhotoPositionsAndDelete(
-      frontPhoto,
-      sidePhoto,
-      backPhoto,
-    );
+    // //remove photos from DB if was last module
+    // await this.photoService.checkPhotoPositionsAndDelete(
+    //   frontPhoto,
+    //   sidePhoto,
+    //   backPhoto,
+    // );
 
     return deleted;
   }
@@ -171,12 +171,12 @@ export class CoachProfilesService {
       return { numberOfAffectedRows, updatedprofile };
     }
 
-    //remove photos from DB if was last module
-    await this.photoService.checkPhotoPositionsAndDelete(
-      beforeUpdate.frontPhoto,
-      beforeUpdate.sidePhoto,
-      beforeUpdate.backPhoto,
-    );
+    // //remove photos from DB if was last module
+    // await this.photoService.checkPhotoPositionsAndDelete(
+    //   beforeUpdate.frontPhoto,
+    //   beforeUpdate.sidePhoto,
+    //   beforeUpdate.backPhoto,
+    // );
 
     // create coach services DB
     const services = await this.coachServiceService.updateMany(

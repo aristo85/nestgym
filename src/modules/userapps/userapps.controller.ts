@@ -180,7 +180,7 @@ export class UserappsController {
   @Put('set-current-app/:id')
   async setCurrentApp(
     @Param('id') userappId: number,
-    @Body() userapp: UserappDto,
+    // @Body() userapp: UserappDto,
     @UserRole() role: Roles,
     @AuthUser() user: User,
   ): Promise<{ success: boolean; result: string }> {
