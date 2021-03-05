@@ -10,10 +10,13 @@ import {
   UseGuards,
   Req,
   ForbiddenException,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { photoPositionTypes } from '../photos/dto/photo.dto';
+import { Photo } from '../photos/photo.entity';
 import { Profile } from '../profiles/profile.entity';
 import { Roles, User } from '../users/user.entity';
 import { AuthUser, UserRole } from '../users/users.decorator';
@@ -137,6 +140,10 @@ export class UserappsController {
     @UserRole() role: Roles,
     @AuthUser() user: User,
   ) {
+    const isApp = await Userapp.findOne({ where: { id, userId: user.id } });
+    if (!isApp) {
+      throw new NotFoundException("This Userapp doesn't exist");
+    }
     // delete the app with this id
     const deleted = await this.userappService.deleteUserapp(id, user.id, role);
 
@@ -165,21 +172,6 @@ export class UserappsController {
     req.res.set('Content-Range', `0-${count}/${count}`);
     return list;
   }
-
-  // @ApiResponse({ status: 200 })
-  // @UseGuards(AuthGuard('jwt'))
-  // @Get('allapps')
-  // async findAllForAdmin(@Req() req) {
-  //   if (req.user.role !== 'admin') {
-  //     throw new NotFoundException('You are not an admin');
-  //   }
-  //   // get all apps in the db
-  //   const list = await this.userappService.findAllForAdmin();
-  //   const count = list.length;
-  //   req.res.set('Access-Control-Expose-Headers', 'Content-Range');
-  //   req.res.set('Content-Range', `0-${count}/${count}`);
-  //   return list;
-  // }
 
   // SET active userapp in client profile
   @ApiTags('Client-Application (Текущая заявка клиента)')
@@ -261,5 +253,54 @@ export class UserappsController {
 
     // if apps exist, return apps
     return apps;
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @ApiQuery({ name: 'photoPosition', enum: photoPositionTypes })
+  @ApiQuery({ name: 'photoId', type: 'number' })
+  @Delete('photo/:userappId')
+  async deleteProfilePhoto(
+    @Param('userappId') userappId: number,
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
+    @Query() query: { photoPosition: photoPositionTypes; photoId: number },
+  ) {
+    // check the role
+    if (role !== 'user') {
+      throw new ForbiddenException('Your role is not a user');
+    }
+    // check photo position
+    const app = await this.userappService.findUserappByPhotoPosition(
+      userappId,
+      query.photoPosition,
+      query.photoId,
+      user.id,
+    );
+    // check the photoId
+    const photo: Photo = await Photo.findOne({
+      where: { id: query.photoId },
+      raw: true,
+      nest: true,
+    });
+    if (!photo || !app) {
+      throw new NotFoundException("This photo or app doesn't exist");
+    }
+    // delete the photo with this id
+    const deleted = await this.userappService.deleteUserappPhoto(
+      userappId,
+      query.photoPosition,
+      query.photoId,
+      photo.photoFileName,
+      user.id,
+    );
+
+    // if the number of row affected is zero,
+    // then the photo is exist in multiple modules
+    if (deleted === 0) {
+      return 'Successfully deleted from app';
+    }
+
+    // return success message
+    return 'Successfully deleted';
   }
 }

@@ -9,9 +9,12 @@ import {
   UseGuards,
   Req,
   ForbiddenException,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { photoPositionTypes } from '../photos/dto/photo.dto';
+import { Photo } from '../photos/photo.entity';
 import { Roles, User } from '../users/user.entity';
 import { AuthUser, UserRole } from '../users/users.decorator';
 import { UserProgressDto } from './dto/user-progress.dto';
@@ -87,6 +90,55 @@ export class UserProgressController {
     // then the progress doesn't exist in our db
     if (deleted === 0) {
       throw new NotFoundException("This progress doesn't exist");
+    }
+
+    // return success message
+    return 'Successfully deleted';
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @ApiQuery({ name: 'photoPosition', enum: photoPositionTypes })
+  @ApiQuery({ name: 'photoId', type: 'number' })
+  @Delete('photo/:progressId')
+  async deleteProgressPhoto(
+    @Param('progressId') progressId: number,
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
+    @Query() query: { photoPosition: photoPositionTypes; photoId: number },
+  ) {
+    // check the role
+    if (role !== 'user') {
+      throw new ForbiddenException('Your role is not a user');
+    }
+    // check photo position
+    const progress = await this.userProgressService.findProgressByPhotoPosition(
+      progressId,
+      query.photoPosition,
+      query.photoId,
+      user.id,
+    );
+    // check the photoId
+    const photo: Photo = await Photo.findOne({
+      where: { id: query.photoId },
+      raw: true,
+      nest: true,
+    });
+    if (!photo || !progress) {
+      throw new NotFoundException("This photo or progress doesn't exist");
+    }
+    // delete the photo with this id
+    const deleted = await this.userProgressService.deleteProgressPhoto(
+      progressId,
+      query.photoPosition,
+      query.photoId,
+      photo.photoFileName,
+      user.id,
+    );
+
+    // if the number of row affected is zero,
+    // then the photo is exist in multiple modules
+    if (deleted === 0) {
+      return 'Successfully deleted from progress';
     }
 
     // return success message

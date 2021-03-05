@@ -11,19 +11,23 @@ import {
   Request,
   Req,
   Res,
+  Query,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProfileUpdateDto } from 'src/modules/profiles/dto/profile.dto';
-import { User } from 'src/modules/users/user.entity';
-import { AuthUser } from 'src/modules/users/users.decorator';
+import { Roles, User } from 'src/modules/users/user.entity';
+import { AuthUser, UserRole } from 'src/modules/users/users.decorator';
 import { CoachProfile } from './coach-profile.entity';
 import { CoachProfilesService } from './coach-profiles.service';
 import {
   CoachProfileDto,
   CoachProfileUpdateDto,
 } from './dto/coach-profile.dto';
+import { photoPositionTypes } from 'src/modules/photos/dto/photo.dto';
+import { Photo } from 'src/modules/photos/photo.entity';
 
 @Controller('coach-profiles')
 @ApiBearerAuth()
@@ -180,6 +184,55 @@ export class CoachProfilesController {
     // then the profile doesn't exist in our db
     if (deleted === 0) {
       throw new NotFoundException("This profile doesn't exist");
+    }
+
+    // return success message
+    return 'Successfully deleted';
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @ApiQuery({ name: 'photoPosition', enum: photoPositionTypes })
+  @ApiQuery({ name: 'photoId', type: 'number' })
+  @Delete('photo/:coachProfileId')
+  async deleteProfilePhoto(
+    @Param('coachProfileId') coachProfileId: number,
+    @AuthUser() user: User,
+    @UserRole() role: Roles,
+    @Query() query: { photoPosition: photoPositionTypes; photoId: number },
+  ) {
+    // check the role
+    if (role !== 'trainer') {
+      throw new ForbiddenException('Your role is not a trainer');
+    }
+    // check photo position
+    const profile = await this.coachProfileService.findCoachProfileByPhotoPosition(
+      coachProfileId,
+      query.photoPosition,
+      query.photoId,
+      user.id,
+    );
+    // check the photoId
+    const photo: Photo = await Photo.findOne({
+      where: { id: query.photoId },
+      raw: true,
+      nest: true,
+    });
+    if (!photo || !profile) {
+      throw new NotFoundException("This photo or profile doesn't exist");
+    }
+    // delete the photo with this id
+    const deleted = await this.coachProfileService.deleteCoachProfilePhoto(
+      coachProfileId,
+      query.photoPosition,
+      query.photoId,
+      photo.photoFileName,
+      user.id,
+    );
+
+    // if the number of row affected is zero,
+    // then the photo is exist in multiple modules
+    if (deleted === 0) {
+      return "Successfully deleted from coach's profile";
     }
 
     // return success message

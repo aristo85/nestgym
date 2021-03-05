@@ -4,6 +4,7 @@ import { UserProgress } from './user-progress.entity';
 import { UserProgressDto } from './dto/user-progress.dto';
 import { includePhotoOptions, PhotosService } from '../photos/photos.service';
 import { Profile } from '../profiles/profile.entity';
+import { photoPositionTypes } from '../photos/dto/photo.dto';
 
 @Injectable()
 export class UserProgressService {
@@ -97,8 +98,70 @@ export class UserProgressService {
   }
 
   async deleteProgress(progressId: number, userId: number) {
-    return await this.userProgressRepository.destroy({
+    // find all photos in profile
+    const { frontPhoto, sidePhoto, backPhoto } = await this.findOneProgress(
+      progressId,
+      userId,
+    );
+
+    // delete progress with this id
+    const deleted = await this.userProgressRepository.destroy({
       where: { id: progressId, userId },
     });
+    // if nothing to delete
+    if (deleted === 0) {
+      return deleted;
+    }
+
+    //remove photos from DB if was last module
+    await this.photoService.checkPhotoPositionsAndDelete(
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    );
+
+    return deleted;
   }
+  /////////////////////////////////////////////
+
+  async deleteProgressPhoto(
+    progressId: number,
+    photoPosition: photoPositionTypes,
+    photoId: number,
+    photoFileName: string,
+    userId: number,
+  ) {
+    const updateOptions =
+      photoPosition === 'front'
+        ? { frontPhotoId: null }
+        : photoPosition === 'side'
+        ? { sidePhotoId: null }
+        : { backPhotoId: null };
+    // update profile
+    await this.userProgressRepository.update(updateOptions, {
+      where: { id: progressId, userId: userId },
+    });
+
+    // delete the photo with this id
+    const deleted = await this.photoService.deletePhoto(photoId, photoFileName);
+    return deleted;
+  }
+
+  async findProgressByPhotoPosition(
+    progressId: number,
+    photoPosition: string,
+    photoId: number,
+    userId: number,
+  ) {
+    const dataOptions =
+      photoPosition === 'front'
+        ? { frontPhotoId: photoId }
+        : photoPosition === 'side'
+        ? { sidePhotoId: photoId }
+        : { backPhotoId: photoId };
+    return await this.userProgressRepository.findOne({
+      where: { ...dataOptions, userId: userId, id: progressId },
+    });
+  }
+  /////////////////////////////////////////////
 }
