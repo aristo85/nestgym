@@ -89,6 +89,8 @@ export class FeedbacksService {
     return await this.feedbackRepository.findOne({
       where: optionCondition,
       include: [...includePhotoOptions],
+      raw: true,
+      nest: true,
     });
   }
 

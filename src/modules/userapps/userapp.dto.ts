@@ -13,19 +13,19 @@ export type RetApp = Userapp | { dietprograms: any };
 export class UserappDto {
   @ApiProperty()
   @IsNotEmpty()
-  readonly sportTypes: string[];
+  readonly sportType: string;
 
   @ApiProperty()
   @IsNotEmpty()
-  readonly aim: string[];
+  readonly aim: string;
+
+  @ApiProperty()
+  // @IsNotEmpty()
+  readonly place: string;
 
   @ApiProperty()
   @IsNotEmpty()
-  readonly place: string[];
-
-  @ApiProperty()
-  @IsNotEmpty()
-  readonly serviceTypes: string[];
+  readonly serviceType: string;
 
   @ApiProperty({ enum: ['female', 'male', 'any'] })
   @IsNotEmpty()

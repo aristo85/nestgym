@@ -18,34 +18,34 @@ import { User } from '../users/user.entity';
 import { Photo } from '../photos/photo.entity';
 import { Profile } from '../profiles/profile.entity';
 
-export type ApplicationStatus = 'active' | 'pending' | 'archieved' | 'reject'
-export type ApplicationCoachGender = 'male' | 'female' | 'any'
+export type ApplicationStatus = 'active' | 'pending' | 'archieved' | 'reject';
+export type ApplicationCoachGender = 'male' | 'female' | 'any';
 
 @Table
 export class Userapp extends Model<Userapp> {
   @Column({
-    type: DataType.ARRAY(DataType.STRING),
-    allowNull: false,
+    type: DataType.STRING,
+    // allowNull: false,
   })
-  sportTypes: string[];
+  sportType: string;
 
   @Column({
-    type: DataType.ARRAY(DataType.STRING),
+    type: DataType.STRING,
     allowNull: false,
   })
-  aim: string[];
+  aim: string;
 
   @Column({
-    type: DataType.ARRAY(DataType.STRING),
-    allowNull: false,
+    type: DataType.STRING,
+    // allowNull: false,
   })
-  place: string[];
+  place: string;
 
   @Column({
-    type: DataType.ARRAY(DataType.STRING),
-    allowNull: false,
+    type: DataType.STRING,
+    // allowNull: false,
   })
-  serviceTypes: string[];
+  serviceType: string;
 
   @Column({
     type: DataType.STRING,
@@ -123,16 +123,15 @@ export class Userapp extends Model<Userapp> {
   })
   userId: number;
 
-  @BelongsTo(() => User, {foreignKey: 'userId'})
-  user: User
+  @BelongsTo(() => User, { foreignKey: 'userId' })
+  user: User;
 
   @BelongsTo(() => CoachProfile, { foreignKey: 'coachProfileId' })
   coachProfile: CoachProfile;
-  
 
   @BelongsTo(() => Profile, { foreignKey: 'clientProfileId' })
   clientProfile: Profile;
-  
+
   @BelongsTo(() => Photo, { foreignKey: 'frontPhotoId' })
   frontPhoto: Photo;
 
@@ -144,5 +143,4 @@ export class Userapp extends Model<Userapp> {
 
   // @HasOne(() => Profile, {as: "currentUserapp", foreignKey: "userappId"})
   // profile: Profile;
-
 }

@@ -206,8 +206,8 @@ export class UserappsService {
             model: CoachService,
             where: {
               [Op.or]: [
-                { sportType: userapp.sportTypes },
-                { serviceType: userapp.serviceTypes },
+                { sportType: userapp.sportType },
+                { serviceType: userapp.serviceType },
               ],
             },
           },
