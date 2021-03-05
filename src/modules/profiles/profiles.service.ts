@@ -49,8 +49,8 @@ export class ProfilesService {
     return await this.profileRepository.findOne({
       where: { id: clientProfileId },
       include: [...includePhotoOptions],
-      // raw: true,
-      // nest: true,
+      raw: true,
+      nest: true,
     });
   }
 
@@ -73,7 +73,9 @@ export class ProfilesService {
       backPhoto,
     } = await this.photoService.findAllThreePostion(data);
     // before updating
-    const beforeUpdate = await this.findOneClientProfile(clientProfileId);
+    const beforeUpdate = await this.findProfileWithPhotosForDeletion(
+      clientProfileId,
+    );
 
     // update
     const [
@@ -93,12 +95,12 @@ export class ProfilesService {
       return { numberOfAffectedRows, updatedProfile };
     }
 
-    // //remove photos from DB if was last module
-    // await this.photoService.checkPhotoPositionsAndDelete(
-    //   beforeUpdate.frontPhoto,
-    //   beforeUpdate.sidePhoto,
-    //   beforeUpdate.backPhoto,
-    // );
+    //remove photos from DB if was last module
+    await this.photoService.checkPhotoPositionsAndDelete(
+      beforeUpdate.frontPhoto,
+      beforeUpdate.sidePhoto,
+      beforeUpdate.backPhoto,
+    );
 
     return { numberOfAffectedRows, updatedProfile };
   }
@@ -109,7 +111,7 @@ export class ProfilesService {
       frontPhoto,
       sidePhoto,
       backPhoto,
-    } = await this.findOneClientProfile(clientProfileId);
+    } = await this.findProfileWithPhotosForDeletion(clientProfileId);
 
     // delete profile with this id
     const deleted = await this.profileRepository.destroy({
@@ -120,14 +122,14 @@ export class ProfilesService {
       return deleted;
     }
 
-    // //remove photos from DB if was last module
-    // await this.photoService.checkPhotoPositionsAndDelete(
-    //   frontPhoto,
-    //   sidePhoto,
-    //   backPhoto,
-    // );
+    //remove photos from DB if was last module
+    await this.photoService.checkPhotoPositionsAndDelete(
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    );
 
-    return deleted;
+    return 0;
   }
 
   // set current userapp
@@ -184,6 +186,15 @@ export class ProfilesService {
         : { backPhotoId: photoId };
     return await this.profileRepository.findOne({
       where: { ...dataOptions, userId, id: profileId },
+    });
+  }
+
+  async findProfileWithPhotosForDeletion(clientProfileId: number) {
+    return await this.profileRepository.findOne({
+      where: { id: clientProfileId },
+      include: [...includePhotoOptions],
+      raw: true,
+      nest: true,
     });
   }
 }

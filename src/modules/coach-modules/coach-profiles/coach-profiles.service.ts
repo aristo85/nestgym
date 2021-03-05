@@ -59,8 +59,6 @@ export class CoachProfilesService {
     return await this.coachProfileRepository.findOne({
       where: { id: coachProfileId },
       include: [...includePhotoOptions, CoachService],
-      // raw: true,
-      // nest: true,
     });
 
     // return { profile, serviceList };
@@ -102,9 +100,11 @@ export class CoachProfilesService {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
     // find all photos in profile
-    const { frontPhoto, sidePhoto, backPhoto } = await this.findOneCoachProfile(
-      coachProfileId,
-    );
+    const {
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    } = await this.findProfileWithPhotosForDeletion(coachProfileId);
 
     // delete profile
     const deleted = await this.coachProfileRepository.destroy({
@@ -115,12 +115,12 @@ export class CoachProfilesService {
       return deleted;
     }
 
-    // //remove photos from DB if was last module
-    // await this.photoService.checkPhotoPositionsAndDelete(
-    //   frontPhoto,
-    //   sidePhoto,
-    //   backPhoto,
-    // );
+    //remove photos from DB if was last module
+    await this.photoService.checkPhotoPositionsAndDelete(
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    );
 
     return deleted;
   }
@@ -151,7 +151,9 @@ export class CoachProfilesService {
     } = await this.photoService.findAllThreePostion(data);
 
     // before updating
-    const beforeUpdate = await this.findOneCoachProfile(coachProfileId);
+    const beforeUpdate = await this.findProfileWithPhotosForDeletion(
+      coachProfileId,
+    );
 
     // update
     const [
@@ -171,12 +173,12 @@ export class CoachProfilesService {
       return { numberOfAffectedRows, updatedprofile };
     }
 
-    // //remove photos from DB if was last module
-    // await this.photoService.checkPhotoPositionsAndDelete(
-    //   beforeUpdate.frontPhoto,
-    //   beforeUpdate.sidePhoto,
-    //   beforeUpdate.backPhoto,
-    // );
+    //remove photos from DB if was last module
+    await this.photoService.checkPhotoPositionsAndDelete(
+      beforeUpdate.frontPhoto,
+      beforeUpdate.sidePhoto,
+      beforeUpdate.backPhoto,
+    );
 
     // create coach services DB
     const services = await this.coachServiceService.updateMany(
@@ -279,4 +281,13 @@ export class CoachProfilesService {
     });
   }
   /////////////////////////////////////////////
+
+  async findProfileWithPhotosForDeletion(coachProfileId: number) {
+    return await this.coachProfileRepository.findOne({
+      where: { id: coachProfileId },
+      include: [...includePhotoOptions],
+      raw: true,
+      nest: true,
+    });
+  }
 }

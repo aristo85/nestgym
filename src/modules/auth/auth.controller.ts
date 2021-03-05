@@ -25,6 +25,7 @@ export class AuthController {
   @UseGuards(DoesUserExist)
   @Post('signup')
   async signUp(@Body() user: UserDto) {
-    return await this.authService.create(user);
+    const email = (user?.email).toLowerCase();
+    return await this.authService.create({ ...user, email });
   }
 }

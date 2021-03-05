@@ -120,13 +120,11 @@ export class UserappsService {
       role === 'admin' ? { id: userappId } : { id: userappId, userId };
 
     // find all photos in app
-    const { frontPhoto, sidePhoto, backPhoto } = await this.findOneUserapp(
-      userappId,
-      userId,
-      role,
-    );
-
-    console.log(frontPhoto);
+    const {
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    } = await this.findUserappWithPhotosForDeletion(userappId);
 
     // then remove the app
     const deleted = await this.userappRepository.destroy({
@@ -137,12 +135,12 @@ export class UserappsService {
       return deleted;
     }
 
-    // //remove photos from DB if was last module
-    // await this.photoService.checkPhotoPositionsAndDelete(
-    //   frontPhoto,
-    //   sidePhoto,
-    //   backPhoto,
-    // );
+    //remove photos from DB if was last module
+    await this.photoService.checkPhotoPositionsAndDelete(
+      frontPhoto,
+      sidePhoto,
+      backPhoto,
+    );
 
     return deleted;
   }
@@ -157,12 +155,16 @@ export class UserappsService {
     let conditionOption =
       role === 'admin' ? { id: userappId } : { id: userappId, userId };
 
+    // from the data update
     const {
       frontPhoto,
       sidePhoto,
       backPhoto,
     } = await this.photoService.findAllThreePostion(data);
+    // before updating
+    const beforeUpdate = await this.findUserappWithPhotosForDeletion(userappId);
 
+    // update
     const [
       numberOfAffectedRows,
       [updatedApplication],
@@ -178,6 +180,17 @@ export class UserappsService {
 
     let matches: CoachProfile[] = await this.coachMatches({ ...data });
 
+    // if nothing to update
+    if (numberOfAffectedRows === 0) {
+      return { numberOfAffectedRows, updatedApplication, matches };
+    }
+
+    //remove photos from DB if was last module
+    await this.photoService.checkPhotoPositionsAndDelete(
+      beforeUpdate.frontPhoto,
+      beforeUpdate.sidePhoto,
+      beforeUpdate.backPhoto,
+    );
     return { numberOfAffectedRows, updatedApplication, matches };
   }
 
@@ -358,4 +371,49 @@ export class UserappsService {
     });
   }
   /////////////////////////////////////////////
+
+  async findUserappWithPhotosForDeletion(userappId: number) {
+    return await this.userappRepository.findOne({
+      where: { id: userappId },
+      include: [...includePhotoOptions],
+      raw: true,
+      nest: true,
+    });
+  }
+
+  async findCurrentActiveUserapp(
+    userappId: number,
+    userId: number,
+    role: string,
+  ): Promise<Userapp> {
+    // check the role
+    let conditionOption =
+      role !== 'admin' ? { id: userappId, userId } : { id: userappId };
+    const app = await this.userappRepository.findOne({
+      where: conditionOption,
+      include: [
+        ...includePhotoOptions,
+        Requestedapp,
+        {
+          model: FullProgWorkout,
+          limit: 1,
+          order: [['createdAt', 'DESC']],
+          // include: [{ model: WorkoutProgram, limit: 10 }],
+        },
+        {
+          model: DietProgram,
+          limit: 1,
+          order: [['createdAt', 'DESC']],
+        },
+        { model: UserWorkout, limit: 7 },
+        {
+          model: CoachProfile,
+          as: 'coachProfile',
+          include: [{ all: true }],
+        },
+      ],
+    });
+
+    return app;
+  }
 }

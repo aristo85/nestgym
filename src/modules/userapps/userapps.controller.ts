@@ -239,8 +239,7 @@ export class UserappsController {
       );
     }
     // find the app with this id
-    const apps = await this.userappService.findOneUserapp(
-      // profile.currentUserappId,
+    const apps = await this.userappService.findCurrentActiveUserapp(
       profile.currentUserapp.id,
       user.id,
       role,
