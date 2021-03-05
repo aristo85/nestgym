@@ -89,8 +89,8 @@ export class FeedbacksService {
     return await this.feedbackRepository.findOne({
       where: optionCondition,
       include: [...includePhotoOptions],
-      raw: true,
-      nest: true,
+      // raw: true,
+      // nest: true,
     });
   }
 
@@ -113,12 +113,12 @@ export class FeedbacksService {
       return deleted;
     }
 
-    //remove photos from DB if was last module
-    await this.photoService.checkPhotoPositionsAndDelete(
-      frontPhoto,
-      sidePhoto,
-      backPhoto,
-    );
+    // //remove photos from DB if was last module
+    // await this.photoService.checkPhotoPositionsAndDelete(
+    //   frontPhoto,
+    //   sidePhoto,
+    //   backPhoto,
+    // );
 
     return deleted;
   }

@@ -110,8 +110,6 @@ export class UserappsService {
         DietProgram,
         { model: UserWorkout, limit: 7 },
       ],
-      raw: true,
-      nest: true,
     });
 
     return app;
@@ -128,6 +126,8 @@ export class UserappsService {
       role,
     );
 
+    console.log(frontPhoto);
+
     // then remove the app
     const deleted = await this.userappRepository.destroy({
       where: conditionOption,
@@ -137,12 +137,12 @@ export class UserappsService {
       return deleted;
     }
 
-    //remove photos from DB if was last module
-    await this.photoService.checkPhotoPositionsAndDelete(
-      frontPhoto,
-      sidePhoto,
-      backPhoto,
-    );
+    // //remove photos from DB if was last module
+    // await this.photoService.checkPhotoPositionsAndDelete(
+    //   frontPhoto,
+    //   sidePhoto,
+    //   backPhoto,
+    // );
 
     return deleted;
   }

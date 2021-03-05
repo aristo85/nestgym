@@ -87,8 +87,8 @@ export class UserProgressService {
     return await this.userProgressRepository.findOne({
       where: { id: progressId, userId },
       include: [...includePhotoOptions],
-      raw: true,
-      nest: true,
+      // raw: true,
+      // nest: true,
     });
   }
 
@@ -115,12 +115,12 @@ export class UserProgressService {
       return deleted;
     }
 
-    //remove photos from DB if was last module
-    await this.photoService.checkPhotoPositionsAndDelete(
-      frontPhoto,
-      sidePhoto,
-      backPhoto,
-    );
+    // //remove photos from DB if was last module
+    // await this.photoService.checkPhotoPositionsAndDelete(
+    //   frontPhoto,
+    //   sidePhoto,
+    //   backPhoto,
+    // );
 
     return deleted;
   }
