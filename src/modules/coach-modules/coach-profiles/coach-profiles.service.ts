@@ -143,12 +143,17 @@ export class CoachProfilesService {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
 
+    // from the data update
     const {
       frontPhoto,
       sidePhoto,
       backPhoto,
     } = await this.photoService.findAllThreePostion(data);
 
+    // before updating
+    const beforeUpdate = await this.findOneCoachProfile(coachProfileId);
+
+    // update
     const [
       numberOfAffectedRows,
       [updatedprofile],
@@ -160,6 +165,17 @@ export class CoachProfilesService {
         backPhotoId: backPhoto?.id,
       },
       { where: { id: coachProfileId }, returning: true },
+    );
+    // if nothing to update
+    if (numberOfAffectedRows === 0) {
+      return { numberOfAffectedRows, updatedprofile };
+    }
+
+    //remove photos from DB if was last module
+    await this.photoService.checkPhotoPositionsAndDelete(
+      beforeUpdate.frontPhoto,
+      beforeUpdate.sidePhoto,
+      beforeUpdate.backPhoto,
     );
 
     // create coach services DB

@@ -87,6 +87,8 @@ export class UserProgressService {
     return await this.userProgressRepository.findOne({
       where: { id: progressId, userId },
       include: [...includePhotoOptions],
+      raw: true,
+      nest: true,
     });
   }
 

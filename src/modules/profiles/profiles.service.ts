@@ -62,17 +62,20 @@ export class ProfilesService {
   }
 
   async updateClientProfile(
-    id: number,
+    clientProfileId: number,
     data: ProfileUpdateDto,
     userId: number,
   ) {
+    // from the data update
     const {
       frontPhoto,
       sidePhoto,
       backPhoto,
     } = await this.photoService.findAllThreePostion(data);
-    // console.log(frontPhoto, sidePhoto, backPhoto);
+    // before updating
+    const beforeUpdate = await this.findOneClientProfile(clientProfileId);
 
+    // update
     const [
       numberOfAffectedRows,
       [updatedProfile],
@@ -83,7 +86,18 @@ export class ProfilesService {
         sidePhotoId: sidePhoto?.id,
         backPhotoId: backPhoto?.id,
       },
-      { where: { id, userId }, returning: true },
+      { where: { id: clientProfileId, userId }, returning: true },
+    );
+    // if nothing to update
+    if (numberOfAffectedRows === 0) {
+      return { numberOfAffectedRows, updatedProfile };
+    }
+
+    //remove photos from DB if was last module
+    await this.photoService.checkPhotoPositionsAndDelete(
+      beforeUpdate.frontPhoto,
+      beforeUpdate.sidePhoto,
+      beforeUpdate.backPhoto,
     );
 
     return { numberOfAffectedRows, updatedProfile };
