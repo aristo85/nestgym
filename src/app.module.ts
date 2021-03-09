@@ -28,6 +28,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { PlacesModule } from './modules/places/places.module';
 import { CoachNoatesModule } from './modules/coach-modules/coach-noates/coach-noates.module';
+import { DietsModule } from './modules/diets/diets.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { CoachNoatesModule } from './modules/coach-modules/coach-noates/coach-no
     }),
     PlacesModule,
     CoachNoatesModule,
+    DietsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

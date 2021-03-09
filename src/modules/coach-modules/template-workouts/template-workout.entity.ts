@@ -9,6 +9,19 @@ export class TemplateWorkout extends Model<TemplateWorkout> {
     allowNull: false,
   })
   title: string;
+
+  @Column({
+    type: DataType.STRING,
+    // allowNull: false,
+  })
+  sportType: string;
+
+  @Column({
+    type: DataType.STRING,
+    // allowNull: false,
+  })
+  aim: string;
+
   @Column({
     type: DataType.STRING,
     // allowNull: false,

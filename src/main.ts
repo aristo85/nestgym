@@ -5,6 +5,7 @@ import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
 import { AimsModule } from './modules/aims/aims.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CoachNoatesModule } from './modules/coach-modules/coach-noates/coach-noates.module';
 import { CoachProfilesModule } from './modules/coach-modules/coach-profiles/coach-profiles.module';
 import { CoachProgressModule } from './modules/coach-modules/coach-progress/coach-progress.module';
 import { CoachServicesModule } from './modules/coach-modules/coach-services/coach-services.module';
@@ -13,6 +14,7 @@ import { DietprogramModule } from './modules/coach-modules/dietprogram/dietprogr
 import { FullProgworkoutsModule } from './modules/coach-modules/full-progworkouts/full-progworkouts.module';
 import { TemplateDietsModule } from './modules/coach-modules/template-diets/template-diets.module';
 import { TemplateWorkoutsModule } from './modules/coach-modules/template-workouts/template-workouts.module';
+import { DietsModule } from './modules/diets/diets.module';
 import { FeedbacksModule } from './modules/feedbacks/feedbacks.module';
 import { PhotosModule } from './modules/photos/photos.module';
 import { PlacesModule } from './modules/places/places.module';
@@ -64,6 +66,8 @@ async function bootstrap() {
       PublicationsModule,
       FeedbacksModule,
       PlacesModule,
+      CoachNoatesModule,
+      DietsModule,
     ],
   });
   SwaggerModule.setup('api', app, document);
