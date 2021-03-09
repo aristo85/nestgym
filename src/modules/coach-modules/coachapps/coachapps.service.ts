@@ -5,15 +5,10 @@ import { Photo } from 'src/modules/photos/photo.entity';
 import { includePhotoOptions } from 'src/modules/photos/photos.service';
 import { Profile } from 'src/modules/profiles/profile.entity';
 import { UserWorkout } from 'src/modules/user-workouts/user-workout.entity';
-import {
-  ApplicationStatus,
-  Userapp,
-} from 'src/modules/userapps/userapp.entity';
-import {
-  DietObj,
-  UserappsService,
-} from 'src/modules/userapps/userapps.service';
+import { Userapp } from 'src/modules/userapps/userapp.entity';
+import { UserappsService } from 'src/modules/userapps/userapps.service';
 import { User } from 'src/modules/users/user.entity';
+import { CoachNote } from '../coach-noates/coachNote.entity';
 import { CoachProfile } from '../coach-profiles/coach-profile.entity';
 import { CoachService } from '../coach-services/coach-service.entity';
 import { DietProgram } from '../dietprogram/dietprogram.entity';
@@ -84,7 +79,7 @@ export class CoachappsService {
   ): Promise<Requestedapp> {
     return await this.coachappRepository.findOne({
       where: { id: CoachAppRequestId },
-      include: [{ model: Userapp }],
+      include: [{ model: Userapp, include: [CoachNote] }],
     });
   }
 
@@ -98,6 +93,7 @@ export class CoachappsService {
           model: Userapp,
           include: [
             ...includePhotoOptions,
+            { model: CoachNote },
             {
               model: User,
               as: 'user',
@@ -133,6 +129,7 @@ export class CoachappsService {
           model: Userapp,
           include: [
             ...includePhotoOptions,
+            { model: CoachNote },
             {
               model: FullProgWorkout,
               limit: 1,

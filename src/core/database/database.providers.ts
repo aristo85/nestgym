@@ -28,6 +28,7 @@ import { Servicio } from 'src/modules/services/service.entity';
 import { Article } from 'src/modules/publications/publication.entity';
 import { IDatabaseConfigAttributes } from './interfaces/dbConfig.interface';
 import { Place } from 'src/modules/places/place.entity';
+import { CoachNote } from 'src/modules/coach-modules/coach-noates/coachNote.entity';
 
 export const databaseProviders = [
   {
@@ -75,6 +76,7 @@ export const databaseProviders = [
         Servicio,
         Article,
         Place,
+        CoachNote,
       ]);
       await sequelize.sync({ alter: true });
       return sequelize;
