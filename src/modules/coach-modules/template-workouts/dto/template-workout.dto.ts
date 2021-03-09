@@ -15,6 +15,14 @@ export class TemplateWorkoutDto {
   readonly title: string;
 
   @ApiProperty()
+  @IsNotEmpty()
+  readonly sportType: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly aim: string;
+
+  @ApiProperty()
   readonly workoutsPerWeek: number;
 
   @ApiProperty({

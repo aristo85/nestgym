@@ -5,13 +5,9 @@ import {
   UseGuards,
   ForbiddenException,
   NotFoundException,
-  Get,
-  Delete,
-  Param,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { get } from 'http';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { Roles, User } from 'src/modules/users/user.entity';
 import { AuthUser, UserRole } from 'src/modules/users/users.decorator';
