@@ -27,6 +27,7 @@ import { FeedbacksModule } from './modules/feedbacks/feedbacks.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { PlacesModule } from './modules/places/places.module';
+import { CoachNoatesModule } from './modules/coach-modules/coach-noates/coach-noates.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { PlacesModule } from './modules/places/places.module';
       exclude: ['/api/gym*'],
     }),
     PlacesModule,
+    CoachNoatesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

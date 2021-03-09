@@ -17,6 +17,7 @@ import { UserWorkout } from '../user-workouts/user-workout.entity';
 import { User } from '../users/user.entity';
 import { Photo } from '../photos/photo.entity';
 import { Profile } from '../profiles/profile.entity';
+import { CoachNote } from '../coach-modules/coach-noates/coachNote.entity';
 
 export type ApplicationStatus = 'active' | 'pending' | 'archieved' | 'reject';
 export type ApplicationCoachGender = 'male' | 'female' | 'any';
@@ -141,6 +142,6 @@ export class Userapp extends Model<Userapp> {
   @BelongsTo(() => Photo, { foreignKey: 'backPhotoId' })
   backPhoto: Photo;
 
-  // @HasOne(() => Profile, {as: "currentUserapp", foreignKey: "userappId"})
-  // profile: Profile;
+  @HasOne(() => CoachNote, { foreignKey: 'userappId' })
+  coachNote: CoachNote;
 }
