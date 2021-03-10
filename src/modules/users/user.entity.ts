@@ -13,6 +13,7 @@ import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
 import { TemplateDiet } from '../coach-modules/template-diets/template-diet.entity';
 import { TemplateWorkout } from '../coach-modules/template-workouts/template-workout.entity';
+import { Feedback } from '../feedbacks/feedback.entity';
 import { Profile } from '../profiles/profile.entity';
 import { Article } from '../publications/publication.entity';
 import { Servicio } from '../services/service.entity';
@@ -98,4 +99,7 @@ export class User extends Model<User> {
 
   @HasMany(() => Article, 'adminId')
   articles: Article[];
+
+  @HasMany(() => Feedback, 'coachId')
+  feedbacks: Feedback[];
 }

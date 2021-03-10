@@ -6,6 +6,7 @@ import { CoachService } from '../coach-modules/coach-services/coach-service.enti
 import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
+import { Feedback } from '../feedbacks/feedback.entity';
 import { photoPositionTypes } from '../photos/dto/photo.dto';
 import { Photo } from '../photos/photo.entity';
 import { includePhotoOptions, PhotosService } from '../photos/photos.service';
@@ -215,6 +216,7 @@ export class UserappsService {
       {
         include: [
           ...includePhotoOptions,
+          { model: User, include: [Feedback], attributes: ['name'] },
           {
             model: CoachService,
             where: {
@@ -230,7 +232,11 @@ export class UserappsService {
     // get all profiles
     const allProfiles: CoachProfile[] = await CoachProfile.findAll<CoachProfile>(
       {
-        include: [...includePhotoOptions, CoachService],
+        include: [
+          ...includePhotoOptions,
+          CoachService,
+          { model: User, include: [Feedback], attributes: ['name'] },
+        ],
       },
     );
     return coachProfiles.length > 0 ? coachProfiles : allProfiles;
