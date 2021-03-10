@@ -3,7 +3,6 @@ import {
   Column,
   Model,
   DataType,
-  HasMany,
   ForeignKey,
   BelongsTo,
 } from 'sequelize-typescript';
@@ -18,6 +17,18 @@ export class DietProgram extends Model<DietProgram> {
     allowNull: false,
   })
   title: string;
+  //
+  @Column({
+    type: DataType.STRING,
+    // allowNull: false,
+  })
+  dietType: string;
+  //
+  @Column({
+    type: DataType.STRING,
+    // allowNull: false,
+  })
+  aim: string;
   //
   @Column({
     type: DataType.INTEGER,

@@ -1,7 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { DataType } from 'sequelize-typescript';
-import { DataTypes } from 'sequelize/types';
 
 export interface DietProduct {
   product: string;
@@ -37,6 +35,14 @@ export class DietProgramDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly title: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly dietType: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly aim: string;
 
   @ApiProperty({
     description: ` example: [
