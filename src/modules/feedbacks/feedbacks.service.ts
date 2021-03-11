@@ -1,10 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import sequelize from 'sequelize';
+import { Op } from 'sequelize';
 import { FEEDBACK_REPOSITORY } from 'src/core/constants';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
+import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
 import { photoPositionTypes } from '../photos/dto/photo.dto';
 import { includePhotoOptions, PhotosService } from '../photos/photos.service';
 import { Profile } from '../profiles/profile.entity';
+import { Userapp } from '../userapps/userapp.entity';
+import { User } from '../users/user.entity';
 import { FeedbackDto } from './dto/feedback.dto';
 import { Feedback, RatingCounter } from './feedback.entity';
 
@@ -179,5 +183,35 @@ export class FeedbacksService {
       raw: true,
       nest: true,
     });
+  }
+  /////////////////////////////////////////////
+
+  async findCoachesForFeedback(userId: number) {
+    const coaches = await Userapp.findAll({
+      where: { userId },
+      include: [
+        { model: Requestedapp, where: { userId }, attributes: [] },
+        {
+          model: Feedback,
+          required: false,
+          where: { id: null },
+          attributes: [],
+        },
+      ],
+      attributes: ['coachId'],
+      raw: true,
+      nest: true,
+    });
+
+    const filteredArr = coaches.reduce((acc, current) => {
+      const x = acc.find((item) => item.coachId === current.coachId);
+      if (!x) {
+        return acc.concat([current]);
+      } else {
+        return acc;
+      }
+    }, []);
+
+    return filteredArr;
   }
 }

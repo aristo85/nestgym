@@ -167,7 +167,7 @@ export class CoachappsController {
   ): Promise<Requestedapp[]> {
     // check the role
     if (user.role === 'user') {
-      throw new NotFoundException(
+      throw new ForbiddenException(
         "your role is 'user', users dont have access to coaches info.! ",
       );
     }

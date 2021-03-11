@@ -13,7 +13,18 @@ import {
   Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { photoPositionTypes } from '../photos/dto/photo.dto';
 import { Photo } from '../photos/photo.entity';
 import { Roles, User } from '../users/user.entity';
@@ -28,6 +39,11 @@ import { ProfilesService } from './profiles.service';
 export class ProfilesController {
   constructor(private readonly profileServise: ProfilesService) {}
 
+  @ApiOperation({ summary: 'Создание профиля клиента' })
+  @ApiResponse({ status: 201 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
@@ -46,14 +62,21 @@ export class ProfilesController {
       },
     });
     if (isProfile) {
-      throw new NotFoundException('This User already has a profile');
+      throw new ForbiddenException('This User already has a profile');
     }
 
     // create a new profile and return the newly created profile
     return await this.profileServise.createClientProfile(profile, user.id);
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех профилей клиентов. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
+  @ApiResponse({ status: 200, description: 'Массив профилей' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@UserRole() role: Roles): Promise<Profile[]> {
@@ -73,7 +96,15 @@ export class ProfilesController {
     return profile;
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Получение профиля клиента по id' })
+  @ApiResponse({ status: 200, description: 'Найденный профиль' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id профиля',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(@Param('id') id: number): Promise<Profile> {
@@ -89,7 +120,10 @@ export class ProfilesController {
     return profiles;
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Получение профиля Юзера, если он клиент' })
+  @ApiResponse({ status: 200, description: 'Найденный профиль' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
   @UseGuards(AuthGuard('jwt'))
   @Get('client/myprofile')
   async findMyProfile(@AuthUser() user: User): Promise<Profile> {
@@ -105,7 +139,16 @@ export class ProfilesController {
     return profiles;
   }
 
+  @ApiOperation({ summary: 'Редактирование профиля клиента' })
   @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id профиля',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   async update(
@@ -130,6 +173,15 @@ export class ProfilesController {
   }
 
   // ////////////
+  @ApiOperation({ summary: 'Удаление профиля клиента' })
+  @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id профиля',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async deleteProfile(@Param('id') id: number, @AuthUser() user: User) {
@@ -147,10 +199,29 @@ export class ProfilesController {
     // return success message
     return 'Successfully deleted';
   }
+  /////////////////////////////////
 
+  @ApiOperation({ summary: 'Удаление фото из профиля клиента' })
+  @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'profileId',
+    required: true,
+    description: 'Id профиля',
+  })
+  @ApiQuery({
+    name: 'photoPosition',
+    description: 'Позиция фото',
+    enum: photoPositionTypes,
+  })
+  @ApiQuery({
+    name: 'photoId',
+    description: 'Id фото',
+    type: 'number',
+  })
   @UseGuards(AuthGuard('jwt'))
-  @ApiQuery({ name: 'photoPosition', enum: photoPositionTypes })
-  @ApiQuery({ name: 'photoId', type: 'number' })
   @Delete('photo/:profileId')
   async deleteProfilePhoto(
     @Param('profileId') profileId: number,

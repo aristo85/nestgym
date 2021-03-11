@@ -13,7 +13,18 @@ import {
   Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { photoPositionTypes } from '../photos/dto/photo.dto';
 import { Photo } from '../photos/photo.entity';
@@ -30,6 +41,11 @@ export class UserappsController {
   constructor(private readonly userappService: UserappsService) {}
 
   @ApiTags('Client-Application (Заявки клиента)')
+  @ApiOperation({ summary: 'Создание Заявки' })
+  @ApiResponse({ status: 201 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
@@ -59,7 +75,14 @@ export class UserappsController {
   }
 
   @ApiTags('Client-Application (Заявки клиента)')
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех заявок клиента',
+    description: 'Если Админ то возвращает всех заявок из БД',
+  })
+  @ApiResponse({ status: 200, description: 'Массив заявок' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  // @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(
@@ -76,7 +99,15 @@ export class UserappsController {
   }
 
   @ApiTags('Client-Application (Заявки клиента)')
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Получение заявки клиента по id' })
+  @ApiResponse({ status: 200, description: 'Найденная заявка' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id Заявки',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(
@@ -97,7 +128,17 @@ export class UserappsController {
   }
 
   @ApiTags('Client-Application (Заявки клиента)')
+  @ApiOperation({ summary: 'Редактирование заявки клиента' })
   @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id заявки',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   async update(
@@ -133,6 +174,15 @@ export class UserappsController {
   }
 
   @ApiTags('Client-Application (Заявки клиента)')
+  @ApiOperation({ summary: 'Удаление заявки клиента' })
+  @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id заявки',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(
@@ -157,8 +207,17 @@ export class UserappsController {
     return 'Successfully deleted';
   }
 
-  @ApiTags('Get all matches (Матчинг профилей тренеров с заявкой клиента)')
-  @ApiResponse({ status: 200 })
+  @ApiTags('Get all matches (Матчинг)')
+  @ApiOperation({
+    summary: 'Получение всех профилей тренеров подходящими с заявкой клиента',
+  })
+  @ApiResponse({ status: 200, description: 'Массив профилей тренеров' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiParam({
+    name: 'userappId',
+    required: true,
+    description: 'Id заявки',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get('matches/:userappId')
   async findMatches(
@@ -175,7 +234,16 @@ export class UserappsController {
 
   // SET active userapp in client profile
   @ApiTags('Client-Application (Текущая заявка клиента)')
+  @ApiOperation({ summary: 'Установит текущую заявку в профиле клиента' })
   @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id заявки',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Put('set-current-app/:id')
   async setCurrentApp(
@@ -215,7 +283,11 @@ export class UserappsController {
   }
 
   @ApiTags('Client-Application (Текущая заявка клиента)')
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Получение текущей заявки клиента' })
+  @ApiResponse({ status: 200, description: 'Найденная заявка' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
   @UseGuards(AuthGuard('jwt'))
   @Get('current/active/app')
   async findCurrentActive(
@@ -254,6 +326,7 @@ export class UserappsController {
     return apps;
   }
 
+  @ApiTags('Client-Application (Заявки клиента)')
   @UseGuards(AuthGuard('jwt'))
   @ApiQuery({ name: 'photoPosition', enum: photoPositionTypes })
   @ApiQuery({ name: 'photoId', type: 'number' })

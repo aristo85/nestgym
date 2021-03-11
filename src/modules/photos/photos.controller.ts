@@ -2,17 +2,25 @@ import {
   Controller,
   Get,
   Post,
-  Put,
   Delete,
   Param,
   Body,
   NotFoundException,
   UseGuards,
-  Request,
-  Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Roles } from '../users/user.entity';
 import { UserRole } from '../users/users.decorator';
 import { PhotoDto, UpdatePhotoDto } from './dto/photo.dto';
@@ -25,6 +33,10 @@ import { PhotosService } from './photos.service';
 export class PhotosController {
   constructor(private readonly photoService: PhotosService) {}
 
+  @ApiOperation({ summary: 'Добавление фото' })
+  @ApiResponse({ status: 201 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(@Body() data: UpdatePhotoDto): Promise<Photo[]> {
@@ -37,19 +49,33 @@ export class PhotosController {
     return result;
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех Фото. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
+  @ApiResponse({ status: 200, description: 'Массив фото' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@UserRole() role: Roles): Promise<any> {
     if (role !== 'admin') {
-      throw new NotFoundException('only admin');
+      throw new ForbiddenException('only admin');
     }
     // get all photos of one user in the db
     const list: any = await this.photoService.findAll();
     return list;
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Получение фото по id' })
+  @ApiResponse({ status: 200, description: 'Найденный фото' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id фото',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(@Param('id') id: number): Promise<Photo> {
@@ -65,6 +91,15 @@ export class PhotosController {
     return photo;
   }
 
+  @ApiOperation({ summary: 'Удаление фото' })
+  @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id фото',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(@Param('id') id: number) {

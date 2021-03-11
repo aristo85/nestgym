@@ -40,29 +40,28 @@ export class Feedback extends Model<Feedback> {
     // allowNull: false,
   })
   coachName: string;
-  // //
-
-  // @ForeignKey(() => User)
-  // @Column({
-  //   type: DataType.INTEGER,
-  //   allowNull: false,
-  // })
-  // coachId: number;
-  // //
-  // @BelongsTo(() => User, { as: 'coach', foreignKey: 'coachId' })
-  // @BelongsTo(() => User, { as: 'user', foreignKey: 'userId' })
-
-  // @ForeignKey(() => User)
-  // @Column({
-  //   type: DataType.INTEGER,
-  //   allowNull: false,
-  // })
-  // userId: number;
   //
+
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  coachId: number;
+  //
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.INTEGER,
+    // allowNull: false,
+  })
+  userId: number;
+  //
+
   @BelongsTo(() => Userapp, { as: 'userapp', foreignKey: 'userappId' })
-  // @BelongsTo(() => User)
-  // user: User;
-  // //
+  @BelongsTo(() => User)
+  user: User;
+  //
+
   @BelongsTo(() => Photo, { foreignKey: 'frontPhotoId' })
   frontPhoto: Photo;
 
