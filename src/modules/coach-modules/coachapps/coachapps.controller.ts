@@ -4,6 +4,8 @@ import {
   ForbiddenException,
   Get,
   NotFoundException,
+  NotAcceptableException,
+  MethodNotAllowedException,
   Param,
   Post,
   Put,
@@ -53,14 +55,14 @@ export class CoachappsController {
       where: { coachId, userappId },
     });
     if (myCoaches) {
-      throw new NotFoundException('you have requested this coach already!');
+      throw new MethodNotAllowedException('you have requested this coach already!');
     }
     // check if number of requested applications exseeded maximum
     const myRequests = await Requestedapp.findAll({
       where: { userappId },
     });
     if (myRequests.length >= 3) {
-      throw new NotFoundException(
+      throw new NotAcceptableException(
         'number of app requests are exseeded, 3 maximum',
       );
     }
