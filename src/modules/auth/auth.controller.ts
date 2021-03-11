@@ -3,7 +3,15 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { UserDto, Credential } from '../users/dto/user.dto';
 import { DoesUserExist } from 'src/core/guards/doesUserExist.guard';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiForbiddenResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { User } from '../users/user.entity';
 
 @ApiTags('Authentication (Аутентификация)')
@@ -11,7 +19,9 @@ import { User } from '../users/user.entity';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Авторизация пользователя' })
+  @ApiResponse({ status: 201, description: '{user, token }' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(AuthGuard('local'))
   @Post('login')
   async login(
@@ -21,7 +31,10 @@ export class AuthController {
     return await this.authService.login(req.user);
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Регистрация пользователя' })
+  @ApiResponse({ status: 201, description: '{user, token }' })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(DoesUserExist)
   @Post('signup')
   async signUp(@Body() user: UserDto) {

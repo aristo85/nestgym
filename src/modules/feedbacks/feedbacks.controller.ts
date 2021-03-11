@@ -11,7 +11,13 @@ import {
   Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiExcludeEndpoint,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { photoPositionTypes } from '../photos/dto/photo.dto';
 import { Photo } from '../photos/photo.entity';
 import { Roles, User } from '../users/user.entity';
@@ -20,12 +26,12 @@ import { FeedbackDto } from './dto/feedback.dto';
 import { Feedback } from './feedback.entity';
 import { FeedbacksService } from './feedbacks.service';
 
-@ApiTags('Client Feedback (Отзывы)')
 @ApiBearerAuth()
 @Controller('feedbacks')
 export class FeedbacksController {
   constructor(private readonly feedbacksService: FeedbacksService) {}
-
+  ////////////////////////////////////
+  @ApiTags('Client Feedback (Отзывы)')
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
@@ -50,6 +56,8 @@ export class FeedbacksController {
     return await this.feedbacksService.createFeedback(feedback, user.id);
   }
 
+  ////////////////////////////////////
+  @ApiTags('Client Feedback (Отзывы)')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
@@ -62,6 +70,25 @@ export class FeedbacksController {
     return await this.feedbacksService.findAllFeedbacks();
   }
 
+  ////////////////////////////////////
+  @ApiTags('Client Feedback (Отзывы)')
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/myCoaches/toFeedback')
+  async findCoachesForFeedback(
+    @UserRole() role: Roles,
+    @AuthUser() user: User,
+  ) {
+    // check the role
+    if (role !== 'user') {
+      throw new ForbiddenException('Your role is not a user');
+    }
+    // get all feedback of one user in the db
+    return await this.feedbacksService.findCoachesForFeedback(user.id);
+  }
+
+  ////////////////////////////////////
+  @ApiTags('Client Feedback (Отзывы)')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
@@ -86,6 +113,8 @@ export class FeedbacksController {
     return feedback;
   }
 
+  ////////////////////////////////////
+  @ApiTags('Client Feedback (Отзывы)')
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(
@@ -110,6 +139,8 @@ export class FeedbacksController {
     return 'Successfully deleted';
   }
 
+  ////////////////////////////////////
+  @ApiTags('coach Feedbacks (Отзывы)')
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get('coach/feedbacks')
@@ -118,6 +149,8 @@ export class FeedbacksController {
     return await this.feedbacksService.findAllCoachFeedbacks(user.id);
   }
 
+  ////////////////////////////////////
+  @ApiTags('Client Feedback (Отзывы)')
   // delete photo from feedback
   @UseGuards(AuthGuard('jwt'))
   @ApiQuery({ name: 'photoPosition', enum: photoPositionTypes })

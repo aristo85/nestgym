@@ -36,10 +36,10 @@ async function bootstrap() {
 
   // handle swagger (APIs doc)
   const options = new DocumentBuilder()
-    .setTitle('Gym Coaches')
+    .setTitle('GetCoach')
     .setDescription('A documentation for Gym app')
     .setVersion('1.0')
-    .addTag('Coaches')
+    // .addTag('Coaches')
     .addBearerAuth({ in: 'header', type: 'http' })
     .build();
 

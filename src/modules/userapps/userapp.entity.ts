@@ -18,6 +18,7 @@ import { User } from '../users/user.entity';
 import { Photo } from '../photos/photo.entity';
 import { Profile } from '../profiles/profile.entity';
 import { CoachNote } from '../coach-modules/coach-noates/coachNote.entity';
+import { Feedback } from '../feedbacks/feedback.entity';
 
 export type ApplicationStatus = 'active' | 'pending' | 'archieved' | 'reject';
 export type ApplicationCoachGender = 'male' | 'female' | 'any';
@@ -144,4 +145,7 @@ export class Userapp extends Model<Userapp> {
 
   @HasOne(() => CoachNote, { foreignKey: 'userappId' })
   coachNote: CoachNote;
+
+  @HasOne(() => Feedback, { foreignKey: 'userappId' })
+  feedback: Feedback;
 }

@@ -166,9 +166,9 @@ export class CoachappsService {
       where: { id: userappId },
       include: [Requestedapp],
     });
-    // if (!(app.status === null || app.status === 'pending')) {
-    //   throw new NotFoundException('Application been taken by other coach!');
-    // }
+    if (!(app.status === 'pending')) {
+      throw new NotFoundException('This app been taken or not availbale!');
+    }
     // set the answer based on coaches will
     if (status === 'accept') {
       // update staus of the userapp
