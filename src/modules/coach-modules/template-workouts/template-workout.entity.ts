@@ -26,6 +26,12 @@ export class TemplateWorkout extends Model<TemplateWorkout> {
     type: DataType.STRING,
     // allowNull: false,
   })
+  coment: string;
+
+  @Column({
+    type: DataType.STRING,
+    // allowNull: false,
+  })
   workoutsPerWeek: number;
   //
   @Column({

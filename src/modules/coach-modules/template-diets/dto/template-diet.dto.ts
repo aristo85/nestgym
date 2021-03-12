@@ -15,6 +15,18 @@ export class TemplateDietDto {
   @IsNotEmpty()
   readonly title: string;
 
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly dietType: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly aim: string;
+
+  @ApiProperty()
+  // @IsNotEmpty()
+  readonly coment: string;
+
   @ApiProperty({
     description: ` example: [
       {
@@ -60,6 +72,18 @@ export class TemplateDietUpdateDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly title: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly dietType: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly aim: string;
+
+  @ApiProperty()
+  // @IsNotEmpty()
+  readonly coment: string;
 
   @ApiProperty({
     description: ` example: [
