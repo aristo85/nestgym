@@ -30,6 +30,7 @@ import { PlacesModule } from './modules/places/places.module';
 import { CoachNoatesModule } from './modules/coach-modules/coach-noates/coach-noates.module';
 import { DietsModule } from './modules/diets/diets.module';
 import { FaqModule } from './modules/faq/faq.module';
+import { GetCaochFeedbackModule } from './modules/get-caoch-feedback/get-caoch-feedback.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { FaqModule } from './modules/faq/faq.module';
     CoachNoatesModule,
     DietsModule,
     FaqModule,
+    GetCaochFeedbackModule,
   ],
   controllers: [AppController],
   providers: [AppService],
