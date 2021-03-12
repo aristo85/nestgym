@@ -12,7 +12,17 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles, User } from '../users/user.entity';
 import { AuthUser, UserRole } from '../users/users.decorator';
@@ -26,6 +36,14 @@ import { PlacesService } from './places.service';
 export class PlacesController {
   constructor(private readonly placeService: PlacesService) {}
 
+  @ApiOperation({
+    summary: 'Создание места. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
+  @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
@@ -41,7 +59,11 @@ export class PlacesController {
     return await this.placeService.createPlace(place, user.id);
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех мест',
+  })
+  @ApiResponse({ status: 200, description: 'Массив мест' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@Req() req: Request & { res: Response }) {
@@ -53,7 +75,19 @@ export class PlacesController {
     return list;
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение места по id. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
+  @ApiResponse({ status: 200, description: 'Найденное место' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id места',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(
@@ -75,7 +109,19 @@ export class PlacesController {
     return place;
   }
 
+  @ApiOperation({
+    summary: 'Редактирование места по id. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
   @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id места',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   async update(
@@ -103,6 +149,18 @@ export class PlacesController {
     return updatedPlace;
   }
 
+  @ApiOperation({
+    summary: 'Удаление места по id. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
+  @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id места',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(@Param('id') id: number, @UserRole() role: Roles) {

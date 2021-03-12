@@ -12,7 +12,17 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles, User } from '../users/user.entity';
 import { AuthUser, UserRole } from '../users/users.decorator';
@@ -26,6 +36,14 @@ import { PublicationsService } from './publications.service';
 export class PublicationsController {
   constructor(private readonly publicationService: PublicationsService) {}
 
+  @ApiOperation({
+    summary: 'Создание статьи. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
+  @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
@@ -41,7 +59,11 @@ export class PublicationsController {
     return await this.publicationService.createArticle(data, user.id);
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех статей',
+  })
+  @ApiResponse({ status: 200, description: 'Массив статей' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@Req() req: Request & { res: Response }) {
@@ -53,7 +75,19 @@ export class PublicationsController {
     return list;
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение статьи по id. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
+  @ApiResponse({ status: 200, description: 'Найденная статья' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id статьи',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(@Param('id') id: number): Promise<Article> {
@@ -68,7 +102,19 @@ export class PublicationsController {
     return article;
   }
 
+  @ApiOperation({
+    summary: 'Редактирование статьи по id. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
   @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id стстьи',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   async update(
@@ -96,6 +142,18 @@ export class PublicationsController {
     return updatedArticle;
   }
 
+  @ApiOperation({
+    summary: 'Удаление статьи по id. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
+  @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id стстьи',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(@Param('id') id: number, @UserRole() role: Roles) {

@@ -12,7 +12,17 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles, User } from '../users/user.entity';
 import { AuthUser, UserRole } from '../users/users.decorator';
@@ -26,6 +36,14 @@ import { DietDto } from './dto/diet.dto';
 export class DietsController {
   constructor(private readonly dietService: DietsService) {}
 
+  @ApiOperation({
+    summary: 'Создание диеты. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
+  @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
@@ -41,7 +59,11 @@ export class DietsController {
     return await this.dietService.createDiet(data, user.id);
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех диет',
+  })
+  @ApiResponse({ status: 200, description: 'Массив диет' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@Req() req: Request & { res: Response }) {
@@ -53,7 +75,19 @@ export class DietsController {
     return list;
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение диеты по id. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
+  @ApiResponse({ status: 200, description: 'Найденная диета' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id диеты',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(
@@ -75,7 +109,19 @@ export class DietsController {
     return diet;
   }
 
+  @ApiOperation({
+    summary: 'Редактирование диеты по id. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
   @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id диеты',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   async update(
@@ -103,6 +149,18 @@ export class DietsController {
     return updatedDiet;
   }
 
+  @ApiOperation({
+    summary: 'Удаление диеты по id. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
+  @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id диеты',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(@Param('id') id: number, @UserRole() role: Roles) {

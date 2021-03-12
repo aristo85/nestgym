@@ -1,21 +1,28 @@
 import {
   Body,
   Controller,
-  Delete,
   ForbiddenException,
   Get,
   NotFoundException,
   Param,
   Post,
-  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { FullProgWorkout } from '../coach-modules/full-progworkouts/full.progworkout.enity';
-// import { WorkoutProgram } from '../coach-modules/workout-programs/workout-program.entity';
 import { Userapp } from '../userapps/userapp.entity';
 import { Roles, User } from '../users/user.entity';
 import { AuthUser, UserRole } from '../users/users.decorator';
@@ -30,14 +37,29 @@ export class UserWorkoutsController {
   constructor(private readonly userWorkoutService: UserWorkoutsService) {}
 
   // updating workout weight
+  @ApiOperation({ summary: 'Создание записи тренировки' })
   @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'fullprogworkoutId',
+    required: true,
+    description: 'Id программы',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Post(':fullprogworkoutId')
   async create(
     @Param('fullprogworkoutId') fullprogworkoutId: number,
     @Body() data: UserWorkoutDto,
     @AuthUser() user: User,
+    @UserRole() role: Roles,
   ): Promise<UserWorkout> {
+    // check the role
+    if (role !== 'user') {
+      throw new ForbiddenException('Your role is not a user');
+    }
     // check id
     const prog = (
       await FullProgWorkout.findOne({
@@ -60,7 +82,13 @@ export class UserWorkoutsController {
     );
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех записи клиента',
+  })
+  @ApiResponse({ status: 200, description: 'Массив записей' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  // @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(
@@ -90,7 +118,15 @@ export class UserWorkoutsController {
   }
 
   // find one
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Получение записи по id' })
+  @ApiResponse({ status: 200, description: 'Найденная запись' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id записи',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(

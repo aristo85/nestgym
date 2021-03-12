@@ -6,17 +6,22 @@ import {
   NotFoundException,
   Param,
   Req,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Profile } from 'src/modules/profiles/profile.entity';
-import { UserProgress } from 'src/modules/user-progress/user-progress.entity';
+import {
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { User } from 'src/modules/users/user.entity';
 import { AuthUser } from 'src/modules/users/users.decorator';
-import { Requestedapp } from '../coachapps/coachapp.entity';
 import { CoachProgressService } from './coach-progress.service';
 
 @ApiTags('Coach reads their clients progress (Прогресс клиента у тренера)')
@@ -25,7 +30,18 @@ import { CoachProgressService } from './coach-progress.service';
 export class CoachProgressController {
   constructor(private readonly coachProgressService: CoachProgressService) {}
 
-  // request to hire a Trainer
+  @ApiOperation({
+    summary: 'Получение прогресса клиента тренером по id клиента',
+  })
+  @ApiResponse({ status: 200, description: 'Найденный прогресс' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'userId',
+    required: true,
+    description: 'Id клиента',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get(':userId')
   async findOne(
@@ -42,7 +58,6 @@ export class CoachProgressController {
 
     const users = await this.coachProgressService.getUserProgress(
       user.id,
-      user.id,
       userId,
     );
 
@@ -54,7 +69,12 @@ export class CoachProgressController {
   }
 
   // get all my clients progress of a trainer
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех прогрессов клиентов одного тренера',
+  })
+  @ApiResponse({ status: 200, description: 'Массив прогрессов' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(

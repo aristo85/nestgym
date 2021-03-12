@@ -12,12 +12,21 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { Roles, User } from 'src/modules/users/user.entity';
 import { AuthUser, UserRole } from 'src/modules/users/users.decorator';
-import { Requestedapp } from '../coachapps/coachapp.entity';
 import {
   FullProgWorkoutDto,
   FullProgWorkoutUpdateDto,
@@ -34,6 +43,12 @@ export class FullProgworkoutsController {
   ) {}
 
   @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Создание программы тренировки' })
+  @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
   @Post()
   async create(
     @Body() fullprog: FullProgWorkoutDto,
@@ -64,7 +79,13 @@ export class FullProgworkoutsController {
     );
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех програм тренировки тренера',
+  })
+  @ApiResponse({ status: 200, description: 'Массив програм' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  // @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(
@@ -72,6 +93,12 @@ export class FullProgworkoutsController {
     @AuthUser() user: User,
     @UserRole() role: Roles,
   ) {
+    // check the role
+    if (role === 'user') {
+      throw new ForbiddenException(
+        "your role is 'user', users dont have access to coaches info.! ",
+      );
+    }
     // get all progs in the db
     const list = await this.fullProgworkoutService.findAllFullProgWorkouts(
       user.id,
@@ -83,7 +110,15 @@ export class FullProgworkoutsController {
     return list;
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Получение программы тренировки по id' })
+  @ApiResponse({ status: 200, description: 'Найденная программа' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id программы',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(
@@ -107,6 +142,15 @@ export class FullProgworkoutsController {
     return progs;
   }
 
+  @ApiOperation({ summary: 'Удаление программы тренировки' })
+  @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id программы',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(
@@ -141,7 +185,17 @@ export class FullProgworkoutsController {
     return 'Successfully deleted';
   }
 
+  @ApiOperation({ summary: 'Редактирование программы тренировки' })
   @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  // @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id программы',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   async update(

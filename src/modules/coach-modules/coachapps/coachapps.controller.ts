@@ -16,8 +16,18 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Userapp } from 'src/modules/userapps/userapp.entity';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Roles, User } from 'src/modules/users/user.entity';
 import { AuthUser, UserRole } from 'src/modules/users/users.decorator';
 import { ApplicationRequestStatus, Requestedapp } from './coachapp.entity';
@@ -34,17 +44,35 @@ export class CoachappsController {
   constructor(private readonly coachappService: CoachappsService) {}
 
   // request to hire a Trainer
-  @ApiTags(
-    'ClientRequest-ChosenCoach (Выбор тренера из списка матчинга клиентом)',
-  )
+  @ApiTags('CoachRequests (Запросы приходящие тренеру)')
+  @ApiOperation({ summary: 'Клиент подает запрос выбраному тренеру' })
+  @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'userappId',
+    required: true,
+    description: 'Id заявки',
+  })
+  @ApiParam({
+    name: 'coachId',
+    required: true,
+    description: 'Id тренера',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Post(':coachId/:userappId')
   async create(
-    @Request() req: Request,
     @Param('coachId') coachId: number,
     @Param('userappId') userappId: number,
     @AuthUser() user: User,
+    @UserRole() role: Roles,
   ): Promise<any> {
+    // check the role
+    if (role !== 'user') {
+      throw new ForbiddenException('Your role is not a user');
+    }
     const app = await this.coachappService.findApp(userappId, user.id);
     if (!app) {
       throw new NotFoundException('application not found');
@@ -53,7 +81,10 @@ export class CoachappsController {
     // check if client requested this coach before
     const myCoaches = await Requestedapp.findOne({
       where: { coachId, userappId },
+      raw: true,
+      nest: true,
     });
+    console.log(myCoaches);
     if (myCoaches) {
       throw new MethodNotAllowedException('you have requested this coach already!');
     }
@@ -80,7 +111,14 @@ export class CoachappsController {
 
   // get all requestedapps(offers) of a trainer
   @ApiTags('CoachRequests (Запросы приходящие тренеру)')
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех запросов тренеру',
+    description: 'Если Админ то возвращает всех запросов из БД',
+  })
+  @ApiResponse({ status: 200, description: 'Массив запросов' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  // @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(
@@ -106,8 +144,15 @@ export class CoachappsController {
 
   // get all requestedapps(offers) by query
   @ApiTags('CoachRequests (Запросы приходящие тренеру)')
-  @ApiQuery({ name: 'status', enum: ApplicationRequestStatus })
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Получение запросов по статусу' })
+  @ApiResponse({ status: 200, description: 'Массив запросов' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiQuery({
+    name: 'status',
+    description: 'Статус запроса',
+    enum: ApplicationRequestStatus,
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get('query')
   async findByQuery(
@@ -118,7 +163,7 @@ export class CoachappsController {
     // check the role
     if (user.role === 'user') {
       throw new ForbiddenException(
-        "your role is 'user', users dont have access to coaches info.! ",
+        "your role is 'user', users dont have access to coach's info.! ",
       );
     }
     // get all apps in the db
@@ -134,7 +179,10 @@ export class CoachappsController {
 
   // get all requestedapps(offers) by query
   @ApiTags('CoachRequests (Запросы приходящие тренеру)')
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Получение всех активных заявок тренера' })
+  @ApiResponse({ status: 200, description: 'Массив запросов' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(AuthGuard('jwt'))
   @Get('coach/activeapps')
   async findActiveApps(
@@ -143,8 +191,8 @@ export class CoachappsController {
   ) {
     // check the role
     if (user.role === 'user') {
-      throw new NotFoundException(
-        "your role is 'user', users dont have access to coaches info.! ",
+      throw new ForbiddenException(
+        "your role is 'user', users dont have access to coach's info.! ",
       );
     }
     // get all apps in the db
@@ -156,8 +204,18 @@ export class CoachappsController {
   }
 
   //
-  @ApiTags("Coach's response on request (Ответ тренера на запрос)")
+  @ApiTags('CoachRequests (Запросы приходящие тренеру)')
+  @ApiOperation({ summary: 'Ответ тренера на запрос' })
   @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'userappId',
+    required: true,
+    description: 'Id заявки',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Put(':userappId')
   async update(

@@ -8,13 +8,22 @@ import {
   Body,
   NotFoundException,
   UseGuards,
-  Request,
   Req,
   ForbiddenException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Aim } from '../aims/aim.entity';
 import { AimsService } from '../aims/aims.service';
 import { AimDto } from '../aims/dto/aim.dto';
@@ -28,6 +37,14 @@ import { Role } from '../users/dto/user.dto';
 export class AimsController {
   constructor(private readonly aimService: AimsService) {}
 
+  @ApiOperation({
+    summary: 'Создание цели. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
+  @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(@Body() aim: AimDto, @AuthUser() user: User): Promise<Aim> {
@@ -39,7 +56,11 @@ export class AimsController {
     return await this.aimService.createAim(aim, user.id);
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех целей',
+  })
+  @ApiResponse({ status: 200, description: 'Массив целей' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@Req() req: Request & { res: Response }) {
@@ -51,7 +72,19 @@ export class AimsController {
     return list;
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение цели по id. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
+  @ApiResponse({ status: 200, description: 'Найденная цель' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id цели',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(@Param('id') id: number): Promise<Aim> {
@@ -66,7 +99,19 @@ export class AimsController {
     return aim;
   }
 
+  @ApiOperation({
+    summary: 'Редактирование цели по id. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
   @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id цели',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   async update(
@@ -94,6 +139,18 @@ export class AimsController {
     return updatedAim;
   }
 
+  @ApiOperation({
+    summary: 'Удаление цели по id. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
+  @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id цели',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(@Param('id') id: number, @UserRole() role: Role) {

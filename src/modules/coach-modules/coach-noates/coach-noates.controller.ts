@@ -7,7 +7,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Userapp } from 'src/modules/userapps/userapp.entity';
 import { Roles, User } from 'src/modules/users/user.entity';
 import { AuthUser, UserRole } from 'src/modules/users/users.decorator';
@@ -21,6 +29,11 @@ import { CoachNoteDto } from './dto/coachNote.dto';
 export class CoachNoatesController {
   constructor(private readonly coachNoteService: CoachNoatesService) {}
 
+  @ApiOperation({ summary: 'Создание заметки' })
+  @ApiResponse({ status: 201 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
@@ -30,7 +43,7 @@ export class CoachNoatesController {
   ): Promise<CoachNote> {
     // check the role
     if (role !== 'trainer') {
-      throw new ForbiddenException('Your role is not an trainer');
+      throw new ForbiddenException('Your role is not a trainer');
     }
 
     //   check userapp

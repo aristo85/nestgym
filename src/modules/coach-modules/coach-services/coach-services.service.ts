@@ -3,8 +3,6 @@ import { COACH_SERVICE_REPOSITORY } from 'src/core/constants';
 import { User } from 'src/modules/users/user.entity';
 import { CoachService } from './coach-service.entity';
 import { CoachServiceDto } from './dto/coach-service.dto';
-import { CoachServicesDto } from './dto/coach-services.dto';
-import { CoachProfilesService } from '../coach-profiles/coach-profiles.service';
 
 @Injectable()
 export class CoachServicesService {
@@ -18,7 +16,6 @@ export class CoachServicesService {
     data: CoachServiceDto,
     user: User,
   ) {
-    
     if (user.role !== 'admin') {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }

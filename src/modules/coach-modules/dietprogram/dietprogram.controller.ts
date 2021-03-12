@@ -13,11 +13,19 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Roles, User } from 'src/modules/users/user.entity';
 import { AuthUser, UserRole } from 'src/modules/users/users.decorator';
-import { Requestedapp } from '../coachapps/coachapp.entity';
-import { RetTemplate } from '../template-diets/dto/template-diet.dto';
 import { DietProgram } from './dietprogram.entity';
 import { DietprogramService } from './dietprogram.service';
 import { DietProgramDto, DietProgramUpdateDto } from './dto/dietprogram.dto';
@@ -30,6 +38,12 @@ import { Role } from 'src/modules/users/dto/user.dto';
 export class DietprogramController {
   constructor(private readonly dietProgramService: DietprogramService) {}
 
+  @ApiOperation({ summary: 'Создание программы диета' })
+  @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
@@ -62,7 +76,13 @@ export class DietprogramController {
     return result;
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех програм диета тренера',
+  })
+  @ApiResponse({ status: 200, description: 'Массив програм' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  // @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(
@@ -81,7 +101,15 @@ export class DietprogramController {
     return list;
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Получение программы диета по id' })
+  @ApiResponse({ status: 200, description: 'Найденная программа' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id программы',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(
@@ -107,6 +135,15 @@ export class DietprogramController {
     return progs;
   }
 
+  @ApiOperation({ summary: 'Удаление программы диета' })
+  @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id программы',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(
@@ -133,7 +170,17 @@ export class DietprogramController {
     return 'Successfully deleted';
   }
 
+  @ApiOperation({ summary: 'Редактирование программы диета' })
   @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  // @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id программы',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   async update(
