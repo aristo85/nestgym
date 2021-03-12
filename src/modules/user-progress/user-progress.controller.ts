@@ -7,12 +7,22 @@ import {
   Body,
   NotFoundException,
   UseGuards,
-  Req,
   ForbiddenException,
   Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { photoPositionTypes } from '../photos/dto/photo.dto';
 import { Photo } from '../photos/photo.entity';
 import { Roles, User } from '../users/user.entity';
@@ -27,6 +37,12 @@ import { UserProgressService } from './user-progress.service';
 export class UserProgressController {
   constructor(private readonly userProgressService: UserProgressService) {}
 
+  @ApiOperation({ summary: 'Создание прогресса' })
+  @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  // @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
@@ -42,7 +58,12 @@ export class UserProgressController {
     return await this.userProgressService.createProgress(progress, user.id);
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех прогрессов клиента',
+  })
+  @ApiResponse({ status: 200, description: 'Массив прогрессоов' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  // @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@AuthUser() user: User) {
@@ -50,7 +71,15 @@ export class UserProgressController {
     return await this.userProgressService.findAllProgresses(user.id);
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Получение прогресса по id' })
+  @ApiResponse({ status: 200, description: 'Найденный прогресс' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id прогресса',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(
@@ -72,6 +101,16 @@ export class UserProgressController {
     return progress;
   }
 
+  @ApiOperation({ summary: 'Удаление прогресса' })
+  @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id прогресса',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(
@@ -97,8 +136,26 @@ export class UserProgressController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @ApiQuery({ name: 'photoPosition', enum: photoPositionTypes })
-  @ApiQuery({ name: 'photoId', type: 'number' })
+  @ApiOperation({ summary: 'Удаление фото из прогресса клиента' })
+  @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'progressId',
+    required: true,
+    description: 'Id прогресса',
+  })
+  @ApiQuery({
+    name: 'photoPosition',
+    description: 'Позиция фото',
+    enum: photoPositionTypes,
+  })
+  @ApiQuery({
+    name: 'photoId',
+    description: 'Id фото',
+    type: 'number',
+  })
   @Delete('photo/:progressId')
   async deleteProgressPhoto(
     @Param('progressId') progressId: number,

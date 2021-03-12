@@ -12,11 +12,17 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiExcludeEndpoint,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { photoPositionTypes } from '../photos/dto/photo.dto';
 import { Photo } from '../photos/photo.entity';
@@ -32,6 +38,11 @@ export class FeedbacksController {
   constructor(private readonly feedbacksService: FeedbacksService) {}
   ////////////////////////////////////
   @ApiTags('Client Feedback (Отзывы)')
+  @ApiOperation({ summary: 'Создание отзыва' })
+  @ApiResponse({ status: 201 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
@@ -58,7 +69,13 @@ export class FeedbacksController {
 
   ////////////////////////////////////
   @ApiTags('Client Feedback (Отзывы)')
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех отзывов из БД. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
+  @ApiResponse({ status: 200, description: 'Массив отзывов' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@UserRole() role: Roles) {
@@ -72,7 +89,12 @@ export class FeedbacksController {
 
   ////////////////////////////////////
   @ApiTags('Client Feedback (Отзывы)')
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех тренеров которым можно оставить отзыв клиентом',
+  })
+  @ApiResponse({ status: 200, description: 'Массив тренеров' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(AuthGuard('jwt'))
   @Get('/myCoaches/toFeedback')
   async findCoachesForFeedback(
@@ -89,7 +111,15 @@ export class FeedbacksController {
 
   ////////////////////////////////////
   @ApiTags('Client Feedback (Отзывы)')
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Получение отзыва клиента по id' })
+  @ApiResponse({ status: 200, description: 'Найденный отзыв' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id Заявки',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(
@@ -115,6 +145,19 @@ export class FeedbacksController {
 
   ////////////////////////////////////
   @ApiTags('Client Feedback (Отзывы)')
+  @ApiOperation({
+    summary: 'Удаление отзыва. АДМИН',
+    description: 'Только пользователи с ролью Admin',
+  })
+  @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id отзыва',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(
@@ -122,6 +165,10 @@ export class FeedbacksController {
     @AuthUser() user: User,
     @UserRole() role: Roles,
   ) {
+    // check the role
+    if (role !== 'admin') {
+      throw new ForbiddenException('Your role is not an admin');
+    }
     // delete the feedback with this id
     const deleted = await this.feedbacksService.deleteFeedback(
       id,
@@ -141,7 +188,11 @@ export class FeedbacksController {
 
   ////////////////////////////////////
   @ApiTags('coach Feedbacks (Отзывы)')
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех отзывов тренера',
+  })
+  @ApiResponse({ status: 200, description: 'Массив отзывов' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
   @UseGuards(AuthGuard('jwt'))
   @Get('coach/feedbacks')
   async findAllCoachFeedback(@UserRole() role: Roles, @AuthUser() user: User) {
@@ -153,8 +204,26 @@ export class FeedbacksController {
   @ApiTags('Client Feedback (Отзывы)')
   // delete photo from feedback
   @UseGuards(AuthGuard('jwt'))
-  @ApiQuery({ name: 'photoPosition', enum: photoPositionTypes })
-  @ApiQuery({ name: 'photoId', type: 'number' })
+  @ApiOperation({ summary: 'Удаление фото из отзыва клиента' })
+  @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'feedbackId',
+    required: true,
+    description: 'Id отзыва',
+  })
+  @ApiQuery({
+    name: 'photoPosition',
+    description: 'Позиция фото',
+    enum: photoPositionTypes,
+  })
+  @ApiQuery({
+    name: 'photoId',
+    description: 'Id фото',
+    type: 'number',
+  })
   @Delete('photo/:feedbackId')
   async deleteFeedbackPhoto(
     @Param('feedbackId') feedbackId: number,

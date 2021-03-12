@@ -11,11 +11,7 @@ export class CoachProgressService {
     private readonly userappsService: UserappsService,
   ) {}
 
-  async getUserProgress(
-    coachUserId: number,
-    coachUser: User,
-    clientUserId: number,
-  ) {
+  async getUserProgress(coachUserId: number, clientUserId: number) {
     const coachActiveAppsUsers = await this.userappsService.getAllCoachAppsUsers(
       coachUserId,
       'active',

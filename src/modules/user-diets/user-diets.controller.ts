@@ -7,7 +7,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
 import { DietProgram } from '../coach-modules/dietprogram/dietprogram.entity';
@@ -22,7 +31,12 @@ import { RetDiet, UserDietsService } from './user-diets.service';
 export class UserDietsController {
   constructor(private readonly userDietService: UserDietsService) {}
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех програм диет клиента',
+  })
+  @ApiResponse({ status: 200, description: 'Массив програм' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  // @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(
@@ -36,28 +50,21 @@ export class UserDietsController {
       where: { userId: user.id },
       include: [Userapp],
     });
-    // .map(async (el) => {
-    //   // add coach profile
-    //   const coachProfile = await CoachProfile.findOne({
-    //     where: {
-    //       userId: el.coachId,
-    //     },
-    //   });
-    //   // transforming json days to object
-    //   let dataJson = isJson(el.days);
-    //   while (isJson(dataJson)) {
-    //     dataJson = isJson(dataJson);
-    //   }
-    //   return { ...el, days: dataJson, coachProfile };
-    // });
-
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
     return list;
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Получение программы диеты по id' })
+  @ApiResponse({ status: 200, description: 'Найденная программа' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  // @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id программы',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(

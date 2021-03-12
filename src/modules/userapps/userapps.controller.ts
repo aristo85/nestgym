@@ -233,7 +233,7 @@ export class UserappsController {
   }
 
   // SET active userapp in client profile
-  @ApiTags('Client-Application (Текущая заявка клиента)')
+  @ApiTags('Client-Application (Заявки клиента)')
   @ApiOperation({ summary: 'Установит текущую заявку в профиле клиента' })
   @ApiResponse({ status: 200 })
   @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
@@ -282,7 +282,7 @@ export class UserappsController {
     return { success: true, result: 'you changed the current active App' };
   }
 
-  @ApiTags('Client-Application (Текущая заявка клиента)')
+  @ApiTags('Client-Application (Заявки клиента)')
   @ApiOperation({ summary: 'Получение текущей заявки клиента' })
   @ApiResponse({ status: 200, description: 'Найденная заявка' })
   @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
@@ -327,9 +327,27 @@ export class UserappsController {
   }
 
   @ApiTags('Client-Application (Заявки клиента)')
+  @ApiOperation({ summary: 'Удаление фото из заявки клиента' })
+  @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'userappId',
+    required: true,
+    description: 'Id заявки',
+  })
+  @ApiQuery({
+    name: 'photoPosition',
+    description: 'Позиция фото',
+    enum: photoPositionTypes,
+  })
+  @ApiQuery({
+    name: 'photoId',
+    description: 'Id фото',
+    type: 'number',
+  })
   @UseGuards(AuthGuard('jwt'))
-  @ApiQuery({ name: 'photoPosition', enum: photoPositionTypes })
-  @ApiQuery({ name: 'photoId', type: 'number' })
   @Delete('photo/:userappId')
   async deleteProfilePhoto(
     @Param('userappId') userappId: number,

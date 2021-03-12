@@ -1,26 +1,18 @@
 import {
   Body,
   Controller,
-  createParamDecorator,
-  Get,
   NotFoundException,
   Param,
-  Post,
   Put,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Response } from 'express';
-import { Op } from 'sequelize';
 import { User } from 'src/modules/users/user.entity';
 import { AuthUser } from 'src/modules/users/users.decorator';
-import { CoachProfile } from '../coach-profiles/coach-profile.entity';
 import { CoachService } from './coach-service.entity';
 import { CoachServicesService } from './coach-services.service';
 import { CoachServiceDto } from './dto/coach-service.dto';
-import { CoachServicesDto } from './dto/coach-services.dto';
 
 @ApiTags('Coach Service (Услуги тренера)')
 @ApiBearerAuth()
@@ -36,7 +28,6 @@ export class CoachServicesController {
     @Body() service: CoachServiceDto,
     @AuthUser() user: User,
   ): Promise<CoachService> {
-    console.log(coachServiceId);
     // get the number of row affected and the updated services
     const {
       numberOfAffectedRows,
@@ -50,7 +41,7 @@ export class CoachServicesController {
     // if the number of row affected is zero,
     // it means the services doesn't exist in our db
     if (numberOfAffectedRows === 0) {
-      throw new NotFoundException("This services doesn't exist");
+      throw new NotFoundException("This service doesn't exist");
     }
 
     // return the updated services

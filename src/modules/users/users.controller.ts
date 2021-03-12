@@ -29,6 +29,7 @@ export class UsersController {
     @Req() req: Request & { res: Response },
     @UserRole() role: Roles,
   ) {
+    console.log('role: ', role);
     // check the role
     if (role !== 'admin') {
       throw new NotFoundException('only admin');

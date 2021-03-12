@@ -12,7 +12,17 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles, User } from 'src/modules/users/user.entity';
 import { AuthUser, UserRole } from 'src/modules/users/users.decorator';
@@ -30,6 +40,12 @@ import { TemplateDietsService } from './template-diets.service';
 export class TemplateDietsController {
   constructor(private readonly templateDietService: TemplateDietsService) {}
 
+  @ApiOperation({ summary: 'Создание шаблона диеты' })
+  @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async create(
@@ -45,7 +61,13 @@ export class TemplateDietsController {
     return await this.templateDietService.createDietTemplate(template, user.id);
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({
+    summary: 'Получение всех програм диеты тренера',
+  })
+  @ApiResponse({ status: 200, description: 'Массив шаблонов' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(
@@ -67,7 +89,15 @@ export class TemplateDietsController {
     return list;
   }
 
-  @ApiResponse({ status: 200 })
+  @ApiOperation({ summary: 'Получение шаблона диеты по id' })
+  @ApiResponse({ status: 200, description: 'Найденная программа' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id шаблона',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(
@@ -94,6 +124,15 @@ export class TemplateDietsController {
     return progs;
   }
 
+  @ApiOperation({ summary: 'Удаление шаблона диеты' })
+  @ApiResponse({ status: 200 })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id шаблона',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(
@@ -121,7 +160,17 @@ export class TemplateDietsController {
     return 'Successfully deleted';
   }
 
+  @ApiOperation({ summary: 'Редактирование шаблона диеты' })
   @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id шаблона',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   async update(
