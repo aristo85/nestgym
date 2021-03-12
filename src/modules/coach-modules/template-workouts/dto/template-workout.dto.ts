@@ -23,6 +23,10 @@ export class TemplateWorkoutDto {
   readonly aim: string;
 
   @ApiProperty()
+  // @IsNotEmpty()
+  readonly coment: string;
+
+  @ApiProperty()
   readonly workoutsPerWeek: number;
 
   @ApiProperty({
@@ -58,6 +62,10 @@ export class TemplateWorkoutUpdateDto {
 
   @ApiProperty()
   readonly workoutsPerWeek: number;
+
+  @ApiProperty()
+  // @IsNotEmpty()
+  readonly coment: string;
 
   @ApiProperty({
     description: ` example: [

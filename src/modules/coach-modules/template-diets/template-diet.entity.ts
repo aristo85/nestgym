@@ -10,6 +10,24 @@ export class TemplateDiet extends Model<TemplateDiet> {
   title: string;
   //
   @Column({
+    type: DataType.STRING,
+    // allowNull: false,
+  })
+  dietType: string;
+  //
+  @Column({
+    type: DataType.STRING,
+    // allowNull: false,
+  })
+  aim: string;
+  //
+  @Column({
+    type: DataType.STRING,
+    // allowNull: false,
+  })
+  coment: string;
+  //
+  @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
