@@ -91,6 +91,14 @@ git submodule init && git submodule update
 
 ```SQL 
 ALTER TABLE "DietPrograms" ALTER "days" TYPE JSONB USING to_jsonb("days");
+
+ALTER TABLE "TemplateDiets" ALTER "days" TYPE JSONB USING to_jsonb("days");
+
+UPDATE "UserProgresses" SET "fatPercentage" = 0;
+ALTER TABLE "UserProgresses" ALTER COLUMN "fatPercentage" TYPE int USING "fatPercentage"::int;
+
+UPDATE "UserProgresses" SET "BMI" = 0;
+ALTER TABLE "UserProgresses" ALTER COLUMN "BMI" TYPE int USING "BMI"::int;
 ```
 
 ### Docker

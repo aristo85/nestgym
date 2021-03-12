@@ -4,6 +4,8 @@ import {
   ForbiddenException,
   Get,
   NotFoundException,
+  NotAcceptableException,
+  MethodNotAllowedException,
   Param,
   Post,
   Put,
@@ -84,14 +86,14 @@ export class CoachappsController {
     });
     console.log(myCoaches);
     if (myCoaches) {
-      throw new NotFoundException('you have requested this coach already!');
+      throw new MethodNotAllowedException('you have requested this coach already!');
     }
     // check if number of requested applications exseeded maximum
     const myRequests = await Requestedapp.findAll({
       where: { userappId },
     });
     if (myRequests.length >= 3) {
-      throw new NotFoundException(
+      throw new NotAcceptableException(
         'number of app requests are exseeded, 3 maximum',
       );
     }
@@ -194,7 +196,7 @@ export class CoachappsController {
       );
     }
     // get all apps in the db
-    const list = await this.coachappService.findCoachActiveApps(user.id);
+    const list = await this.coachappService.findCoachActiveApps(user.id, true);
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);

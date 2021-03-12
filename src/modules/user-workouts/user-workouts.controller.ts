@@ -61,11 +61,11 @@ export class UserWorkoutsController {
       throw new ForbiddenException('Your role is not a user');
     }
     // check id
-    const prog: any = (
+    const prog = (
       await FullProgWorkout.findOne({
         where: { id: fullprogworkoutId, userId: user.id },
       })
-    )?.get({ plain: true });
+    )?.get({ plain: true }) as (FullProgWorkout | undefined);
     // if the prog doesn't exit in the db, throw a 404 error
     if (!prog) {
       throw new NotFoundException(

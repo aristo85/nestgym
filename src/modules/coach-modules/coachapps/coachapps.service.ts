@@ -151,8 +151,8 @@ export class CoachappsService {
   }
 
   //////////////////////////////////////////////////
-  async findCoachActiveApps(coachUserId: number): Promise<Userapp[]> {
-    return await this.userappService.getActiveCoachApps(coachUserId);
+  async findCoachActiveApps(coachUserId: number, addNote = false): Promise<Userapp[]> {
+    return await this.userappService.getActiveCoachApps(coachUserId, addNote);
   }
 
   //////////////////////////////////////////////////
