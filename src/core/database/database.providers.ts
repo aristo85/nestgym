@@ -30,6 +30,7 @@ import { IDatabaseConfigAttributes } from './interfaces/dbConfig.interface';
 import { Place } from 'src/modules/places/place.entity';
 import { CoachNote } from 'src/modules/coach-modules/coach-noates/coachNote.entity';
 import { Diet } from 'src/modules/diets/diet.entity';
+import { FAQ } from 'src/modules/faq/faq.entity';
 
 export const databaseProviders = [
   {
@@ -79,6 +80,7 @@ export const databaseProviders = [
         Place,
         CoachNote,
         Diet,
+        FAQ,
       ]);
       await sequelize.sync({ alter: true });
       return sequelize;
