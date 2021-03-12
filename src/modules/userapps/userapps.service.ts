@@ -1,6 +1,7 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { Op } from 'sequelize';
 import { APPLICATION_REPOSITORY } from 'src/core/constants';
+import { CoachNote } from '../coach-modules/coach-noates/coachNote.entity';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
 import { CoachService } from '../coach-modules/coach-services/coach-service.entity';
 import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
@@ -283,15 +284,19 @@ export class UserappsService {
 
   async getActiveCoachApps(
     coachUserId: number,
+    addNote = false
     // applicationStatus: ApplicationStatus,
   ): Promise<Userapp[]> {
     // check if from admin
     // let conditionOption = role === 'admin' ? {} : { userId };
 
+    const note = addNote ? [{ model: CoachNote }] : []
+
     const list = await this.userappRepository.findAll<Userapp>({
       where: { coachId: coachUserId, status: 'active' },
       include: [
         ...includePhotoOptions,
+        ...note,
         Requestedapp,
         {
           model: FullProgWorkout,
@@ -309,7 +314,7 @@ export class UserappsService {
           model: Profile,
           as: 'clientProfile',
           include: [{ all: true }],
-        },
+        }
       ],
     });
     return list;

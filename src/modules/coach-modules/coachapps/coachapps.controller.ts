@@ -196,7 +196,7 @@ export class CoachappsController {
       );
     }
     // get all apps in the db
-    const list = await this.coachappService.findCoachActiveApps(user.id);
+    const list = await this.coachappService.findCoachActiveApps(user.id, true);
     const count = list.length;
     req.res.set('Access-Control-Expose-Headers', 'Content-Range');
     req.res.set('Content-Range', `0-${count}/${count}`);
