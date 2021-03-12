@@ -29,6 +29,7 @@ import { join } from 'path';
 import { PlacesModule } from './modules/places/places.module';
 import { CoachNoatesModule } from './modules/coach-modules/coach-noates/coach-noates.module';
 import { DietsModule } from './modules/diets/diets.module';
+import { FaqModule } from './modules/faq/faq.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { DietsModule } from './modules/diets/diets.module';
     PlacesModule,
     CoachNoatesModule,
     DietsModule,
+    FaqModule,
   ],
   controllers: [AppController],
   providers: [AppService],

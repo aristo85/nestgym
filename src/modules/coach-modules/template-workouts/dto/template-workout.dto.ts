@@ -64,6 +64,14 @@ export class TemplateWorkoutUpdateDto {
   readonly workoutsPerWeek: number;
 
   @ApiProperty()
+  @IsNotEmpty()
+  readonly sportType: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly aim: string;
+
+  @ApiProperty()
   // @IsNotEmpty()
   readonly coment: string;
 

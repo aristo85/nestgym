@@ -15,6 +15,7 @@ import { FullProgworkoutsModule } from './modules/coach-modules/full-progworkout
 import { TemplateDietsModule } from './modules/coach-modules/template-diets/template-diets.module';
 import { TemplateWorkoutsModule } from './modules/coach-modules/template-workouts/template-workouts.module';
 import { DietsModule } from './modules/diets/diets.module';
+import { FaqModule } from './modules/faq/faq.module';
 import { FeedbacksModule } from './modules/feedbacks/feedbacks.module';
 import { PhotosModule } from './modules/photos/photos.module';
 import { PlacesModule } from './modules/places/places.module';
@@ -68,6 +69,7 @@ async function bootstrap() {
       PlacesModule,
       CoachNoatesModule,
       DietsModule,
+      FaqModule,
     ],
   });
   SwaggerModule.setup('api', app, document);
