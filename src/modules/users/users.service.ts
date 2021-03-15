@@ -2,6 +2,8 @@ import { Injectable, Inject } from '@nestjs/common';
 import { User } from './user.entity';
 import { UserDto, UserUpdateDto } from './dto/user.dto';
 import { USER_REPOSITORY } from '../../core/constants';
+import { ForgotPasswordDto } from './dto/forgotPassword.dto';
+import { ForgotPassword } from './forgotPassword.entity';
 
 @Injectable()
 export class UsersService {
@@ -47,5 +49,14 @@ export class UsersService {
       where: { id: userId },
       attributes: { exclude: ['password'] },
     });
+  }
+
+  async createForgotPasswordRequest(
+    userRequest: ForgotPasswordDto,
+  ): Promise<ForgotPassword> {
+    const passRequest = await this.userRepository.create<ForgotPassword>({
+      ...userRequest,
+    });
+    return passRequest;
   }
 }

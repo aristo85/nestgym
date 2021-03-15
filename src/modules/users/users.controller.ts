@@ -8,11 +8,14 @@ import {
   UseGuards,
   Req,
   ForbiddenException,
+  Post,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { UserDto, UserUpdateDto } from './dto/user.dto';
+import { ForgotPassword } from './forgotPassword.entity';
 import { Roles, User } from './user.entity';
 import { AuthUser, UserRole } from './users.decorator';
 import { UsersService } from './users.service';
@@ -109,4 +112,27 @@ export class UsersController {
   //   // return success message
   //   return 'Successfully deleted';
   // }
+
+  @ApiResponse({ status: 200 })
+  @UseGuards(AuthGuard('jwt'))
+  @Post(':id')
+  async forgotPassword(
+    @Param('id') id: number,
+    @Body() userRequest: ForgotPasswordDto,
+    @UserRole() role: Roles,
+  ): Promise<ForgotPassword> {
+    // check the role
+    if (role !== 'admin') {
+      throw new NotFoundException('only admin');
+    }
+    // chek email
+    const { email } = userRequest;
+    const isUser = this.userService.findOneUserByEmail(email);
+    if (!isUser) {
+      throw new NotFoundException("This user doesn't exist");
+    }
+
+    // return the updated app
+    return this.userService.createForgotPasswordRequest(userRequest);
+  }
 }
