@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import sequelize from 'sequelize';
+import { Op } from 'sequelize';
 import { FEEDBACK_REPOSITORY } from 'src/core/constants';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
 import { CoachService } from '../coach-modules/coach-services/coach-service.entity';
@@ -187,7 +188,7 @@ export class FeedbacksService {
 
   async findCoachesForFeedback(userId: number) {
     const coaches = await Userapp.findAll({
-      where: { userId },
+      where: { userId, [Op.not]: [{ status: ['pending'] }] },
       include: [
         // return all apps for this client
         { model: Requestedapp, where: { userId }, attributes: [] },
@@ -210,8 +211,8 @@ export class FeedbacksService {
       // then reduce coachProfiles to filter duplication
     }).reduce((acc, current) => {
       // bring the profile a level up
-      const { coachProfile } = current;
-      const x = acc.find((item) => item.userId === coachProfile.userId);
+      const { coachProfile }: any = current.get({ plain: true });
+      const x = acc.find((item) => item.userId === coachProfile?.userId);
       if (!x) {
         return acc.concat([coachProfile]);
       } else {
