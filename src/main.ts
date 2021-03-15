@@ -17,6 +17,7 @@ import { TemplateWorkoutsModule } from './modules/coach-modules/template-workout
 import { DietsModule } from './modules/diets/diets.module';
 import { FaqModule } from './modules/faq/faq.module';
 import { FeedbacksModule } from './modules/feedbacks/feedbacks.module';
+import { GetCaochFeedbackModule } from './modules/get-caoch-feedback/get-caoch-feedback.module';
 import { PhotosModule } from './modules/photos/photos.module';
 import { PlacesModule } from './modules/places/places.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
@@ -70,6 +71,7 @@ async function bootstrap() {
       CoachNoatesModule,
       DietsModule,
       FaqModule,
+      GetCaochFeedbackModule,
     ],
   });
   SwaggerModule.setup('api', app, document);

@@ -1,14 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import sequelize from 'sequelize';
-import { Op } from 'sequelize';
 import { FEEDBACK_REPOSITORY } from 'src/core/constants';
 import { CoachProfile } from '../coach-modules/coach-profiles/coach-profile.entity';
+import { CoachService } from '../coach-modules/coach-services/coach-service.entity';
 import { Requestedapp } from '../coach-modules/coachapps/coachapp.entity';
 import { photoPositionTypes } from '../photos/dto/photo.dto';
 import { includePhotoOptions, PhotosService } from '../photos/photos.service';
 import { Profile } from '../profiles/profile.entity';
 import { Userapp } from '../userapps/userapp.entity';
-import { User } from '../users/user.entity';
 import { FeedbackDto } from './dto/feedback.dto';
 import { Feedback, RatingCounter } from './feedback.entity';
 
@@ -190,28 +189,36 @@ export class FeedbacksService {
     const coaches = await Userapp.findAll({
       where: { userId },
       include: [
+        // return all apps for this client
         { model: Requestedapp, where: { userId }, attributes: [] },
+        // and remove those apps which feedback is not null
         {
           model: Feedback,
           required: false,
           where: { id: null },
           attributes: [],
         },
+        {
+          model: CoachProfile,
+          include: [CoachService, ...includePhotoOptions],
+        },
       ],
-      attributes: ['coachId'],
-      raw: true,
-      nest: true,
-    });
-
-    const filteredArr = coaches.reduce((acc, current) => {
-      const x = acc.find((item) => item.coachId === current.coachId);
+      // this way returns only whole coach profile
+      attributes: ['coachProfile.fullName'],
+      // raw: true,
+      // nest: true,
+      // then reduce coachProfiles to filter duplication
+    }).reduce((acc, current) => {
+      // bring the profile a level up
+      const { coachProfile } = current;
+      const x = acc.find((item) => item.userId === coachProfile.userId);
       if (!x) {
-        return acc.concat([current]);
+        return acc.concat([coachProfile]);
       } else {
         return acc;
       }
     }, []);
 
-    return filteredArr;
+    return coaches;
   }
 }
