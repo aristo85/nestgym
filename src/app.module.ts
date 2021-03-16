@@ -36,8 +36,8 @@ import { GetCaochFeedbackModule } from './modules/get-caoch-feedback/get-caoch-f
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
-    UsersModule,
     AuthModule,
+    UsersModule,
     ProfilesModule,
     UserappsModule,
     PhotosModule,

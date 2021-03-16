@@ -7,5 +7,6 @@ export class GCFeedbackDto {
   readonly title: string;
 
   @ApiProperty()
+  @IsNotEmpty()
   readonly text: string;
 }

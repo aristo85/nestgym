@@ -1,5 +1,4 @@
-import { Injectable } from '@nestjs/common';
-import * as crypto from 'crypto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import * as bcryptjs from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
@@ -70,5 +69,25 @@ export class AuthService {
   private async comparePassword(enteredPassword: string, dbPassword: string) {
     const match = await bcryptjs.compare(enteredPassword, dbPassword);
     return match;
+  }
+
+  async forgotPassConfirmation(email: string) {
+    // chek email
+    const foundUser = await this.userService.findOneUserByEmail(email);
+    if (!foundUser) {
+      throw new NotFoundException("This user doesn't exist");
+    }
+    // create new password
+    const randomstring = Math.random().toString(36).slice(-8);
+
+    // hash the password
+    const pass = await this.hashPassword(randomstring);
+
+    // reset the password
+    const [numberOfAffectedRows, [updatedApplication]] = await User.update(
+      { password: pass },
+      { where: { id: foundUser.id }, returning: true },
+    );
+    return { numberOfAffectedRows, randomstring };
   }
 }

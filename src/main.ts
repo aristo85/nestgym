@@ -28,6 +28,7 @@ import { UserDietsModule } from './modules/user-diets/user-diets.module';
 import { UserProgressModule } from './modules/user-progress/user-progress.module';
 import { UserWorkoutsModule } from './modules/user-workouts/user-workouts.module';
 import { UserappsModule } from './modules/userapps/userapps.module';
+import { UsersModule } from './modules/users/users.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -48,6 +49,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options, {
     include: [
       AuthModule,
+      // UsersModule,
       ProfilesModule,
       PhotosModule,
       UserappsModule,

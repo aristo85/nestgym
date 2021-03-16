@@ -9,6 +9,7 @@ import {
   Req,
   ForbiddenException,
   Post,
+  Delete,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -20,7 +21,7 @@ import { Roles, User } from './user.entity';
 import { AuthUser, UserRole } from './users.decorator';
 import { UsersService } from './users.service';
 
-@ApiTags('Application')
+@ApiTags('Users (Пользователи)')
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
@@ -114,25 +115,26 @@ export class UsersController {
   // }
 
   @ApiResponse({ status: 200 })
-  @UseGuards(AuthGuard('jwt'))
-  @Post(':id')
+  @Post('forgotPassword')
   async forgotPassword(
-    @Param('id') id: number,
     @Body() userRequest: ForgotPasswordDto,
-    @UserRole() role: Roles,
   ): Promise<ForgotPassword> {
-    // check the role
-    if (role !== 'admin') {
-      throw new NotFoundException('only admin');
-    }
     // chek email
     const { email } = userRequest;
-    const isUser = this.userService.findOneUserByEmail(email);
-    if (!isUser) {
+    const foundUser = await this.userService.findOneUserByEmail(email);
+    if (!foundUser) {
       throw new NotFoundException("This user doesn't exist");
     }
 
     // return the updated app
-    return this.userService.createForgotPasswordRequest(userRequest);
+    return this.userService.createForgotPasswordRequest(foundUser);
   }
+
+  // @ApiResponse({ status: 200 })
+  // @Delete('forgotPassword/:id')
+  // async deleteForgotPassword(@Param('id') id: number): Promise<number> {
+  //   const test = await ForgotPassword.findAll({ raw: true, nest: true });
+  //   console.log(test);
+  //   return await ForgotPassword.destroy({ where: { id } });
+  // }
 }

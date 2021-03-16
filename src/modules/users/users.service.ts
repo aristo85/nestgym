@@ -1,14 +1,20 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { User } from './user.entity';
 import { UserDto, UserUpdateDto } from './dto/user.dto';
-import { USER_REPOSITORY } from '../../core/constants';
+import {
+  FORGOT_PASSWORD_FEEDBACK_REPOSITORY,
+  USER_REPOSITORY,
+} from '../../core/constants';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { ForgotPassword } from './forgotPassword.entity';
+import { sendConfirmationEmail } from 'src/core/config/nodemailer.config';
 
 @Injectable()
 export class UsersService {
   constructor(
     @Inject(USER_REPOSITORY) private readonly userRepository: typeof User,
+    @Inject(FORGOT_PASSWORD_FEEDBACK_REPOSITORY)
+    private readonly forgotPasswordRepository: typeof ForgotPassword,
   ) {}
 
   async createUser(user: UserDto): Promise<User> {
@@ -51,12 +57,17 @@ export class UsersService {
     });
   }
 
-  async createForgotPasswordRequest(
-    userRequest: ForgotPasswordDto,
-  ): Promise<ForgotPassword> {
-    const passRequest = await this.userRepository.create<ForgotPassword>({
-      ...userRequest,
-    });
+  async createForgotPasswordRequest(user: User): Promise<ForgotPassword> {
+    const [
+      passRequest,
+      created,
+    ] = await this.forgotPasswordRepository.upsert<ForgotPassword>(
+      {
+        email: user.email,
+      },
+      { returning: true },
+    );
+    sendConfirmationEmail(user.name, user.email, passRequest.id);
     return passRequest;
   }
 }
