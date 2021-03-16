@@ -12,7 +12,14 @@ import {
   Delete,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiExcludeEndpoint,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { UserDto, UserUpdateDto } from './dto/user.dto';
@@ -26,6 +33,7 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
+  @ApiExcludeEndpoint()
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get()
@@ -46,6 +54,7 @@ export class UsersController {
     return list;
   }
 
+  @ApiExcludeEndpoint()
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
@@ -70,6 +79,7 @@ export class UsersController {
     return foundUser;
   }
 
+  @ApiExcludeEndpoint()
   @ApiResponse({ status: 200 })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
@@ -114,7 +124,10 @@ export class UsersController {
   //   return 'Successfully deleted';
   // }
 
+  @ApiOperation({ summary: 'Востановление пароля через Email' })
   @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
   @Post('forgotPassword')
   async forgotPassword(
     @Body() userRequest: ForgotPasswordDto,

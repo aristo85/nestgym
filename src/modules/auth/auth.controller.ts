@@ -16,6 +16,7 @@ import { DoesUserExist } from 'src/core/guards/doesUserExist.guard';
 import {
   ApiBadRequestResponse,
   ApiBody,
+  ApiExcludeEndpoint,
   ApiForbiddenResponse,
   ApiOperation,
   ApiResponse,
@@ -55,6 +56,7 @@ export class AuthController {
   }
 
   // confirmation on forgot password link from client's email
+  @ApiExcludeEndpoint()
   @Get('confirm/:id')
   async forgotPassConfirmation(@Param('id') id: number) {
     // check forgotPasswordRequest
