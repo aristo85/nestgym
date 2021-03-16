@@ -14,4 +14,9 @@ export class Article extends Model<Article> {
   })
   body: string;
   //
+  @Column({
+    type: DataType.INTEGER,
+  })
+  publicationNumber: number;
+  //
 }

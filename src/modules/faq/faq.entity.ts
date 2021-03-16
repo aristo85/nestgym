@@ -14,4 +14,9 @@ export class FAQ extends Model<FAQ> {
   })
   answer: string;
   //
+  @Column({
+    type: DataType.INTEGER,
+    // allowNull: false,
+  })
+  FAQNumber: number;
 }

@@ -9,4 +9,8 @@ export class ArticleDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly body: string;
+  //
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly publicationNumber: number;
 }

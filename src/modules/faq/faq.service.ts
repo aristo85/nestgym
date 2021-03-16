@@ -18,7 +18,9 @@ export class FaqService {
   }
 
   async findAllFAQs(): Promise<FAQ[]> {
-    return await this.faqRepository.findAll<FAQ>({});
+    return await this.faqRepository.findAll<FAQ>({
+      order: [['FAQNumber', 'ASC']],
+    });
   }
 
   async findOneFAQ(FAQId: number): Promise<FAQ> {

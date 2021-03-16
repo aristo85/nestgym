@@ -18,7 +18,9 @@ export class PublicationsService {
   }
 
   async findAllArticles(): Promise<Article[]> {
-    return await this.publicationRepository.findAll<Article>({});
+    return await this.publicationRepository.findAll<Article>({
+      order: [['publicationNumber', 'ASC']],
+    });
   }
 
   async findOneArticle(articleId: number): Promise<Article> {

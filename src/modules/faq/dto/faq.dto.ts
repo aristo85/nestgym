@@ -9,4 +9,8 @@ export class FAQDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly answer: string;
+  //
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly FAQNumber: number;
 }
