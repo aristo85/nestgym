@@ -5,7 +5,6 @@ import {
   FORGOT_PASSWORD_FEEDBACK_REPOSITORY,
   USER_REPOSITORY,
 } from '../../core/constants';
-import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { ForgotPassword } from './forgotPassword.entity';
 import { sendConfirmationEmail } from 'src/core/config/nodemailer.config';
 
@@ -69,5 +68,16 @@ export class UsersService {
     );
     sendConfirmationEmail(user.name, user.email, passRequest.id);
     return passRequest;
+  }
+
+  async updatePassword(userId: number, hash: string) {
+    const [
+      numberOfAffectedRows,
+      [updatedUser],
+    ] = await this.userRepository.update(
+      { password: hash },
+      { where: { id: userId }, returning: true },
+    );
+    return { numberOfAffectedRows, updatedUser };
   }
 }

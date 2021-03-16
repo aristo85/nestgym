@@ -15,18 +15,22 @@ import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBadRequestResponse,
   ApiExcludeEndpoint,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Request } from 'express';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
-import { UserDto, UserUpdateDto } from './dto/user.dto';
+import { UserDto, UserPassUpdateDto, UserUpdateDto } from './dto/user.dto';
 import { ForgotPassword } from './forgotPassword.entity';
 import { Roles, User } from './user.entity';
 import { AuthUser, UserRole } from './users.decorator';
 import { UsersService } from './users.service';
+import * as bcryptjs from 'bcryptjs';
 
 @ApiTags('Users (Пользователи)')
 @Controller('users')
@@ -79,24 +83,34 @@ export class UsersController {
     return foundUser;
   }
 
-  @ApiExcludeEndpoint()
+  @ApiOperation({ summary: 'Обновление данных пользователя' })
   @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id пользователя',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   async update(
     @Param('id') id: number,
-    @Body() user: UserUpdateDto,
-    @UserRole() role: Roles,
+    @Body() data: UserUpdateDto,
+    @AuthUser() user: User,
   ): Promise<User> {
-    // check the role
-    if (role !== 'admin') {
-      throw new NotFoundException('only admin');
+    // check email
+    const userByEmail = await this.userService.findOneUserByEmail(data.email);
+    if (userByEmail) {
+      throw new ForbiddenException('there is account with this email');
     }
     // get the number of row affected and the updated user
     const {
       numberOfAffectedRows,
       updatedApplication,
-    } = await this.userService.updateUser(id, user);
+    } = await this.userService.updateUser(id, data);
 
     // if the number of row affected is zero,
     // it means the app doesn't exist in our db
@@ -150,4 +164,59 @@ export class UsersController {
   //   console.log(test);
   //   return await ForgotPassword.destroy({ where: { id } });
   // }
+
+  @ApiOperation({ summary: 'Обновление пароля пользователя' })
+  @ApiResponse({ status: 200 })
+  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
+  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
+  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Id пользователя',
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @Put('password/:id')
+  async resetPassword(
+    @Param('id') id: number,
+    @Body() pass: UserPassUpdateDto,
+    @AuthUser() user: User,
+  ): Promise<User> {
+    // check id
+    if (+user.id !== +id) {
+      throw new ForbiddenException('not your ID');
+    }
+
+    // check old password
+    const match = await bcryptjs.compare(pass.oldPassword, user.password);
+    if (!match) {
+      throw new ForbiddenException('wrong password');
+    }
+    // check new password
+    const isNewTheSame = await bcryptjs.compare(
+      pass.newPassword,
+      user.password,
+    );
+    if (isNewTheSame) {
+      throw new ForbiddenException('New password is the old one!');
+    }
+
+    // hash the new password
+    const hash = await bcryptjs.hash(pass.newPassword, 10);
+    // get the number of row affected and the updated user
+    const {
+      numberOfAffectedRows,
+      updatedUser,
+    } = await this.userService.updatePassword(id, hash);
+
+    // if the number of row affected is zero,
+    // it means the app doesn't exist in our db
+    if (numberOfAffectedRows === 0) {
+      throw new NotFoundException("This User doesn't exist");
+    }
+
+    // return the updated app
+    return updatedUser;
+  }
 }

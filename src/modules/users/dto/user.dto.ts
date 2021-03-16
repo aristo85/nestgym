@@ -46,13 +46,30 @@ export class Credential {
 export class UserUpdateDto {
   @ApiProperty()
   @IsNotEmpty()
+  @IsEmail()
+  readonly email: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
   readonly name: string;
 
-  @ApiProperty({ enum: ['admin', 'user', 'trainer'] })
+  @ApiProperty({ enum: ['user', 'trainer'] })
   @IsNotEmpty()
   readonly role: Role;
 
   @ApiProperty()
   @IsNotEmpty()
   readonly phone: string;
+}
+
+export class UserPassUpdateDto {
+  @ApiProperty({ minLength: 6 })
+  @IsNotEmpty()
+  @MinLength(6)
+  readonly oldPassword: string;
+
+  @ApiProperty({ minLength: 6 })
+  @IsNotEmpty()
+  @MinLength(6)
+  readonly newPassword: string;
 }
