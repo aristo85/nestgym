@@ -3,9 +3,10 @@ import * as dotenv from 'dotenv';
 
 const user = process.env.HOST_MAIL;
 const pass = process.env.MAIL_PASS;
+const service = process.env.MAIL_SERVICE;
 
 const transport = nodemailer.createTransport({
-  service: 'Mail.ru',
+  service: service,
   auth: {
     user: user,
     pass: pass,
