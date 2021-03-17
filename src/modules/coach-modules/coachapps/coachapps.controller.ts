@@ -86,7 +86,9 @@ export class CoachappsController {
     });
     console.log(myCoaches);
     if (myCoaches) {
-      throw new MethodNotAllowedException('you have requested this coach already!');
+      throw new MethodNotAllowedException(
+        'you have requested this coach already!',
+      );
     }
     // check if number of requested applications exseeded maximum
     const myRequests = await Requestedapp.findAll({
@@ -242,13 +244,13 @@ export class CoachappsController {
       );
     }
     // get the number of row affected and the updated userapp
-    const userapp = await this.coachappService.updateCoachRequest(
+    const coachRequest = await this.coachappService.updateCoachRequest(
       userappId,
       user.id,
       data.status,
     );
 
     // return the updated app
-    return userapp;
+    return coachRequest;
   }
 }

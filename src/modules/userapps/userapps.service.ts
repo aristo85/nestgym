@@ -284,13 +284,13 @@ export class UserappsService {
 
   async getActiveCoachApps(
     coachUserId: number,
-    addNote = false
+    addNote = false,
     // applicationStatus: ApplicationStatus,
   ): Promise<Userapp[]> {
     // check if from admin
     // let conditionOption = role === 'admin' ? {} : { userId };
 
-    const note = addNote ? [{ model: CoachNote }] : []
+    const note = addNote ? [{ model: CoachNote }] : [];
 
     const list = await this.userappRepository.findAll<Userapp>({
       where: { coachId: coachUserId, status: 'active' },
@@ -314,7 +314,7 @@ export class UserappsService {
           model: Profile,
           as: 'clientProfile',
           include: [{ all: true }],
-        }
+        },
       ],
     });
     return list;
@@ -426,5 +426,41 @@ export class UserappsService {
     });
 
     return app;
+  }
+  /////////////////////////////////////////////
+  async clientRejectsApp(
+    userappId: number,
+    rejectReason: string,
+    comment: string,
+  ) {
+    // update
+    const [
+      numberOfAffectedRows,
+      [updatedApplication],
+    ] = await this.userappRepository.update(
+      {
+        comment: comment,
+        clientRejectReason: rejectReason,
+        status: 'reject',
+      },
+      { where: { id: userappId }, returning: true },
+    );
+  }
+  /////////////////////////////////////////////
+  async checkUserappExpirationForCron() {
+    const currentDate = new Date().toISOString();
+    const [rows, coachRequest] = await this.userappRepository.update(
+      { status: 'reject' },
+      {
+        where: {
+          status: 'pending',
+          expireDate: {
+            [Op.gt]: currentDate,
+          },
+        },
+        returning: true,
+      },
+    );
+    return rows;
   }
 }

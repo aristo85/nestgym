@@ -61,10 +61,14 @@ export class CoachappsService {
       throw new NotFoundException('this app been picked');
     }
 
+    // add expire date 72 hours
+    const expiresAt = new Date().getTime() + 259200000;
+
     const newRequestedApp = await this.coachappRepository.create<Requestedapp>({
       userId,
       coachId,
       userappId,
+      expireDate: expiresAt,
     });
 
     return newRequestedApp;
@@ -151,7 +155,10 @@ export class CoachappsService {
   }
 
   //////////////////////////////////////////////////
-  async findCoachActiveApps(coachUserId: number, addNote = false): Promise<Userapp[]> {
+  async findCoachActiveApps(
+    coachUserId: number,
+    addNote = false,
+  ): Promise<Userapp[]> {
     return await this.userappService.getActiveCoachApps(coachUserId, addNote);
   }
 
@@ -166,20 +173,27 @@ export class CoachappsService {
       where: { id: userappId },
       include: [Requestedapp],
     });
+
     if (!(app.status === 'pending')) {
       throw new NotFoundException('This app been taken or not availbale!');
     }
+
     // set the answer based on coaches will
     if (status === 'accept') {
-      // update staus of the userapp
       const coachProfile = await CoachProfile.findOne({
         where: { userId: coachUserId },
       });
+
+      // add expire date 72 hours
+      const expiresAt = new Date().getTime() + 259200000;
+
+      // update staus of the userapp
       await Userapp.update(
         {
           status: 'active',
           coachId: coachUserId,
           coachProfileId: coachProfile.id,
+          expireDate: expiresAt,
         },
         { where: { id: userappId } },
       );
@@ -198,20 +212,37 @@ export class CoachappsService {
         );
       }
       // update staus of this Request
-      const [rows, userapp] = await this.coachappRepository.update(
+      const [rows, coachRequest] = await this.coachappRepository.update(
         { status: 'accept' },
         { where: { coachId: coachUserId, userappId }, returning: true },
       );
 
-      return userapp;
+      return coachRequest;
     } else {
       // otherwise reject
-      const [rows, userapp] = await this.coachappRepository.update(
+      const [rows, coachRequest] = await this.coachappRepository.update(
         { status: 'reject' },
         { where: { coachId: coachUserId, userappId }, returning: true },
       );
 
-      return userapp;
+      return coachRequest;
     }
+  }
+  //////////////////////////////////////////////////
+  async checkRequestExpireForCron() {
+    const currentDate = new Date().toISOString();
+    const [rows, coachRequest] = await this.coachappRepository.update(
+      { status: 'reject' },
+      {
+        where: {
+          status: 'pending',
+          expireDate: {
+            [Op.gt]: currentDate,
+          },
+        },
+        returning: true,
+      },
+    );
+    return rows;
   }
 }

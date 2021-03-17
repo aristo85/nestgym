@@ -87,6 +87,12 @@ export class Userapp extends Model<Userapp> {
   coment: string;
 
   @Column({
+    type: DataType.DATE,
+    // allowNull: false,
+  })
+  expireDate: string;
+
+  @Column({
     type: DataType.STRING,
     // allowNull: false,
     values: ['active', 'pending', 'archieved', 'reject'],

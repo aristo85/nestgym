@@ -24,6 +24,13 @@ export class Requestedapp extends Model<Requestedapp> {
   })
   lastViewed: Date;
   //
+
+  @Column({
+    type: DataType.DATE,
+    // allowNull: false,
+  })
+  expireDate: string;
+  //
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
@@ -52,11 +59,7 @@ export class Requestedapp extends Model<Requestedapp> {
     defaultValue: 'pending',
   })
   status: ApplicationRequestStatus;
-  //
-  // @Column
-  // @BelongsTo(() => User)
-  // user: User;
-  //
+
   @BelongsTo(() => Userapp)
   userapp: Userapp;
 }
