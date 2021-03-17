@@ -312,16 +312,11 @@ export class UserappsService {
         { model: UserWorkout, limit: 7 },
         {
           model: Profile,
-<<<<<<< HEAD
-          as: 'clientProfile',
-          include: [{ all: true }],
-=======
           include: [
             { model: Photo, as: 'frontPhoto' },
             { model: Photo, as: 'sidePhoto' },
             { model: Photo, as: 'backPhoto' },
           ],
->>>>>>> GC300
         },
       ],
     });
