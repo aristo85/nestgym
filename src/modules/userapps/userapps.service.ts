@@ -431,25 +431,26 @@ export class UserappsService {
     return app;
   }
   /////////////////////////////////////////////
-  async clientRejectsApp(
-    userappId: number,
-    rejectReason: string,
-    comment: string,
-  ) {
-    // update
-    const [
-      numberOfAffectedRows,
-      [updatedApplication],
-    ] = await this.userappRepository.update(
-      {
-        comment: comment,
-        clientRejectReason: rejectReason,
-        status: 'reject',
-      },
-      { where: { id: userappId }, returning: true },
-    );
-  }
+  // async clientRejectsApp(
+  //   userappId: number,
+  //   rejectReason: string,
+  //   comment: string,
+  // ) {
+  //   // update
+  //   const [
+  //     numberOfAffectedRows,
+  //     [updatedApplication],
+  //   ] = await this.userappRepository.update(
+  //     {
+  //       comment: comment,
+  //       clientRejectReason: rejectReason,
+  //       status: 'reject',
+  //     },
+  //     { where: { id: userappId }, returning: true },
+  //   );
+  // }
   /////////////////////////////////////////////
+
   async checkUserappExpirationForCron() {
     const currentDate = new Date().toISOString();
     const [rows, coachRequest] = await this.userappRepository.update(

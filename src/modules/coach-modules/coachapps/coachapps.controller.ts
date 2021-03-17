@@ -87,12 +87,12 @@ export class CoachappsController {
     console.log(myCoaches);
     if (myCoaches) {
       throw new MethodNotAllowedException(
-        'you have requested this coach already!',
+        'you have requested this coach with same app already and declined!',
       );
     }
     // check if number of requested applications exseeded maximum
     const myRequests = await Requestedapp.findAll({
-      where: { userappId },
+      where: { userappId, status: 'pending' },
     });
     if (myRequests.length >= 3) {
       throw new NotAcceptableException(

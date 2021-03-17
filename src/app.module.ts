@@ -31,10 +31,13 @@ import { CoachNoatesModule } from './modules/coach-modules/coach-noates/coach-no
 import { DietsModule } from './modules/diets/diets.module';
 import { FaqModule } from './modules/faq/faq.module';
 import { GetCaochFeedbackModule } from './modules/get-caoch-feedback/get-caoch-feedback.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronService } from './cron/cron.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     DatabaseModule,
     AuthModule,
     UsersModule,
@@ -68,6 +71,6 @@ import { GetCaochFeedbackModule } from './modules/get-caoch-feedback/get-caoch-f
     GetCaochFeedbackModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, CronService],
 })
 export class AppModule {}

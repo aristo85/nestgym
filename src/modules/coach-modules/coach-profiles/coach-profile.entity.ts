@@ -110,7 +110,7 @@ export class CoachProfile extends Model<CoachProfile> {
     type: DataType.ARRAY(DataType.STRING),
     // allowNull: false,
   })
-  submitList: string[];
+  subscribeList: string[];
 
   @ForeignKey(() => User)
   @Column({
