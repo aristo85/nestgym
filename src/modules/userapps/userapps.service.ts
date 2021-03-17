@@ -284,13 +284,13 @@ export class UserappsService {
 
   async getActiveCoachApps(
     coachUserId: number,
-    addNote = false
+    addNote = false,
     // applicationStatus: ApplicationStatus,
   ): Promise<Userapp[]> {
     // check if from admin
     // let conditionOption = role === 'admin' ? {} : { userId };
 
-    const note = addNote ? [{ model: CoachNote }] : []
+    const note = addNote ? [{ model: CoachNote }] : [];
 
     const list = await this.userappRepository.findAll<Userapp>({
       where: { coachId: coachUserId, status: 'active' },
@@ -312,9 +312,12 @@ export class UserappsService {
         { model: UserWorkout, limit: 7 },
         {
           model: Profile,
-          as: 'clientProfile',
-          include: [{ all: true }],
-        }
+          include: [
+            { model: Photo, as: 'frontPhoto' },
+            { model: Photo, as: 'sidePhoto' },
+            { model: Photo, as: 'backPhoto' },
+          ],
+        },
       ],
     });
     return list;
