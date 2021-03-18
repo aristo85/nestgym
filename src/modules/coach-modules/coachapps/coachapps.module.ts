@@ -7,6 +7,7 @@ import { UserappsModule } from 'src/modules/userapps/userapps.module';
 @Module({
   providers: [CoachappsService, ...coachappsProviders],
   controllers: [CoachappsController],
-  imports: [UserappsModule]
+  imports: [UserappsModule],
+  exports: [CoachappsService],
 })
-export class CoachappsModule { }
+export class CoachappsModule {}

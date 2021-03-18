@@ -1,4 +1,5 @@
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
+import { Photo } from '../photos/photo.entity';
 
 @Table
 export class Article extends Model<Article> {
@@ -19,4 +20,6 @@ export class Article extends Model<Article> {
   })
   publicationNumber: number;
   //
+  // @HasMany(() => Photo, 'photoId')
+  // photos: Photo[];
 }

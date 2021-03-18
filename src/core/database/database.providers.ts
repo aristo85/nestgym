@@ -31,7 +31,6 @@ import { Place } from 'src/modules/places/place.entity';
 import { CoachNote } from 'src/modules/coach-modules/coach-noates/coachNote.entity';
 import { Diet } from 'src/modules/diets/diet.entity';
 import { FAQ } from 'src/modules/faq/faq.entity';
-import { GCFeedback } from 'src/modules/get-caoch-feedback/get-caoch-feedback.entity';
 import { ForgotPassword } from 'src/modules/users/forgotPassword.entity';
 
 export const databaseProviders = [
@@ -83,7 +82,6 @@ export const databaseProviders = [
         CoachNote,
         Diet,
         FAQ,
-        GCFeedback,
         ForgotPassword,
       ]);
       await sequelize.sync({ alter: true });

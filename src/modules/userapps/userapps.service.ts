@@ -454,12 +454,12 @@ export class UserappsService {
   async checkUserappExpirationForCron() {
     const currentDate = new Date().toISOString();
     const [rows, coachRequest] = await this.userappRepository.update(
-      { status: 'reject' },
+      { status: 'notPaid' },
       {
         where: {
-          status: 'pending',
+          status: 'active',
           expireDate: {
-            [Op.gt]: currentDate,
+            [Op.lt]: currentDate,
           },
         },
         returning: true,

@@ -95,7 +95,7 @@ export class Userapp extends Model<Userapp> {
   @Column({
     type: DataType.STRING,
     // allowNull: false,
-    values: ['active', 'pending', 'archieved', 'reject'],
+    values: ['active', 'pending', 'archieved', 'reject', 'notPaid'],
   })
   status: ApplicationStatus;
 

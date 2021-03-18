@@ -237,7 +237,7 @@ export class CoachappsService {
         where: {
           status: 'pending',
           expireDate: {
-            [Op.gt]: currentDate,
+            [Op.lt]: currentDate,
           },
         },
         returning: true,

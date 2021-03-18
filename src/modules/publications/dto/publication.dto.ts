@@ -13,4 +13,7 @@ export class ArticleDto {
   @ApiProperty()
   @IsNotEmpty()
   readonly publicationNumber: number;
+
+  // @ApiProperty()
+  // readonly hashPhotos: string[];
 }

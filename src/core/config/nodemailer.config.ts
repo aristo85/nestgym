@@ -28,3 +28,17 @@ export const sendConfirmationEmail = (name, email, confirmationCode) => {
     })
     .catch((err) => console.log(err));
 };
+
+export const sendFeedbackEmail = (email, title, text) => {
+  console.log('Check feedback');
+  transport
+    .sendMail({
+      from: email,
+      to: user,
+      subject: 'Обратная связь',
+      html: `<h1>${title}</h1>
+          <p>${text}</p>
+          </div>`,
+    })
+    .catch((err) => console.log(err));
+};
