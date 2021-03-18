@@ -8,7 +8,7 @@ export class GetCaochFeedbackService {
   constructor() {}
 
   async sendFeedback(data: GCFeedbackDto, user: User) {
-    sendFeedbackEmail(user.email, data.title, data.text);
+    sendFeedbackEmail(user.name, user.email, data.title, data.text);
     return 'createdFeedback';
   }
 

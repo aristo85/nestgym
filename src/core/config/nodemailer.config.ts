@@ -29,14 +29,15 @@ export const sendConfirmationEmail = (name, email, confirmationCode) => {
     .catch((err) => console.log(err));
 };
 
-export const sendFeedbackEmail = (email, title, text) => {
+export const sendFeedbackEmail = (name, email, title, text) => {
   console.log('Check feedback');
   transport
     .sendMail({
-      from: email,
+      from: user,
       to: user,
       subject: 'Обратная связь',
-      html: `<h1>${title}</h1>
+      html: `<h5>От: ${name}, ${email} </h5>
+          <h2>${title}</h2>
           <p>${text}</p>
           </div>`,
     })
