@@ -431,30 +431,75 @@ export class UserappsService {
     return app;
   }
   /////////////////////////////////////////////
-  // async clientRejectsApp(
-  //   userappId: number,
-  //   rejectReason: string,
-  //   comment: string,
-  // ) {
-  //   // update
-  //   const [
-  //     numberOfAffectedRows,
-  //     [updatedApplication],
-  //   ] = await this.userappRepository.update(
-  //     {
-  //       comment: comment,
-  //       clientRejectReason: rejectReason,
-  //       status: 'reject',
-  //     },
-  //     { where: { id: userappId }, returning: true },
-  //   );
-  // }
-  /////////////////////////////////////////////
+  async clientResponseToPayOrReject(
+    userappId: number,
+    responseStatus: string,
+    regular: boolean,
+    comment: string,
+  ) {
+    if (responseStatus === 'reject') {
+      // update
+      const [
+        numberOfAffectedRows,
+        [updatedApplication],
+      ] = await this.userappRepository.update(
+        {
+          comment: comment,
+          status: 'archived',
+        },
+        { where: { id: userappId }, returning: true },
+      );
+      return updatedApplication;
+    }
 
+    // set expireDate to 30 days or undefined
+    const expiresAt = new Date().getTime() + 2592000000;
+    const expireDate = regular ? expiresAt : undefined;
+
+    if (responseStatus === 'accept') {
+      // TODO: Payment
+
+      // update
+      const [
+        numberOfAffectedRows,
+        [updatedApplication],
+      ] = await this.userappRepository.update(
+        {
+          status: 'active',
+          expireDate,
+        },
+        { where: { id: userappId }, returning: true },
+      );
+      return updatedApplication;
+    }
+  }
+  /////////////////////////////////////////////
+  //  cron checks unpaid apps during 72 hours
   async checkUserappExpirationForCron() {
     const currentDate = new Date().toISOString();
     const [rows, coachRequest] = await this.userappRepository.update(
-      { status: 'notPaid' },
+      { status: 'archived' },
+      {
+        where: {
+          status: 'notPaid',
+          expireDate: {
+            [Op.lt]: currentDate,
+          },
+        },
+        returning: true,
+      },
+    );
+    return rows;
+  }
+  /////////////////////////////////////////////
+  // cron check active apps during 30 days
+  async checkUserappExpirationPaymentForCron() {
+    // set expire date to 72 hours
+    const expiresAt = new Date().getTime() + 259200000;
+    const currentDate = new Date().toISOString();
+    const [rows, coachRequest] = await this.userappRepository.update(
+      { status: 'notPaid', expireDate: expiresAt },
+
       {
         where: {
           status: 'active',

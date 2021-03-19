@@ -10,6 +10,25 @@ export interface createPromise {
 
 export type RetApp = Userapp | { dietprograms: any };
 
+// export enum clientResponse {
+//   accept = 'accept',
+//   reject = 'reject',
+// }
+
+export class clientPayOrRejectDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  readonly coachId: number;
+
+  @ApiProperty({ enum: ['accept', 'reject'] })
+  @IsNotEmpty()
+  readonly clientResponse: string;
+
+  @ApiProperty()
+  // @IsNotEmpty()
+  readonly coment: string;
+}
+
 export class UserappDto {
   @ApiProperty()
   @IsNotEmpty()
@@ -45,6 +64,9 @@ export class UserappDto {
 
   @ApiProperty()
   readonly coment: string;
+
+  @ApiProperty()
+  readonly regular: boolean;
 
   @ApiProperty({ enum: ['active', 'pending', 'archieved', 'reject'] })
   readonly status: string;

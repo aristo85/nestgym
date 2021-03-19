@@ -13,6 +13,7 @@ export class CronService {
   async runEveryHour() {
     await this.coachappsService.checkRequestExpireForCron();
     await this.userappsService.checkUserappExpirationForCron();
+    await this.userappsService.checkUserappExpirationPaymentForCron();
     console.log('everyHour');
   }
 }

@@ -190,7 +190,7 @@ export class CoachappsService {
       // update staus of the userapp
       await Userapp.update(
         {
-          status: 'active',
+          status: 'notPaid',
           coachId: coachUserId,
           coachProfileId: coachProfile.id,
           expireDate: expiresAt,
@@ -232,7 +232,7 @@ export class CoachappsService {
   async checkRequestExpireForCron() {
     const currentDate = new Date().toISOString();
     const [rows, coachRequest] = await this.coachappRepository.update(
-      { status: 'reject' },
+      { status: 'archived' },
       {
         where: {
           status: 'pending',

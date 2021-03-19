@@ -99,6 +99,12 @@ export class Userapp extends Model<Userapp> {
   })
   status: ApplicationStatus;
 
+  @Column({
+    type: DataType.BOOLEAN,
+    // allowNull: false,
+  })
+  regular: boolean;
+
   @HasMany(() => Requestedapp, { foreignKey: 'userappId', onDelete: 'CASCADE' })
   requestedapps: Requestedapp[];
 
