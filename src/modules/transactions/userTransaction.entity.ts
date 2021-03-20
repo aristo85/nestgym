@@ -11,12 +11,6 @@ import { Userapp } from 'src/modules/userapps/userapp.entity';
 @Table
 export class UserTransaction extends Model<UserTransaction> {
   @Column({
-    type: DataType.DATE,
-    allowNull: false,
-  })
-  date: Date;
-  //
-  @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })

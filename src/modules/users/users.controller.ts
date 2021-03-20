@@ -187,9 +187,10 @@ export class UsersController {
     if (+user.id !== +id) {
       throw new ForbiddenException('not your ID');
     }
+    const foundUser = await User.findOne({ where: user.id });
 
     // check old password
-    const match = await bcryptjs.compare(pass.oldPassword, user.password);
+    const match = await bcryptjs.compare(pass.oldPassword, foundUser.password);
     if (!match) {
       throw new ForbiddenException('wrong password');
     }

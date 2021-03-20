@@ -9,14 +9,10 @@ import { CoachProfile } from 'src/modules/coach-modules/coach-profiles/coach-pro
 import { Requestedapp } from 'src/modules/coach-modules/coachapps/coachapp.entity';
 import { UserProgress } from '../../modules/user-progress/user-progress.entity';
 import { Feedback } from '../../modules/feedbacks/feedback.entity';
-import { DailyRateDiet } from './DB/recomendations/dailyRateDiet.entity';
-import { DietRecomendation } from './DB/recomendations/dietrecomendation.entity';
-import { WorkoutOnDiet } from './DB/recomendations/workoutOnDiet.entity';
-import { AppPayment } from './DB/transaction/appPaymetn.entity';
-import { CoachPayment } from './DB/transaction/coachPayment.entity';
-import { UserTransaction } from './DB/transaction/userTransaction.entity';
+import { AppPayment } from '../../modules/transactions/appPaymetn.entity';
+import { CoachPayment } from '../../modules/transactions/coachPayment.entity';
+import { UserTransaction } from '../../modules/transactions/userTransaction.entity';
 import { CoachService } from 'src/modules/coach-modules/coach-services/coach-service.entity';
-import { DayBook } from './DB/dayBook.entity';
 import { FullProgWorkout } from 'src/modules/coach-modules/full-progworkouts/full.progworkout.enity';
 import { DietProgram } from 'src/modules/coach-modules/dietprogram/dietprogram.entity';
 import { Aim } from 'src/modules/aims/aim.entity';
@@ -61,14 +57,10 @@ export const databaseProviders = [
         Requestedapp,
         UserProgress,
         Feedback,
-        DailyRateDiet,
-        DietRecomendation,
-        WorkoutOnDiet,
         AppPayment,
         CoachPayment,
         UserTransaction,
         CoachService,
-        DayBook,
         FullProgWorkout,
         DietProgram,
         Aim,

@@ -431,49 +431,6 @@ export class UserappsService {
     return app;
   }
   /////////////////////////////////////////////
-  async clientResponseToPayOrReject(
-    userappId: number,
-    responseStatus: string,
-    regular: boolean,
-    comment: string,
-  ) {
-    if (responseStatus === 'reject') {
-      // update
-      const [
-        numberOfAffectedRows,
-        [updatedApplication],
-      ] = await this.userappRepository.update(
-        {
-          comment: comment,
-          status: 'archived',
-        },
-        { where: { id: userappId }, returning: true },
-      );
-      return updatedApplication;
-    }
-
-    // set expireDate to 30 days or undefined
-    const expiresAt = new Date().getTime() + 2592000000;
-    const expireDate = regular ? expiresAt : undefined;
-
-    if (responseStatus === 'accept') {
-      // TODO: Payment
-
-      // update
-      const [
-        numberOfAffectedRows,
-        [updatedApplication],
-      ] = await this.userappRepository.update(
-        {
-          status: 'active',
-          expireDate,
-        },
-        { where: { id: userappId }, returning: true },
-      );
-      return updatedApplication;
-    }
-  }
-  /////////////////////////////////////////////
   //  cron checks unpaid apps during 72 hours
   async checkUserappExpirationForCron() {
     const currentDate = new Date().toISOString();
@@ -511,5 +468,13 @@ export class UserappsService {
       },
     );
     return rows;
+  }
+  ///////////////////////////////////////
+  async updateUserappForPayment(userappId: number, dataUpdate) {
+    // update
+    return await this.userappRepository.update(dataUpdate, {
+      where: { id: userappId },
+      returning: true,
+    });
   }
 }

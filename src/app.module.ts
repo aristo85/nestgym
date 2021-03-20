@@ -33,6 +33,7 @@ import { FaqModule } from './modules/faq/faq.module';
 import { GetCaochFeedbackModule } from './modules/get-caoch-feedback/get-caoch-feedback.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './cron/cron.service';
+import { TransactionsModule } from './modules/transactions/transactions.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { CronService } from './cron/cron.service';
     DietsModule,
     FaqModule,
     GetCaochFeedbackModule,
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService, CronService],

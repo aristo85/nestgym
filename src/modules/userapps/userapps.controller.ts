@@ -31,7 +31,7 @@ import { Photo } from '../photos/photo.entity';
 import { Profile } from '../profiles/profile.entity';
 import { Roles, User } from '../users/user.entity';
 import { AuthUser, UserRole } from '../users/users.decorator';
-import { clientPayOrRejectDto, createPromise, UserappDto } from './userapp.dto';
+import { createPromise, UserappDto } from './userapp.dto';
 import { Userapp } from './userapp.entity';
 import { UserappsService } from './userapps.service';
 
@@ -392,49 +392,5 @@ export class UserappsController {
 
     // return success message
     return 'Successfully deleted';
-  }
-
-  // payment
-  @ApiTags('Client-Application (Заявки клиента)')
-  @ApiOperation({ summary: 'Оплатить или отклонить' })
-  @ApiResponse({ status: 200 })
-  @ApiBadRequestResponse({ status: 400, description: 'Bad request' })
-  @ApiUnauthorizedResponse({ status: 401, description: 'Unauthorized' })
-  @ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
-  @ApiNotFoundResponse({ status: 404, description: 'Not Found' })
-  @ApiParam({
-    name: 'id',
-    required: true,
-    description: 'Id заявки',
-  })
-  @UseGuards(AuthGuard('jwt'))
-  @Put('payOrReject/:id')
-  async clientResponseToPayOrReject(
-    @Param('id') id: number,
-    @Body() data: clientPayOrRejectDto,
-    @UserRole() role: Roles,
-    @AuthUser() user: User,
-  ): Promise<Userapp> {
-    // check the role
-    if (role !== 'user') {
-      throw new ForbiddenException('Your role is not a user');
-    }
-    // check userapp
-    const app = await Userapp.findOne({
-      where: { id, userId: user.id, coachId: data.coachId, status: 'notPaid' },
-    });
-    if (!app) {
-      throw new NotFoundException("This app doesn't exist");
-    }
-    // get the number of row affected and the updated userapp
-    const updatedApplication = await this.userappService.clientResponseToPayOrReject(
-      id,
-      data.clientResponse,
-      app.regular,
-      data.coment,
-    );
-
-    // return the updated app
-    return updatedApplication;
   }
 }

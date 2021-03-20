@@ -11,12 +11,6 @@ import { Userapp } from 'src/modules/userapps/userapp.entity';
 @Table
 export class CoachPayment extends Model<CoachPayment> {
   @Column({
-    type: DataType.DATE,
-    allowNull: false,
-  })
-  date: Date;
-  //
-  @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })

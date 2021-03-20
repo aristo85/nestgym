@@ -24,6 +24,7 @@ import { ProfilesModule } from './modules/profiles/profiles.module';
 import { PublicationsModule } from './modules/publications/publications.module';
 import { ServicesModule } from './modules/services/services.module';
 import { SportsModule } from './modules/sports/sports.module';
+import { TransactionsModule } from './modules/transactions/transactions.module';
 import { UserDietsModule } from './modules/user-diets/user-diets.module';
 import { UserProgressModule } from './modules/user-progress/user-progress.module';
 import { UserWorkoutsModule } from './modules/user-workouts/user-workouts.module';
@@ -74,6 +75,7 @@ async function bootstrap() {
       DietsModule,
       FaqModule,
       GetCaochFeedbackModule,
+      TransactionsModule,
     ],
   });
   SwaggerModule.setup('api', app, document);
